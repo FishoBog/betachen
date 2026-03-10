@@ -1,27 +1,23 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { Bell, Trash2 } from 'lucide-react';
-
 export default function AlertsPage() {
   const { user } = useUser();
   const [alerts, setAlerts] = useState<any[]>([]);
-
   useEffect(() => {
     if (!user) return;
     createBrowserClient().from('saved_searches').select('*').eq('user_id', user.id)
       .then(({ data }) => setAlerts(data ?? []));
   }, [user]);
-
   const remove = async (id: string) => {
     await createBrowserClient().from('saved_searches').delete().eq('id', id);
     setAlerts(p => p.filter(a => a.id !== id));
   };
-
   return (
     <div className="min-h-screen">
       <Navbar />

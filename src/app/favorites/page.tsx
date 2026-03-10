@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
@@ -8,12 +8,10 @@ import { Navbar } from '@/components/layout/Navbar';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { Loader2 } from 'lucide-react';
 import type { Property } from '@/types';
-
 export default function FavoritesPage() {
   const { user } = useUser();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!user) return;
     const supabase = createBrowserClient();
@@ -23,7 +21,6 @@ export default function FavoritesPage() {
         setLoading(false);
       });
   }, [user]);
-
   return (
     <div className="min-h-screen">
       <Navbar />

@@ -1,12 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { PropertyMap } from '@/components/map/PropertyMap';
 import { createBrowserClient } from '@/lib/supabase';
 import type { Property } from '@/types';
-
 export default function MapPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   useEffect(() => {

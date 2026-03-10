@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -9,18 +9,15 @@ import { createBrowserClient } from '@/lib/supabase';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { PlusCircle } from 'lucide-react';
 import type { Property } from '@/types';
-
 export default function OwnerDashboard() {
   const { user } = useUser();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!user) return;
     createBrowserClient().from('properties').select('*, property_images(*)').eq('owner_id', user.id).order('created_at', { ascending: false })
       .then(({ data }) => { setProperties((data as Property[]) ?? []); setLoading(false); });
   }, [user]);
-
   return (
     <div className="min-h-screen">
       <Navbar />

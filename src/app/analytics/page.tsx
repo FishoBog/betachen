@@ -1,16 +1,14 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { Eye, Heart, MessageSquare, TrendingUp } from 'lucide-react';
-
 export default function AnalyticsPage() {
   const { user } = useUser();
   const [stats, setStats] = useState({ views: 0, favorites: 0, messages: 0, listings: 0 });
-
   useEffect(() => {
     if (!user) return;
     const supabase = createBrowserClient();
@@ -21,14 +19,12 @@ export default function AnalyticsPage() {
       setStats(p => ({ ...p, listings: listings.count ?? 0, views: views.count ?? 0 }));
     });
   }, [user]);
-
   const cards = [
     { icon: TrendingUp, label: 'Listings', value: stats.listings },
     { icon: Eye, label: 'Total Views', value: stats.views },
     { icon: Heart, label: 'Saved', value: stats.favorites },
     { icon: MessageSquare, label: 'Messages', value: stats.messages },
   ];
-
   return (
     <div className="min-h-screen">
       <Navbar />

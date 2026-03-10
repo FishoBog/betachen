@@ -37,4 +37,3 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
 
   return <div ref={mapRef} style={{ height: '500px', width: '100%', borderRadius: '16px' }} />;
 }
-//// sync fix

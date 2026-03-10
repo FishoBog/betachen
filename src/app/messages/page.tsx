@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -8,18 +8,15 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { MessageSquare } from 'lucide-react';
 import type { Chat } from '@/types';
-
 export default function MessagesPage() {
   const { user } = useUser();
   const [chats, setChats] = useState<Chat[]>([]);
-
   useEffect(() => {
     if (!user) return;
     createBrowserClient().from('chats').select('*, properties(title), buyer:profiles!chats_buyer_id_fkey(full_name), owner:profiles!chats_owner_id_fkey(full_name)')
       .or(`buyer_id.eq.${user.id},owner_id.eq.${user.id}`).order('created_at', { ascending: false })
       .then(({ data }) => setChats((data as Chat[]) ?? []));
   }, [user]);
-
   return (
     <div className="min-h-screen">
       <Navbar />

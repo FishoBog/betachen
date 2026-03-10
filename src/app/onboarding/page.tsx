@@ -1,18 +1,16 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
-
 export default function OnboardingPage() {
   const { user } = useUser();
   const router = useRouter();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async () => {
     if (!user || !name) return;
     setLoading(true);
@@ -21,7 +19,6 @@ export default function OnboardingPage() {
     await user.update({ firstName: name.split(' ')[0], lastName: name.split(' ').slice(1).join(' ') });
     router.push('/');
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="card p-8 w-full max-w-md">

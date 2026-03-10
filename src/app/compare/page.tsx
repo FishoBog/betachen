@@ -1,12 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import type { Property } from '@/types';
-
 export default function ComparePage() {
   const [properties, setProperties] = useState<Property[]>([]);
   useEffect(() => {
@@ -17,7 +16,6 @@ export default function ComparePage() {
         .then(({ data }) => setProperties((data as Property[]) ?? []));
     } catch {}
   }, []);
-
   return (
     <div className="min-h-screen">
       <Navbar />

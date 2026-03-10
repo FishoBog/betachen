@@ -1,17 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-<<<<<<< HEAD
-// Lazy initialization - never crash at module load time
-=======
->>>>>>> f71ccdcab84ede8e551ad60b7cb3d8a4f044742c
 let _browserClient: ReturnType<typeof createClient> | null = null;
 
 export const createBrowserClient = () => {
   if (typeof window === 'undefined') {
-<<<<<<< HEAD
-    // During SSR/build, return a dummy that won't crash
-=======
->>>>>>> f71ccdcab84ede8e551ad60b7cb3d8a4f044742c
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder',

@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { use } from 'react';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -8,9 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
-
 interface Props { params: Promise<{ id: string }> }
-
 export default function EditPropertyPage({ params: paramsPromise }: Props) {
   const params = use(paramsPromise);
   const { user } = useUser();
@@ -19,7 +17,6 @@ export default function EditPropertyPage({ params: paramsPromise }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', price: '', status: '' });
-
   useEffect(() => {
     supabase.from('properties').select('*').eq('id', params.id).single()
       .then(({ data }) => {
@@ -29,15 +26,12 @@ export default function EditPropertyPage({ params: paramsPromise }: Props) {
         setLoading(false);
       });
   }, [params.id, user]);
-
   const save = async () => {
     setSaving(true);
     await supabase.from('properties').update({ title: form.title, description: form.description, price: Number(form.price), status: form.status }).eq('id', params.id);
     router.push('/owner/dashboard');
   };
-
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
-
   return (
     <div className="min-h-screen">
       <Navbar />

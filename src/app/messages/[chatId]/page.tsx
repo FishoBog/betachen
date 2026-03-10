@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { use, useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
@@ -8,19 +8,15 @@ import { Navbar } from '@/components/layout/Navbar';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-
 interface Props { params: Promise<{ chatId: string }> }
-
 export default function ChatPage({ params: paramsPromise }: Props) {
   const { chatId } = use(paramsPromise);
   const { user } = useUser();
   const [chat, setChat] = useState<any>(null);
-
   useEffect(() => {
     createBrowserClient().from('chats').select('*, properties(id,title,location_name), buyer:profiles!chats_buyer_id_fkey(full_name), owner:profiles!chats_owner_id_fkey(full_name)')
       .eq('id', chatId).single().then(({ data }) => setChat(data));
   }, [chatId]);
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

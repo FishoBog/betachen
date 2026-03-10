@@ -1,17 +1,15 @@
-export const dynamic = 'force-dynamic';
-
 'use client';
+
+export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
-
 export default function SettingsPage() {
   const { user } = useUser();
   const [name, setName] = useState(user?.fullName ?? '');
   const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
-
   const save = async () => {
     if (!user) return;
     const supabase = createBrowserClient();
@@ -19,7 +17,6 @@ export default function SettingsPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
-
   return (
     <div className="min-h-screen">
       <Navbar />
