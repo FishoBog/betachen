@@ -16,7 +16,7 @@ export const viewport: Viewport = { themeColor: '#0A2342', width: 'device-width'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} dynamic>
+    <ClerkProvider>
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <body className="antialiased" style={{ background: 'var(--sand, #F7F6F2)' }}>
           {children}
