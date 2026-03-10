@@ -1,8 +1,8 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const { userId } = await auth();
