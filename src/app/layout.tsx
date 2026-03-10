@@ -8,7 +8,7 @@ const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display
 
 export const metadata: Metadata = {
   title: 'ጎጆ — Real Estate in Addis Ababa',
-  description: 'Find, rent, and sell properties in Addis Ababa — ጎጆ real estate marketplace',
+  description: 'Find, rent, and sell properties in Addis Ababa',
   manifest: '/manifest.json',
 };
 

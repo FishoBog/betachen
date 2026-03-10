@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 'use client';
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
