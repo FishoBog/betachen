@@ -15,8 +15,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: '#0A2342', width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_test_placeholder00000000000000000000000000000000000000000';
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={key}>
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <body className="antialiased" style={{ background: 'var(--sand, #F7F6F2)' }}>
           {children}
