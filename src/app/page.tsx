@@ -59,7 +59,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #1a3a5c 0%, #0f2540 60%, #1a3a5c 100%)',
+        background: 'linear-gradient(135deg, #006AFF 0%, #0047CC 60%, #003DA5 100%)',
         padding: '72px 24px 80px',
         textAlign: 'center',
         position: 'relative',
