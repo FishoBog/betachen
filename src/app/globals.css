@@ -3,39 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --navy: #0A2342;
-  --orange: #E8431A;
-  --sand: #F7F6F2;
+  --navy: #1a3a5c;
+  --coral: #E8431A;
+  --sand: #F5F4F0;
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-600: #4b5563;
+  --gray-900: #111827;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background-color: #F7F6F2;
-  color: #1a1a1a;
-  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #111827;
+  font-family: var(--font-dm-sans), 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Force navbar visibility */
-nav {
-  background-color: #0A2342 !important;
-}
-
-nav a, nav button, nav span {
-  color: white !important;
-}
-
-/* Force hero visibility */
-.hero-section {
-  background-color: #0A2342;
-  color: white;
-}
-
-/* Force text contrast */
-h1, h2, h3 {
-  color: inherit;
-}
+.ethiopic { font-family: var(--font-noto-ethiopic), serif; }
