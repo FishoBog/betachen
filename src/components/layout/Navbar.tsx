@@ -4,45 +4,45 @@ import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
 import { PlusCircle, Heart, Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useLang } from '@/context/LangContext';
 
 export function Navbar() {
   const { isSignedIn } = useUser();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [lang, setLang] = useState<'EN' | 'አማ'>('EN');
+  const { lang, setLang, t } = useLang();
 
   const links = [
-    { href: '/', label: lang === 'EN' ? 'Buy' : 'ግዛ', authOnly: false },
-    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent' : 'ተከራይ', authOnly: false },
-    { href: '/map', label: lang === 'EN' ? 'Map' : 'ካርታ', authOnly: false },
-    { href: '/compare', label: lang === 'EN' ? 'Compare' : 'አወዳድር', authOnly: false },
-    { href: '/owner/dashboard', label: lang === 'EN' ? 'My Listings' : 'ማስታወቂያዎቼ', authOnly: true },
-    { href: '/messages', label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', authOnly: true },
+    { href: '/', label: t.navBuy, authOnly: false },
+    { href: '/?type=long_rent', label: t.navRent, authOnly: false },
+    { href: '/map', label: t.navMap, authOnly: false },
+    { href: '/compare', label: t.navCompare, authOnly: false },
+    { href: '/owner/dashboard', label: t.navMyListings, authOnly: true },
+    { href: '/messages', label: t.navMessages, authOnly: true },
   ];
 
   return (
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
 
         {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 800 }}>ጎ</div>
           <span style={{ fontWeight: 800, fontSize: 22, color: '#006AFF', letterSpacing: '-0.5px' }}>ጎጆ</span>
-          <span style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '2px 8px', borderRadius: 20, fontWeight: 500 }}>Ethiopia</span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
             const active = pathname === link.href;
             return (
               <Link key={link.href} href={link.href} style={{
-                padding: '8px 14px', borderRadius: 8, fontSize: 14,
+                padding: '8px 12px', borderRadius: 8, fontSize: 14,
                 fontWeight: active ? 700 : 500,
                 color: active ? '#E8431A' : '#374151',
                 background: active ? '#fef2ee' : 'transparent',
-                textDecoration: 'none', transition: 'all 0.15s'
+                textDecoration: 'none', whiteSpace: 'nowrap' as const
               }}>
                 {link.label}
               </Link>
@@ -51,18 +51,21 @@ export function Navbar() {
         </nav>
 
         {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
 
-          {/* Language switcher */}
-         <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2, flexShrink: 0 }}>
-            {(['EN', 'አማ'] as const).map(l => (
+          {/* ✅ Language switcher - always visible */}
+          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2 }}>
+            {(['EN', 'AM'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
-                padding: '5px 12px', borderRadius: 6, fontSize: 13, fontWeight: 600,
+                padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700,
                 border: 'none', cursor: 'pointer', transition: 'all 0.15s',
                 background: lang === l ? 'white' : 'transparent',
                 color: lang === l ? '#006AFF' : '#6b7280',
-                boxShadow: lang === l ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-              }}>{l}</button>
+                boxShadow: lang === l ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                letterSpacing: '0.3px'
+              }}>
+                {l === 'EN' ? 'EN' : 'አማ'}
+              </button>
             ))}
           </div>
 
@@ -74,21 +77,21 @@ export function Navbar() {
               <Link href="/alerts" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
                 <Bell size={20} />
               </Link>
-              <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-                <PlusCircle size={16} />
-                {lang === 'EN' ? 'Post Listing' : 'ዝርዝር ለጥፍ'}
+              <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                <PlusCircle size={15} />
+                {t.navPostListing}
               </Link>
               <UserButton afterSignOutUrl="/" />
             </>
           ) : (
             <>
               <SignInButton mode="modal">
-                <button style={{ padding: '9px 18px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                  {lang === 'EN' ? 'Sign In' : 'ግባ'}
+                <button style={{ padding: '9px 16px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  {t.navSignIn}
                 </button>
               </SignInButton>
-              <Link href="/sign-up" style={{ padding: '9px 18px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-                {lang === 'EN' ? 'Join Free' : 'ተመዝገብ'}
+              <Link href="/sign-up" style={{ padding: '9px 16px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                {t.navJoin}
               </Link>
             </>
           )}
@@ -102,6 +105,20 @@ export function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 24px 16px', background: 'white' }}>
+          {/* Mobile language switcher */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            {(['EN', 'AM'] as const).map(l => (
+              <button key={l} onClick={() => setLang(l)} style={{
+                flex: 1, padding: '8px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                border: `2px solid ${lang === l ? '#006AFF' : '#e5e7eb'}`,
+                background: lang === l ? '#006AFF' : 'white',
+                color: lang === l ? 'white' : '#6b7280',
+                cursor: 'pointer'
+              }}>
+                {l === 'EN' ? 'English' : 'አማርኛ'}
+              </button>
+            ))}
+          </div>
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
             return (
@@ -113,7 +130,7 @@ export function Navbar() {
           {!isSignedIn && (
             <SignInButton mode="modal">
               <button style={{ marginTop: 12, width: '100%', padding: 11, borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                {lang === 'EN' ? 'Sign In' : 'ግባ'}
+                {t.navSignIn}
               </button>
             </SignInButton>
           )}
