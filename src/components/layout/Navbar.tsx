@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, Search } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 export function Navbar() {
@@ -26,7 +26,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 800 }}>ጎ</div>
-          <span style={{ fontWeight: 800, fontSize: 22, color: '#1a3a5c', letterSpacing: '-0.5px' }}>ጎጆ</span>
+          <span style={{ fontWeight: 800, fontSize: 22, color: '#006AFF', letterSpacing: '-0.5px' }}>ጎጆ</span>
           <span style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '2px 8px', borderRadius: 20, fontWeight: 500 }}>Addis Ababa</span>
         </Link>
 
@@ -72,7 +72,7 @@ export function Navbar() {
                   Sign In
                 </button>
               </SignInButton>
-              <Link href="/sign-up" style={{ padding: '9px 18px', borderRadius: 8, background: '#1a3a5c', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/sign-up" style={{ padding: '9px 18px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Join Free
               </Link>
             </>
