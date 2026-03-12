@@ -7,10 +7,6 @@
   --coral: #E8431A;
   --sand: #F5F4F0;
   --white: #ffffff;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-600: #4b5563;
-  --gray-900: #111827;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,5 +19,3 @@ body {
   font-family: var(--font-dm-sans), 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-
-.ethiopic { font-family: var(--font-noto-ethiopic), serif; }
