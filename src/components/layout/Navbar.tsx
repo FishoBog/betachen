@@ -54,7 +54,7 @@ export function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 
           {/* Language switcher */}
-          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2 }}>
+         <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2, flexShrink: 0 }}>
             {(['EN', 'አማ'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
                 padding: '5px 12px', borderRadius: 6, fontSize: 13, fontWeight: 600,
