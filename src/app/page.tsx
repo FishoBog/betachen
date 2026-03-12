@@ -71,17 +71,16 @@ export default function HomePage() {
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
 
           {/* Country badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.25)',
-            borderRadius: 20, padding: '6px 18px', marginBottom: 28
-          }}>
-            <span style={{ fontSize: 16 }}>🇪🇹</span>
-            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 600, letterSpacing: '0.3px' }}>
-              Ethiopia's #1 Real Estate Platform
-            </span>
-          </div>
+         <div style={{
+  display: 'inline-flex', alignItems: 'center', gap: 8,
+  background: '#E8431A',
+  borderRadius: 20, padding: '8px 20px', marginBottom: 28
+}}>
+  <span style={{ fontSize: 16 }}>🇪🇹</span>
+  <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
+    ETHIOPIA'S #1 REAL ESTATE PLATFORM
+  </span>
+</div>
 
           <h1 style={{
             fontSize: 56,
