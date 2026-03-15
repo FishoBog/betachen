@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_Ethiopic, DM_Sans } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { LangProvider } from '@/context/LangContext';
+import { HelpChat } from '@/components/chat/HelpChat';
 import './globals.css';
 
 const notoEthiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400','500','600','700'], variable: '--font-noto-ethiopic', display: 'swap' });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className="antialiased" style={{ background: '#ffffff' }}>
           <LangProvider>
             {children}
+            <HelpChat />
           </LangProvider>
         </body>
       </html>
