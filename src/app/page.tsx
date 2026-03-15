@@ -57,7 +57,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, #006AFF 0%, #0047CC 60%, #003DA5 100%)', padding: '80px 24px 88px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
 
           {/* Badge */}
