@@ -1,4 +1,5 @@
 'use client';
+import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
