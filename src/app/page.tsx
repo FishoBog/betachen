@@ -56,8 +56,20 @@ export default function HomePage() {
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #006AFF 0%, #0047CC 60%, #003DA5 100%)', padding: '80px 24px 88px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+      <div style={{
+        padding: '90px 24px 96px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+      }}>
+        {/* Blue brand overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,60,160,0.78) 0%, rgba(0,80,200,0.62) 40%, rgba(0,40,120,0.88) 100%)' }} />
+        {/* Subtle dot pattern */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
 
           {/* Badge */}
@@ -66,18 +78,25 @@ export default function HomePage() {
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>{t.badge}</span>
           </div>
 
-          <h1 style={{ fontSize: 56, fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px' }}>
+          <h1 style={{ fontSize: 56, fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
             {t.heroTitle1}<br />
             <span style={{ color: '#FF6B35' }}>{t.heroTitle2}</span>
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>{t.heroSub}</p>
 
-          {/* Search */}
-          <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>
+            {t.heroSub}
+          </p>
+
+          {/* Search box */}
+          <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
               <Search size={18} color="#9ca3af" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t.searchPlaceholder}
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#111827', background: 'transparent', fontFamily: 'inherit' }} />
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#111827', background: 'transparent', fontFamily: 'inherit' }}
+              />
             </div>
             <button style={{ padding: '12px 32px', background: '#E8431A', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
               {t.searchBtn}
@@ -85,11 +104,11 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 56, marginTop: 48 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 56, marginTop: 52 }}>
             {[['1,200+', t.statsProps], ['20+', t.statsCities], ['500+', t.statsOwners]].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 26, fontWeight: 900, color: 'white', letterSpacing: '-0.5px' }}>{num}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 4, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: 'white', letterSpacing: '-0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{num}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>{label}</div>
               </div>
             ))}
           </div>
@@ -105,7 +124,7 @@ export default function HomePage() {
               border: `2px solid ${typeFilter === val ? '#006AFF' : '#e5e7eb'}`,
               background: typeFilter === val ? '#006AFF' : 'white',
               color: typeFilter === val ? 'white' : '#374151',
-              fontSize: 14, fontWeight: 600, cursor: 'pointer'
+              fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s'
             }}>{label}</button>
           ))}
           <span style={{ marginLeft: 'auto', fontSize: 14, color: '#6b7280' }}>
@@ -212,6 +231,7 @@ export default function HomePage() {
           {t.ctaBtn} <ArrowRight size={18} />
         </Link>
       </div>
+
     </div>
   );
 }
