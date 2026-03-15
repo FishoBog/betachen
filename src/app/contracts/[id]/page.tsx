@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
@@ -8,7 +8,8 @@ import { CheckCircle, Download, Send, Copy, FileText } from 'lucide-react';
 const inputStyle = { width: '100%', padding: '11px 14px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const };
 const labelStyle = { fontSize: 13, fontWeight: 600 as const, color: '#374151', display: 'block' as const, marginBottom: 6 };
 
-export default function ContractDetailPage({ params }: { params: { id: string } }) {
+export default function ContractDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const { user } = useUser();
   const [contract, setContract] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -20,13 +21,13 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
   useEffect(() => {
     const supabase = createBrowserClient();
-    supabase.from('contracts').select('*').eq('id', params.id).single()
+    supabase.from('contracts').select('*').eq('id', id).single()
       .then(({ data }) => {
         setContract(data);
         if (data?.tenant_full_name) setTenantInfo({ full_name: data.tenant_full_name, id_number: data.tenant_id_number || '', address: data.tenant_address || '', phone: data.tenant_phone || '' });
         setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   const isOwner = contract?.owner_clerk_id === user?.id;
   const isTenant = contract?.tenant_clerk_id === user?.id;
@@ -48,7 +49,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       tenant_address: tenantInfo.address,
       tenant_phone: tenantInfo.phone,
       status: 'negotiating',
-    }).eq('id', params.id);
+    }).eq('id', id);
     setContract((c: any) => ({ ...c, ...tenantInfo, status: 'negotiating' }));
     setSaving(false);
   };
@@ -59,7 +60,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       tenant_proposed_rent: parseFloat(counterOffer),
       negotiation_notes: `Tenant proposed: ETB ${counterOffer}/month`,
       status: 'negotiating',
-    }).eq('id', params.id);
+    }).eq('id', id);
     setContract((c: any) => ({ ...c, tenant_proposed_rent: parseFloat(counterOffer) }));
     setCounterOffer('');
   };
@@ -67,10 +68,10 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
   const agreeToTerms = async () => {
     const supabase = createBrowserClient();
     const field = isOwner ? { owner_agreed: true } : { tenant_agreed: true };
-    const { data } = await supabase.from('contracts').update(field).eq('id', params.id).select().single();
+    const { data } = await supabase.from('contracts').update(field).eq('id', id).select().single();
     setContract(data);
     if (data.owner_agreed && data.tenant_agreed) {
-      await supabase.from('contracts').update({ status: 'agreed' }).eq('id', params.id);
+      await supabase.from('contracts').update({ status: 'agreed' }).eq('id', id);
       setContract((c: any) => ({ ...c, status: 'agreed' }));
     }
   };
@@ -81,7 +82,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
       const res = await fetch('/api/contracts/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contractId: params.id })
+        body: JSON.stringify({ contractId: id })
       });
       const data = await res.json();
       if (data.success) {
@@ -107,7 +108,7 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
         <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '28px 32px', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Contract #{params.id.slice(0, 8).toUpperCase()}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Contract #{id.slice(0, 8).toUpperCase()}</div>
               <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
                 {contract.type === 'short_rent' && 'አጭር ኪራይ ውል'}
                 {contract.type === 'long_rent' && 'ረጅም ኪራይ ውል'}
@@ -121,23 +122,22 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </div>
           </div>
 
-          {/* Invite link for owner */}
+          {/* Invite link */}
           {isOwner && contract.status !== 'completed' && (
             <div style={{ marginTop: 20, padding: '14px 16px', background: '#f0f6ff', borderRadius: 10, border: '1px solid #dbeafe' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#006AFF', marginBottom: 8 }}>📨 Share this link with the tenant/buyer:</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input readOnly value={inviteLink} style={{ ...inputStyle, background: 'white', fontSize: 12, color: '#374151' }} />
                 <button onClick={copyLink} style={{ padding: '0 16px', borderRadius: 8, background: copied ? '#059669' : '#006AFF', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' as const }}>
-                  {copied ? '✓ Copied!' : <><Copy size={14} style={{ display: 'inline', marginRight: 4 }} />Copy</>}
+                  {copied ? '✓ Copied!' : 'Copy'}
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Two columns: Party A and Party B */}
+        {/* Parties */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
-          {/* Owner */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#006AFF', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.5px' }}>ወገን ሀ / Party A (Owner)</div>
             {[['ሙሉ ስም', contract.owner_full_name], ['መታወቂያ', contract.owner_id_number], ['አድራሻ', contract.owner_address], ['ስልክ', contract.owner_phone]].map(([label, val]) => (
@@ -149,7 +149,6 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             {contract.owner_agreed && <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#059669', fontSize: 13, fontWeight: 600, marginTop: 12 }}><CheckCircle size={16} /> Agreed to terms</div>}
           </div>
 
-          {/* Tenant */}
           <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.5px' }}>ወገን ለ / Party B (Tenant/Buyer)</div>
             {contract.tenant_full_name ? (
@@ -181,9 +180,14 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             {contract.end_date && <div><div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, marginBottom: 4 }}>END DATE</div><div style={{ fontSize: 15, fontWeight: 600, color: '#111827' }}>{contract.end_date}</div></div>}
             {contract.sale_price && <div><div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, marginBottom: 4 }}>SALE PRICE</div><div style={{ fontSize: 18, fontWeight: 800, color: '#006AFF' }}>ETB {contract.sale_price.toLocaleString()}</div></div>}
           </div>
-          {contract.special_conditions && <div style={{ marginTop: 16, padding: '12px 16px', background: '#f9fafb', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, marginBottom: 4 }}>SPECIAL CONDITIONS</div><div style={{ fontSize: 14, color: '#374151' }}>{contract.special_conditions}</div></div>}
+          {contract.special_conditions && (
+            <div style={{ marginTop: 16, padding: '12px 16px', background: '#f9fafb', borderRadius: 8 }}>
+              <div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, marginBottom: 4 }}>SPECIAL CONDITIONS</div>
+              <div style={{ fontSize: 14, color: '#374151' }}>{contract.special_conditions}</div>
+            </div>
+          )}
 
-          {/* Negotiation */}
+          {/* Counter offer display */}
           {contract.tenant_proposed_rent && contract.tenant_proposed_rent !== contract.monthly_rent && (
             <div style={{ marginTop: 16, padding: '14px 16px', background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>⚖️ Counter Offer from Tenant</div>
@@ -192,12 +196,12 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </div>
           )}
 
-          {/* Counter offer input for tenant */}
+          {/* Counter offer input */}
           {isTenant && contract.status === 'negotiating' && !contract.tenant_agreed && (
             <div style={{ marginTop: 16 }}>
               <label style={labelStyle}>ለውጥ አቅርቡ / Submit Counter Offer (Optional)</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                <input style={{ ...inputStyle }} type="number" value={counterOffer} onChange={e => setCounterOffer(e.target.value)} placeholder="Your proposed monthly rent in ETB" />
+                <input style={inputStyle} type="number" value={counterOffer} onChange={e => setCounterOffer(e.target.value)} placeholder="Your proposed monthly rent in ETB" />
                 <button onClick={submitCounterOffer} disabled={!counterOffer} style={{ padding: '0 20px', borderRadius: 8, background: '#006AFF', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap' as const }}>Submit</button>
               </div>
             </div>
@@ -206,7 +210,6 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 12 }}>
-          {/* Agree button */}
           {!bothAgreed && contract.status !== 'draft' && contract.tenant_full_name && (
             <button onClick={agreeToTerms}
               disabled={(isOwner && contract.owner_agreed) || (isTenant && contract.tenant_agreed)}
@@ -216,20 +219,18 @@ export default function ContractDetailPage({ params }: { params: { id: string } 
             </button>
           )}
 
-          {/* Generate PDF */}
           {(bothAgreed || contract.status === 'agreed' || contract.status === 'completed') && (
             <button onClick={generateDocument} disabled={generating}
               style={{ flex: 1, padding: '14px', borderRadius: 10, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: generating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <FileText size={18} />
-              {generating ? 'Generating...' : 'Generate Amharic Contract PDF'}
+              {generating ? 'Generating...' : 'Generate Amharic Contract'}
             </button>
           )}
 
-          {/* Download existing PDF */}
           {contract.pdf_url && (
             <a href={contract.pdf_url} target="_blank" rel="noopener noreferrer"
               style={{ flex: 1, padding: '14px', borderRadius: 10, background: '#111827', color: 'white', fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <Download size={18} /> Download PDF
+              <Download size={18} /> Download Contract
             </a>
           )}
         </div>
