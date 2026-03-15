@@ -66,85 +66,34 @@ export default function HomePage() {
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
       }}>
-        {/* Light overlay — lets city show through clearly */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
-        {/* Subtle dot pattern */}
         <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
-
-          {/* Badge — clean, no emoji rendering issues */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(232,67,26,0.92)',
-            borderRadius: 20, padding: '8px 22px', marginBottom: 28,
-            backdropFilter: 'blur(4px)',
-            boxShadow: '0 4px 15px rgba(232,67,26,0.3)'
-          }}>
-            <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>
-              🇪🇹 {t.badge}
-            </span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28, backdropFilter: 'blur(4px)', boxShadow: '0 4px 15px rgba(232,67,26,0.3)' }}>
+            <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
           </div>
 
-          <h1 style={{
-            fontSize: 58,
-            fontWeight: 900,
-            color: 'white',
-            lineHeight: 1.08,
-            marginBottom: 18,
-            letterSpacing: '-2px',
-            textShadow: '0 2px 20px rgba(0,0,0,0.25)'
-          }}>
+          <h1 style={{ fontSize: 58, fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px', textShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
             {t.heroTitle1}<br />
             <span style={{ color: '#FF6B35' }}>{t.heroTitle2}</span>
           </h1>
 
-          <p style={{
-            color: 'rgba(255,255,255,0.9)',
-            fontSize: 18,
-            marginBottom: 44,
-            lineHeight: 1.7,
-            textShadow: '0 1px 8px rgba(0,0,0,0.2)'
-          }}>
+          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 18, marginBottom: 44, lineHeight: 1.7, textShadow: '0 1px 8px rgba(0,0,0,0.2)' }}>
             {t.heroSub}
           </p>
 
-          {/* Search box */}
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            padding: 8,
-            display: 'flex',
-            gap: 8,
-            maxWidth: 620,
-            margin: '0 auto',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.25)'
-          }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
               <Search size={18} color="#9ca3af" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#111827', background: 'transparent', fontFamily: 'inherit' }}
-              />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t.searchPlaceholder}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#111827', background: 'transparent', fontFamily: 'inherit' }} />
             </div>
-            <button style={{
-              padding: '12px 32px',
-              background: '#E8431A',
-              color: 'white',
-              border: 'none',
-              borderRadius: 10,
-              fontWeight: 700,
-              fontSize: 15,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap' as const
-            }}>
+            <button style={{ padding: '12px 32px', background: '#E8431A', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
               {t.searchBtn}
             </button>
           </div>
 
-          {/* Stats */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 56, marginTop: 52 }}>
             {[['1,200+', t.statsProps], ['20+', t.statsCities], ['500+', t.statsOwners]].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
@@ -238,6 +187,67 @@ export default function HomePage() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Diaspora Section */}
+      <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '72px 24px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+
+            {/* Left */}
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
+                <span style={{ fontSize: 16 }}>🌍</span>
+                <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>DIASPORA INVESTMENT HUB</span>
+              </div>
+              <h2 style={{ fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16, letterSpacing: '-1px' }}>
+                Invest in Ethiopia<br />
+                <span style={{ color: '#FF6B35' }}>From Anywhere</span>
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>
+                Browse verified properties with USD pricing, schedule video call tours, and manage your investment remotely. Trusted by Ethiopians abroad.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
+                {[
+                  { icon: '💵', title: 'USD Pricing', desc: 'All prices in USD & ETB' },
+                  { icon: '📹', title: 'Video Tours', desc: 'Virtual property walkthroughs' },
+                  { icon: '📄', title: 'Online Contracts', desc: 'Sign agreements digitally' },
+                  { icon: '🛡️', title: 'Managed Rental', desc: 'We handle everything for you' },
+                ].map(item => (
+                  <div key={item.title} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 2 }}>{item.title}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link href="/diaspora" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+                🌍 Explore Diaspora Hub <ArrowRight size={18} />
+              </Link>
+            </div>
+
+            {/* Right — stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {[
+                { number: '1,200+', label: 'Properties Available', icon: '🏠' },
+                { number: 'ETB 130', label: 'Per 1 USD (approx)', icon: '💱' },
+                { number: '48hrs', label: 'Average Response Time', icon: '⚡' },
+                { number: '100%', label: 'Secure Transactions', icon: '🔒' },
+              ].map(stat => (
+                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>{stat.icon}</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: 'white', marginBottom: 4 }}>{stat.number}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Features */}
