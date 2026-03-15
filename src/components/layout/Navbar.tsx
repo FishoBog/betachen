@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, FileText } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -17,6 +17,7 @@ export function Navbar() {
     { href: '/?type=long_rent', label: t.navRent, authOnly: false },
     { href: '/map', label: t.navMap, authOnly: false },
     { href: '/compare', label: t.navCompare, authOnly: false },
+    { href: '/diaspora', label: lang === 'EN' ? '🌍 Diaspora' : '🌍 ዲያስፖራ', authOnly: false },
     { href: '/contracts', label: lang === 'EN' ? 'Contracts' : 'ውሎች', authOnly: true },
     { href: '/owner/dashboard', label: t.navMyListings, authOnly: true },
     { href: '/messages', label: t.navMessages, authOnly: true },
@@ -73,14 +74,17 @@ export function Navbar() {
 
           {isSignedIn ? (
             <>
-              <Link href="/favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
+              <Link href="/favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Favorites">
                 <Heart size={20} />
               </Link>
-              <Link href="/alerts" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
+              <Link href="/alerts" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Alerts">
                 <Bell size={20} />
               </Link>
-              <Link href="/contracts/new" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
+              <Link href="/contracts/new" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="New Contract">
                 <FileText size={20} />
+              </Link>
+              <Link href="/owner/verify" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Get Verified">
+                <Shield size={20} />
               </Link>
               <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                 <PlusCircle size={15} />
@@ -128,17 +132,32 @@ export function Navbar() {
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
             return (
-              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+              <Link key={link.href} href={link.href}
+                onClick={() => setMenuOpen(false)}
+                style={{ display: 'block', padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 {link.label}
               </Link>
             );
           })}
 
           {isSignedIn && (
-            <Link href="/contracts/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-              <FileText size={16} />
-              {lang === 'EN' ? 'New Contract' : 'አዲስ ውል'}
-            </Link>
+            <>
+              <Link href="/owner/verify" onClick={() => setMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+                <Shield size={16} />
+                {lang === 'EN' ? 'Get Verified' : 'ተረጋግጥ'}
+              </Link>
+              <Link href="/contracts/new" onClick={() => setMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+                <FileText size={16} />
+                {lang === 'EN' ? 'New Contract' : 'አዲስ ውል'}
+              </Link>
+              <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
+                <PlusCircle size={18} />
+                {t.navPostListing}
+              </Link>
+            </>
           )}
 
           {!isSignedIn && (
