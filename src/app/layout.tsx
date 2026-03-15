@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_Ethiopic, DM_Sans } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { LangProvider } from '@/context/LangContext';
-import { Navbar } from '@/components/layout/Navbar';
 import './globals.css';
 
 const notoEthiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400','500','600','700'], variable: '--font-noto-ethiopic', display: 'swap' });
@@ -23,7 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <body className="antialiased" style={{ background: '#ffffff' }}>
           <LangProvider>
-            <Navbar />
             {children}
           </LangProvider>
         </body>
