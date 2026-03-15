@@ -9,3 +9,8 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Run expiry check every day at 8am Ethiopia time (5am UTC)
+[[crons]]
+  schedule = "0 5 * * *"
+  command = "curl -s -H 'x-cron-secret: $CRON_SECRET' $NEXT_PUBLIC_APP_URL/api/listings/check-expiry"
