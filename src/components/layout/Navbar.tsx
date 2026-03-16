@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send } from 'lucide-react';
 import { useState } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -13,14 +13,15 @@ export function Navbar() {
   const { lang, setLang, t } = useLang();
 
   const links = [
-    { href: '/', label: lang === 'EN' ? 'Buy' : 'ግዛ', authOnly: false },
-    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent' : 'ተከራይ', authOnly: false },
-    { href: '/map', label: lang === 'EN' ? 'Map' : 'ካርታ', authOnly: false },
-    { href: '/market', label: lang === 'EN' ? '📊 Market' : '📊 ገበያ', authOnly: false },
-    { href: '/diaspora', label: lang === 'EN' ? '🌍 Diaspora' : '🌍 ዲያስፖራ', authOnly: false },
-    { href: '/contracts', label: lang === 'EN' ? 'Contracts' : 'ውሎች', authOnly: true },
-    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings' : 'ዝርዝሮች', authOnly: true },
-    { href: '/messages', label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', authOnly: true },
+    { href: '/', label: lang === 'EN' ? 'Buy' : 'ግዛ', authOnly: false, external: false },
+    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent' : 'ተከራይ', authOnly: false, external: false },
+    { href: '/map', label: lang === 'EN' ? 'Map' : 'ካርታ', authOnly: false, external: false },
+    { href: '/market', label: lang === 'EN' ? '📊 Market' : '📊 ገበያ', authOnly: false, external: false },
+    { href: '/diaspora', label: lang === 'EN' ? '🌍 Diaspora' : '🌍 ዲያስፖራ', authOnly: false, external: false },
+    { href: 'https://t.me/GojoEthiopiaBot', label: '✈️ Telegram', authOnly: false, external: true },
+    { href: '/contracts', label: lang === 'EN' ? 'Contracts' : 'ውሎች', authOnly: true, external: false },
+    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings' : 'ዝርዝሮች', authOnly: true, external: false },
+    { href: '/messages', label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', authOnly: true, external: false },
   ];
 
   return (
@@ -38,7 +39,17 @@ export function Navbar() {
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
             const active = pathname === link.href;
-            return (
+            return link.external ? (
+              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={{
+                padding: '8px 10px', borderRadius: 8, fontSize: 13,
+                fontWeight: 500, color: '#0088cc',
+                background: 'transparent',
+                textDecoration: 'none', whiteSpace: 'nowrap' as const,
+                transition: 'all 0.15s'
+              }}>
+                {link.label}
+              </a>
+            ) : (
               <Link key={link.href} href={link.href} style={{
                 padding: '8px 10px', borderRadius: 8, fontSize: 13,
                 fontWeight: active ? 700 : 500,
@@ -86,6 +97,10 @@ export function Navbar() {
               <Link href="/owner/verify" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Get Verified">
                 <Shield size={20} />
               </Link>
+              <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer"
+                style={{ padding: 8, borderRadius: 8, color: '#0088cc', display: 'flex', textDecoration: 'none' }} title="Telegram Bot">
+                <Send size={20} />
+              </a>
               <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                 <PlusCircle size={15} />
                 {t.navPostListing}
@@ -131,7 +146,13 @@ export function Navbar() {
 
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
-            return (
+            return link.external ? (
+              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                style={{ display: 'block', padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+                {link.label}
+              </a>
+            ) : (
               <Link key={link.href} href={link.href}
                 onClick={() => setMenuOpen(false)}
                 style={{ display: 'block', padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
@@ -152,6 +173,12 @@ export function Navbar() {
                 <FileText size={16} />
                 {lang === 'EN' ? 'New Contract' : 'አዲስ ውል'}
               </Link>
+              <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', fontSize: 15, fontWeight: 500, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+                <Send size={16} />
+                {lang === 'EN' ? 'Telegram Bot' : 'ቴሌግራም ቦት'}
+              </a>
               <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
                 <PlusCircle size={18} />
@@ -172,3 +199,8 @@ export function Navbar() {
     </header>
   );
 }
+```
+
+Commit → deploy! Then after deploy visit:
+```
+https://gojo-et.netlify.app/api/telegram/setup?secret=gojo-tg-xK9mP2vQ7nL
