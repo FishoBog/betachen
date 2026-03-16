@@ -199,8 +199,3 @@ export function Navbar() {
     </header>
   );
 }
-```
-
-Commit → deploy! Then after deploy visit:
-```
-https://gojo-et.netlify.app/api/telegram/setup?secret=gojo-tg-xK9mP2vQ7nL
