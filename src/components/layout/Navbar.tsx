@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Globe } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -13,14 +13,14 @@ export function Navbar() {
   const { lang, setLang, t } = useLang();
 
   const links = [
-    { href: '/', label: t.navBuy, authOnly: false },
-    { href: '/?type=long_rent', label: t.navRent, authOnly: false },
-    { href: '/map', label: t.navMap, authOnly: false },
-    { href: '/compare', label: t.navCompare, authOnly: false },
+    { href: '/', label: lang === 'EN' ? 'Buy' : 'ግዛ', authOnly: false },
+    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent' : 'ተከራይ', authOnly: false },
+    { href: '/map', label: lang === 'EN' ? 'Map' : 'ካርታ', authOnly: false },
+    { href: '/market', label: lang === 'EN' ? '📊 Market' : '📊 ገበያ', authOnly: false },
     { href: '/diaspora', label: lang === 'EN' ? '🌍 Diaspora' : '🌍 ዲያስፖራ', authOnly: false },
     { href: '/contracts', label: lang === 'EN' ? 'Contracts' : 'ውሎች', authOnly: true },
-    { href: '/owner/dashboard', label: t.navMyListings, authOnly: true },
-    { href: '/messages', label: t.navMessages, authOnly: true },
+    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings' : 'ዝርዝሮች', authOnly: true },
+    { href: '/messages', label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', authOnly: true },
   ];
 
   return (
@@ -40,7 +40,7 @@ export function Navbar() {
             const active = pathname === link.href;
             return (
               <Link key={link.href} href={link.href} style={{
-                padding: '8px 12px', borderRadius: 8, fontSize: 14,
+                padding: '8px 10px', borderRadius: 8, fontSize: 13,
                 fontWeight: active ? 700 : 500,
                 color: active ? '#E8431A' : '#374151',
                 background: active ? '#fef2ee' : 'transparent',
