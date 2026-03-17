@@ -43,9 +43,9 @@ export default async function AdminListingsPage({
           </h1>
           <div className="flex gap-2">
             {["all", "pending", "active", "expired"].map((f) => (
-              <button
+              
                 key={f}
-                onClick={() => window.location.href = `/admin/listings${f !== "all" ? `?filter=${f}` : ""}`}
+                href={`/admin/listings${f !== "all" ? `?filter=${f}` : ""}`}
                 className={`px-3 py-1 rounded-full text-sm font-medium capitalize border transition ${
                   filter === f || (f === "all" && filter === "all")
                     ? "bg-gray-900 text-white border-gray-900"
@@ -53,7 +53,7 @@ export default async function AdminListingsPage({
                 }`}
               >
                 {f}
-              </button>
+              </a>
             ))}
           </div>
         </div>
