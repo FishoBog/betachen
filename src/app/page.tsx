@@ -6,6 +6,7 @@ import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { Search, MapPin, Home, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
+import { Navbar } from '@/components/layout/Navbar';
 
 type Property = {
   id: string; title: string; type: string; price: number;
@@ -24,6 +25,8 @@ function formatPrice(price: number) {
   if (price >= 1000) return `ETB ${(price / 1000).toFixed(0)}K`;
   return `ETB ${price.toLocaleString()}`;
 }
+
+const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
 
 export default function HomePage() {
   const { t } = useLang();
@@ -54,6 +57,8 @@ export default function HomePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+
+      <Navbar />
 
       {/* Hero */}
       <div style={{
@@ -132,7 +137,7 @@ export default function HomePage() {
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div style={{ fontSize: 64, marginBottom: 20 }}>🏠</div>
+            <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: 120, height: 100, objectFit: 'cover', borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }} />
             <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{t.noProps}</div>
             <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{t.noPropsDesc}</div>
             <Link href="/owner/listings/new" style={{ padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -154,7 +159,7 @@ export default function HomePage() {
                         <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <div style={{ textAlign: 'center', color: '#93c5fd' }}>
-                          <Home size={48} strokeWidth={1} />
+                          <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: 80, height: 70, objectFit: 'cover', borderRadius: 8, opacity: 0.7 }} />
                           <div style={{ fontSize: 12, marginTop: 8, color: '#9ca3af' }}>{t.noPhoto}</div>
                         </div>
                       )}
@@ -194,8 +199,6 @@ export default function HomePage() {
         <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
-
-            {/* Left */}
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
                 <span style={{ fontSize: 16 }}>🌍</span>
@@ -230,8 +233,6 @@ export default function HomePage() {
                 🌍 Explore Diaspora Hub <ArrowRight size={18} />
               </Link>
             </div>
-
-            {/* Right — stats */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
                 { number: '1,200+', label: 'Properties Available', icon: '🏠' },
