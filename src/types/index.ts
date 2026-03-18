@@ -33,6 +33,7 @@ export interface Property {
   bedrooms: number | null;
   bathrooms: number | null;
   area_sqm: number | null;
+  plot_area_sqm: number | null;
   floor: number | null;
   total_floors: number | null;
   year_built: number | null;
@@ -43,6 +44,12 @@ export interface Property {
   longitude: number | null;
   location_privacy: LocationPrivacy;
   amenities: string[];
+  bathroom_type: 'private' | 'shared' | null;
+  kitchen_type: 'none' | 'private' | 'shared' | null;
+  distance_to_road_m: number | null;
+  ground_water: boolean | null;
+  water_tanker: boolean | null;
+  parking_spaces: number | null;
   expires_at: string | null;
   created_at: string;
   updated_at: string;
