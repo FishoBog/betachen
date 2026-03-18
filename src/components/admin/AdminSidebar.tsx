@@ -14,30 +14,27 @@ const links = [
 export function AdminSidebar() {
   const pathname = usePathname();
   return (
-    <aside className="w-60 min-h-screen border-r border-gray-200 bg-white flex flex-col">
-      <div className="px-6 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏠</span>
-          <div>
-            <div className="font-bold text-gray-900">Gojo Admin</div>
-            <div className="text-xs text-gray-400">ጎጆ Dashboard</div>
-          </div>
+    <aside style={{width:"240px",minHeight:"100vh",borderRight:"1px solid #e5e7eb",background:"white",display:"flex",flexDirection:"column"}}>
+      <div style={{padding:"1.25rem 1.5rem",borderBottom:"1px solid #f3f4f6",display:"flex",alignItems:"center",gap:"0.75rem"}}>
+        <span style={{fontSize:"1.75rem"}}>🏠</span>
+        <div>
+          <div style={{fontWeight:"700",color:"#111827",fontSize:"0.95rem"}}>Gojo Admin</div>
+          <div style={{fontSize:"0.7rem",color:"#9ca3af"}}>ጎጆ Dashboard</div>
         </div>
       </div>
-      <nav className="flex-1 p-4 space-y-1">
+      <nav style={{flex:1,padding:"1rem"}}>
         {links.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || (href !== '/admin' && pathname.startsWith(href));
           return (
-            <Link key={href} href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-              <Icon className="w-4 h-4 flex-shrink-0" />
+            <Link key={href} href={href} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.625rem 0.75rem",borderRadius:"8px",fontSize:"0.875rem",fontWeight:"500",marginBottom:"4px",textDecoration:"none",background:active?"#111827":"transparent",color:active?"white":"#4b5563"}}>
+              <Icon style={{width:"16px",height:"16px",flexShrink:0}} />
               {label}
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t border-gray-100">
-        <Link href="/" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-50">
+      <div style={{padding:"1rem",borderTop:"1px solid #f3f4f6"}}>
+        <Link href="/" style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.5rem 0.75rem",fontSize:"0.875rem",color:"#6b7280",textDecoration:"none",borderRadius:"8px"}}>
           ← Back to site
         </Link>
       </div>
