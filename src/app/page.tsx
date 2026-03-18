@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { Search, MapPin, Home, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
 
@@ -60,7 +60,6 @@ export default function HomePage() {
 
       <Navbar />
 
-      {/* Hero */}
       <div style={{
         padding: '100px 24px 110px',
         textAlign: 'center',
@@ -73,21 +72,17 @@ export default function HomePage() {
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28, backdropFilter: 'blur(4px)', boxShadow: '0 4px 15px rgba(232,67,26,0.3)' }}>
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
           </div>
-
           <h1 style={{ fontSize: 58, fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px', textShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
             {t.heroTitle1}<br />
             <span style={{ color: '#FF6B35' }}>{t.heroTitle2}</span>
           </h1>
-
           <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 18, marginBottom: 44, lineHeight: 1.7, textShadow: '0 1px 8px rgba(0,0,0,0.2)' }}>
             {t.heroSub}
           </p>
-
           <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
               <Search size={18} color="#9ca3af" />
@@ -98,7 +93,6 @@ export default function HomePage() {
               {t.searchBtn}
             </button>
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'center', gap: 56, marginTop: 52 }}>
             {[['1,200+', t.statsProps], ['20+', t.statsCities], ['500+', t.statsOwners]].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
@@ -110,7 +104,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Filter bar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '14px 24px', position: 'sticky', top: 64, zIndex: 40 }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
           {[['all', t.allProps], ['sale', t.forSale], ['long_rent', t.forRent], ['short_rent', t.shortStay]].map(([val, label]) => (
@@ -128,7 +121,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Property Grid */}
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
@@ -137,7 +129,9 @@ export default function HomePage() {
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: 120, height: 100, objectFit: 'cover', borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }} />
+            <div style={{ width: 120, height: 100, borderRadius: 16, overflow: 'hidden', margin: '0 auto 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
+              <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+            </div>
             <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{t.noProps}</div>
             <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{t.noPropsDesc}</div>
             <Link href="/owner/listings/new" style={{ padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -154,12 +148,14 @@ export default function HomePage() {
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                   <Link href={`/property/${p.id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ height: 200, background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <div style={{ height: 200, background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {p.images?.[0] ? (
                         <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <div style={{ textAlign: 'center', color: '#93c5fd' }}>
-                          <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: 80, height: 70, objectFit: 'cover', borderRadius: 8, opacity: 0.7 }} />
+                          <div style={{ width: 80, height: 70, borderRadius: 8, overflow: 'hidden', margin: '0 auto', opacity: 0.7 }}>
+                            <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+                          </div>
                           <div style={{ fontSize: 12, marginTop: 8, color: '#9ca3af' }}>{t.noPhoto}</div>
                         </div>
                       )}
@@ -194,7 +190,6 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Diaspora Section */}
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '72px 24px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
@@ -251,7 +246,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Features */}
       <div style={{ background: '#f9fafb', padding: '64px 24px', borderTop: '1px solid #e5e7eb' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 32, fontWeight: 800, color: '#111827', marginBottom: 12 }}>{t.whyTitle}</h2>
@@ -275,7 +269,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* CTA */}
       <div style={{ background: '#006AFF', padding: '64px 24px', textAlign: 'center' }}>
         <h2 style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12 }}>{t.ctaTitle}</h2>
         <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, marginBottom: 32 }}>{t.ctaSub}</p>
