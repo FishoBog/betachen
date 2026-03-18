@@ -6,75 +6,60 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function AdminPage() {
-  const [
-    { count: totalListings },
-    { count: pendingListings },
-    { count: totalUsers },
-    { count: pendingVerifications },
-    { data: recentPayments },
-  ] = await Promise.all([
-    supabase.from("properties").select("*", { count: "exact", head: true }),
-    supabase.from("properties").select("*", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("verification_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("listing_payments").select("*").order("created_at", { ascending: false }).limit(5),
-  ]);
+export default async function AdminVerificationsPage() {
+  const { data: requests } = await supabase
+    .from("verification_requests")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
 
-  const stats = [
-    { label: "Total Listings", value: totalListings ?? 0, icon: "🏘️", color: "bg-blue-50 text-blue-700", href: "/admin/listings" },
-    { label: "Pending Review", value: pendingListings ?? 0, icon: "⏳", color: "bg-yellow-50 text-yellow-700", href: "/admin/listings?filter=pending" },
-    { label: "Total Users", value: totalUsers ?? 0, icon: "👥", color: "bg-green-50 text-green-700", href: "/admin/users" },
-    { label: "Pending Badges", value: pendingVerifications ?? 0, icon: "🔖", color: "bg-purple-50 text-purple-700", href: "/admin/verifications" },
-  ];
+  const statusColors: Record<string, string> = {
+    pending: "bg-yellow-100 text-yellow-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
 
   return (
     <div className="flex flex-1">
       <AdminSidebar />
       <main className="flex-1 p-8">
-        <h2 className="text-2xl font-bold mb-6" style={{ color: "var(--navy)" }}>Dashboard Overview</h2>
+        <h1 className="text-2xl font-bold mb-6" style={{ color: "var(--navy)" }}>Owner Badge Verifications</h1>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat) => (
-            <a key={stat.label} href={stat.href} className={`rounded-xl p-5 ${stat.color} hover:opacity-80 transition`}>
-              <div className="text-3xl mb-2">{stat.icon}</div>
-              <div className="text-3xl font-bold">{stat.value}</div>
-              <div className="text-sm font-medium mt-1">{stat.label}</div>
-            </a>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Payments</h3>
-          {recentPayments && recentPayments.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-2">Property ID</th>
-                  <th className="pb-2">Amount (ETB)</th>
-                  <th className="pb-2">Type</th>
-                  <th className="pb-2">Status</th>
-                  <th className="pb-2">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentPayments.map((p: any) => (
-                  <tr key={p.id} className="border-b last:border-0">
-                    <td className="py-2 font-mono text-xs">{p.property_id?.slice(0, 8)}...</td>
-                    <td className="py-2 font-semibold">{p.amount}</td>
-                    <td className="py-2 capitalize">{p.payment_type ?? "listing"}</td>
-                    <td className="py-2">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.status === "paid" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="py-2 text-gray-500">{new Date(p.created_at).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="grid gap-4">
+          {requests && requests.length > 0 ? (
+            requests.map((req: any) => (
+              <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[req.status] ?? "bg-gray-100 text-gray-600"}`}>{req.status}</span>
+                      <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-1"><span className="font-medium">User ID:</span> {req.user_id}</p>
+                    {req.notes && <p className="text-sm text-gray-600"><span className="font-medium">Notes:</span> {req.notes}</p>}
+                    {req.id_document_url && (
+                      <a href={req.id_document_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-sm text-blue-600 hover:underline">View ID Document</a>
+                    )}
+                  </div>
+                  {req.status === "pending" && (
+                    <div className="flex gap-2 flex-shrink-0">
+                      <form action="/api/admin/verify" method="POST">
+                        <input type="hidden" name="requestId" value={req.id} />
+                        <input type="hidden" name="userId" value={req.user_id} />
+                        <button name="action" value="approve" className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">Approve</button>
+                      </form>
+                      <form action="/api/admin/verify" method="POST">
+                        <input type="hidden" name="requestId" value={req.id} />
+                        <input type="hidden" name="userId" value={req.user_id} />
+                        <button name="action" value="reject" className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium">Reject</button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
           ) : (
-            <p className="text-gray-400 text-sm">No payments yet.</p>
+            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400">No verification requests yet.</div>
           )}
         </div>
       </main>
