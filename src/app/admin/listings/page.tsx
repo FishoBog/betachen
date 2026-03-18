@@ -1,22 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export default async function AdminListingsPage({
-  searchParams,
-}: {
-  searchParams: { filter?: string };
-}) {
-  const filter = searchParams?.filter ?? "all";
+export default async function AdminListingsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const { filter = "all" } = await searchParams;
 
-  let query = supabase
-    .from("properties")
-    .select("id, title, property_type, listing_type, price, currency, status, created_at")
-    .order("created_at", { ascending: false });
+  let query = supabase.from("properties").select("id, title, property_type, listing_type, price, currency, status, created_at").order("created_at", { ascending: false });
 
   if (filter === "pending") query = query.eq("status", "pending");
   if (filter === "active") query = query.eq("status", "active");
@@ -41,13 +31,10 @@ export default async function AdminListingsPage({
           <h1 className="text-2xl font-bold" style={{ color: "var(--navy)" }}>All Listings</h1>
           <div className="flex gap-2">
             {["all", "pending", "active", "expired"].map((f) => (
-              <a key={f} href={`/admin/listings${f !== "all" ? `?filter=${f}` : ""}`} className={`px-3 py-1 rounded-full text-sm font-medium capitalize border transition ${filter === f ? "bg-gray-900 text-white border-gray-900" : "border-gray-300 text-gray-600 hover:border-gray-900"}`}>
-                {f}
-              </a>
+              <a key={f} href={`/admin/listings${f !== "all" ? `?filter=${f}` : ""}`} className={`px-3 py-1 rounded-full text-sm font-medium capitalize border transition ${filter === f ? "bg-gray-900 text-white border-gray-900" : "border-gray-300 text-gray-600 hover:border-gray-900"}`}>{f}</a>
             ))}
           </div>
         </div>
-
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -87,9 +74,7 @@ export default async function AdminListingsPage({
                 </tr>
               ))}
               {(!listings || listings.length === 0) && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">No listings found.</td>
-                </tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No listings found.</td></tr>
               )}
             </tbody>
           </table>
