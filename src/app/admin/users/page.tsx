@@ -1,59 +1,43 @@
 import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
 export default async function AdminUsersPage() {
-  const { data: users } = await supabase
-    .from("profiles")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(100);
-
+  const { data: users } = await supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(100);
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Users ({users?.length ?? 0})</h2>
-
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 text-left text-gray-500 text-xs uppercase tracking-wide">
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Verified</th>
-              <th className="px-4 py-3">Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users && users.length > 0 ? (
-              users.map((user: any) => (
-                <tr key={user.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    {user.full_name || user.first_name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{user.email || "—"}</td>
-                  <td className="px-4 py-3 capitalize text-gray-600">{user.role || "user"}</td>
-                  <td className="px-4 py-3">
-                    {user.is_verified ? (
-                      <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">✓ Verified</span>
-                    ) : (
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full text-xs">Unverified</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-400">No users found.</td>
+    <div style={{display:"flex",width:"100%",minHeight:"100vh"}}>
+      <AdminSidebar />
+      <main style={{flex:1,padding:"2rem",background:"#f9fafb"}}>
+        <h1 style={{fontSize:"1.5rem",fontWeight:"700",marginBottom:"1.5rem",color:"#111827"}}>Users ({users?.length ?? 0})</h1>
+        <div style={{background:"white",borderRadius:"12px",border:"1px solid #e5e7eb",overflow:"hidden"}}>
+          <table style={{width:"100%",fontSize:"0.875rem",borderCollapse:"collapse"}}>
+            <thead>
+              <tr style={{background:"#f9fafb"}}>
+                {["Name","Email","Role","Verified","Joined"].map(h => (
+                  <th key={h} style={{textAlign:"left",padding:"0.75rem 1rem",fontWeight:"600",color:"#6b7280",fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{h}</th>
+                ))}
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users && users.length > 0 ? users.map((user: any) => (
+                <tr key={user.id} style={{borderTop:"1px solid #f3f4f6"}}>
+                  <td style={{padding:"0.75rem 1rem",fontWeight:"500",color:"#111827"}}>{user.full_name || user.first_name || "—"}</td>
+                  <td style={{padding:"0.75rem 1rem",color:"#6b7280"}}>{user.email || "—"}</td>
+                  <td style={{padding:"0.75rem 1rem",textTransform:"capitalize",color:"#6b7280"}}>{user.role || "user"}</td>
+                  <td style={{padding:"0.75rem 1rem"}}>
+                    {user.is_verified
+                      ? <span style={{padding:"2px 8px",borderRadius:"9999px",fontSize:"0.75rem",fontWeight:"500",background:"#dcfce7",color:"#15803d"}}>✓ Verified</span>
+                      : <span style={{padding:"2px 8px",borderRadius:"9999px",fontSize:"0.75rem",background:"#f3f4f6",color:"#6b7280"}}>Unverified</span>
+                    }
+                  </td>
+                  <td style={{padding:"0.75rem 1rem",color:"#9ca3af"}}>{new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+              )) : (
+                <tr><td colSpan={5} style={{padding:"2rem",textAlign:"center",color:"#9ca3af"}}>No users found.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </main>
     </div>
   );
 }
