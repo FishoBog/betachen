@@ -32,17 +32,11 @@ export default async function AdminPage() {
     <div className="flex flex-1">
       <AdminSidebar />
       <main className="flex-1 p-8">
-        <h2 className="text-2xl font-bold mb-6" style={{ color: "var(--navy)" }}>
-          Dashboard Overview
-        </h2>
+        <h2 className="text-2xl font-bold mb-6" style={{ color: "var(--navy)" }}>Dashboard Overview</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {stats.map((stat) => (
-            
-              key={stat.label}
-              href={stat.href}
-              className={`rounded-xl p-5 ${stat.color} hover:opacity-80 transition`}
-            >
+            <a key={stat.label} href={stat.href} className={`rounded-xl p-5 ${stat.color} hover:opacity-80 transition`}>
               <div className="text-3xl mb-2">{stat.icon}</div>
               <div className="text-3xl font-bold">{stat.value}</div>
               <div className="text-sm font-medium mt-1">{stat.label}</div>
