@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg",
+      "src": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

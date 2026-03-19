@@ -6,7 +6,7 @@ import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send } from 'lucide
 import { useState } from 'react';
 import { useLang } from '@/context/LangContext';
 
-const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg';
+const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg';
 
 export function Navbar() {
   const { isSignedIn } = useUser();
