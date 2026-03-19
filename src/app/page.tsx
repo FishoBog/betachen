@@ -56,7 +56,7 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', width: '100%', overflowX: 'hidden' }}>
 
       <Navbar />
 

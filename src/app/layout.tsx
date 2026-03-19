@@ -27,6 +27,7 @@ export const viewport: Viewport = {
   themeColor: '#E8431A',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,13 +36,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider publishableKey={key}>
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
           <link rel="manifest" href="/manifest.json" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <meta name="apple-mobile-web-app-title" content="ጎጆ Homes" />
           <link rel="apple-touch-icon" href="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg" />
         </head>
-        <body className="antialiased" style={{ background: '#ffffff' }}>
+        <body className="antialiased" style={{ background: '#ffffff', margin: 0, padding: 0, overflowX: 'hidden', width: '100%' }}>
           <LangProvider>
             {children}
             <HelpChat />
