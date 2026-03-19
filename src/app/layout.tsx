@@ -9,18 +9,38 @@ const notoEthiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400',
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'ጎጆ — Real Estate in Ethiopia',
-  description: 'Find, rent, and sell properties across Ethiopia',
+  title: 'ጎጆ Homes — Ethiopia Real Estate',
+  description: "Ethiopia's #1 Real Estate Platform — Buy, Rent, Invest",
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ጎጆ Homes',
+  },
+  icons: {
+    icon: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg',
+    apple: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg',
+  },
 };
 
-export const viewport: Viewport = { themeColor: '#006AFF', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = {
+  themeColor: '#E8431A',
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_test_placeholder00000000000000000000000000000000000000000';
   return (
     <ClerkProvider publishableKey={key}>
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="ጎጆ Homes" />
+          <link rel="apple-touch-icon" href="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg" />
+        </head>
         <body className="antialiased" style={{ background: '#ffffff' }}>
           <LangProvider>
             {children}

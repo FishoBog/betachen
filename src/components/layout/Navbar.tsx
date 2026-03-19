@@ -6,6 +6,8 @@ import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send } from 'lucide
 import { useState } from 'react';
 import { useLang } from '@/context/LangContext';
 
+const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo.svg';
+
 export function Navbar() {
   const { isSignedIn } = useUser();
   const pathname = usePathname();
@@ -28,13 +30,10 @@ export function Navbar() {
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
 
-        {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 800 }}>ጎ</div>
-          <span style={{ fontWeight: 800, fontSize: 22, color: '#006AFF', letterSpacing: '-0.5px' }}>ጎጆ</span>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <img src={LOGO_URL} alt="ጎጆ Homes" style={{ height: 48, width: 'auto' }} />
         </Link>
 
-        {/* Desktop Nav */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
@@ -64,10 +63,7 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-
-          {/* Language switcher */}
           <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2 }}>
             {(['EN', 'AM'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
@@ -126,10 +122,8 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 24px 16px', background: 'white' }}>
-          {/* Mobile language switcher */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             {(['EN', 'AM'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{
