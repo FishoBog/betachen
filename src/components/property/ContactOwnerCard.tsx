@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { MessageSquare, Phone } from 'lucide-react';
+import { MessageSquare, Phone, Share2, CheckCircle } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase';
 import type { Property } from '@/types';
 
@@ -10,6 +10,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const { isSignedIn, user } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [shared, setShared] = useState(false);
 
   const startChat = async () => {
     if (!isSignedIn) { router.push('/sign-in'); return; }
@@ -25,25 +26,81 @@ export function ContactOwnerCard({ property }: { property: Property }) {
     setLoading(false);
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const text = `Check out this property on ጎጆ Homes: ${property.title}`;
+    if (navigator.share) {
+      await navigator.share({ title: property.title, text, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    }
+  };
+
+  const whatsappNumber = (property as any).owner_whatsapp;
+  const whatsappMsg = encodeURIComponent(`Hi, I'm interested in your property "${property.title}" listed on ጎጆ Homes. ${window?.location?.href ?? ''}`);
+
   return (
-    <div className="card p-5 sticky top-24">
-      <h3 className="font-bold text-lg mb-4" style={{ color: 'var(--navy)' }}>Contact Owner</h3>
-      <div className="text-2xl font-bold mb-4" style={{ color: 'var(--navy)' }}>
-        {property.price.toLocaleString()} {property.currency}
-        {property.type !== 'sale' && <span className="text-sm font-normal text-gray-400">/{property.type === 'short_rent' ? 'night' : 'month'}</span>}
+    <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e5e7eb', padding: '24px', position: 'sticky', top: 88, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+
+      {/* Price */}
+      <div style={{ marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid #f3f4f6' }}>
+        <div style={{ fontSize: 32, fontWeight: 900, color: '#006AFF', lineHeight: 1 }}>
+          {property.price.toLocaleString()} {property.currency}
+        </div>
+        {property.type !== 'sale' && (
+          <div style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>
+            per {property.type === 'short_rent' ? 'night' : 'month'}
+          </div>
+        )}
       </div>
-      <button onClick={startChat} disabled={loading}
-        className="w-full btn-primary flex items-center justify-center gap-2 mb-3">
-        <MessageSquare className="w-4 h-4" />
-        {loading ? 'Opening chat...' : 'Message Owner'}
-      </button>
-      {property.profiles?.phone && (
-        <a href={`tel:${property.profiles.phone}`}
-          className="w-full btn-secondary flex items-center justify-center gap-2">
-          <Phone className="w-4 h-4" />
-          Call Owner
-        </a>
+
+      {/* Owner info */}
+      {property.profiles && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, padding: '12px 16px', background: '#f9fafb', borderRadius: 12 }}>
+          <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 700, flexShrink: 0 }}>
+            {property.profiles.full_name?.[0] ?? 'O'}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{property.profiles.full_name ?? 'Owner'}</span>
+              {(property.profiles as any).is_verified && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#ecfdf5', color: '#059669', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                  <CheckCircle size={11} /> Verified
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Property Owner</div>
+          </div>
+        </div>
       )}
+
+      {/* Action buttons */}
+      <div style={{ display: 'grid', gap: 10 }}>
+        <button onClick={startChat} disabled={loading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+          <MessageSquare size={18} />
+          {loading ? 'Opening chat...' : 'Message Owner'}
+        </button>
+
+        {whatsappNumber && (
+          <a href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#25D366', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Owner
+          </a>
+        )}
+
+        {property.profiles?.phone && (
+          <a href={`tel:${property.profiles.phone}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#f3f4f6', color: '#374151', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
+            <Phone size={18} />
+            Call Owner
+          </a>
+        )}
+
+        <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 12, background: shared ? '#ecfdf5' : '#f9fafb', color: shared ? '#059669' : '#6b7280', fontSize: 14, fontWeight: 600, border: '1px solid #e5e7eb', cursor: 'pointer' }}>
+          {shared ? <><CheckCircle size={16} /> Link Copied!</> : <><Share2 size={16} /> Share Property</>}
+        </button>
+      </div>
     </div>
   );
 }
