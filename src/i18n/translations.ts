@@ -18,7 +18,7 @@ export const translations = {
     f4Title: "Nationwide Coverage", f4Desc: "Properties across all major Ethiopian cities",
     ctaTitle: "Ready to list your property?",
     ctaSub: "Join thousands of property owners across Ethiopia",
-    ctaBtn: "Post a Free Listing",
+    ctaBtn: "Post a Listing",
     navBuy: "Buy", navRent: "Rent", navMap: "Map", navCompare: "Compare",
     navMyListings: "My Listings", navMessages: "Messages",
     navPostListing: "Post Listing", navSignIn: "Sign In", navJoin: "Join Free",
@@ -43,12 +43,20 @@ export const translations = {
     f4Title: "አገር አቀፍ ሽፋን", f4Desc: "በሁሉም ዋና የኢትዮጵያ ከተሞች ንብረቶች",
     ctaTitle: "ንብረትዎን ለመዘርዘር ዝግጁ ነዎት?",
     ctaSub: "በኢትዮጵያ ከሺዎች የሚቆጠሩ ባለቤቶች ጋር ይቀላቀሉ",
-    ctaBtn: "ነፃ ማስታወቂያ ለጥፉ",
+    ctaBtn: "ማስታወቂያ ለጥፉ",
     navBuy: "ግዛ", navRent: "ተከራይ", navMap: "ካርታ", navCompare: "አወዳድር",
     navMyListings: "ማስታወቂያዎቼ", navMessages: "መልዕክቶች",
     navPostListing: "ማስታወቂያ ለጥፍ", navSignIn: "ግባ", navJoin: "ተመዝገብ",
     bd: "መኝ", ba: "መታ",
   }
 };
-
 export type Lang = 'EN' | 'AM';
+```
+
+Ctrl+S ✅
+
+---
+
+## File 3 — `src/app/owner/listings/[id]/renew/page.tsx`
+```
+code src/app/owner/listings/[id]/renew/page.tsx

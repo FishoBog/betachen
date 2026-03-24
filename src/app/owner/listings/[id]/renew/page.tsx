@@ -3,7 +3,7 @@ import { useState, useEffect, use } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
-import { RefreshCw, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { RefreshCw, Clock, AlertCircle } from 'lucide-react';
 
 export default function RenewListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -60,7 +60,6 @@ export default function RenewListingPage({ params }: { params: Promise<{ id: str
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '40px 24px' }}>
-
         <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '32px', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
             <div style={{ width: 48, height: 48, borderRadius: 12, background: daysLeft <= 0 ? '#fef2f2' : '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -72,7 +71,6 @@ export default function RenewListingPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
 
-          {/* Status banner */}
           <div style={{ padding: '14px 16px', borderRadius: 10, background: daysLeft <= 0 ? '#fef2f2' : daysLeft <= 7 ? '#fffbeb' : '#f0f6ff', border: `1px solid ${daysLeft <= 0 ? '#fecaca' : daysLeft <= 7 ? '#fde68a' : '#dbeafe'}`, marginBottom: 24 }}>
             {daysLeft <= 0 ? (
               <div style={{ fontSize: 14, fontWeight: 600, color: '#dc2626' }}>❌ Your listing has expired and is no longer visible</div>
@@ -83,7 +81,6 @@ export default function RenewListingPage({ params }: { params: Promise<{ id: str
             )}
           </div>
 
-          {/* Renewal details */}
           <div style={{ background: '#f9fafb', borderRadius: 12, padding: '20px', marginBottom: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 16 }}>Renewal Details</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -94,17 +91,12 @@ export default function RenewListingPage({ params }: { params: Promise<{ id: str
               <span style={{ fontSize: 13, color: '#6b7280' }}>Active until</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{newExpiry.toLocaleDateString('en-ET', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 13, color: '#6b7280' }}>Original listing fee</span>
-              <span style={{ fontSize: 13, color: '#9ca3af', textDecoration: 'line-through' }}>ETB 500</span>
-            </div>
-            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12, marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Renewal fee (60% discount)</span>
-              <span style={{ fontSize: 22, fontWeight: 900, color: '#006AFF' }}>ETB 300</span>
+            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Renewal fee</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#006AFF' }}>Discounted rate</span>
             </div>
           </div>
 
-          {/* Payment methods */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8, fontWeight: 600 }}>Accepted payment methods:</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
@@ -120,21 +112,19 @@ export default function RenewListingPage({ params }: { params: Promise<{ id: str
             </div>
           )}
 
-          <button onClick={handleRenew} disabled={paying}
-            style={{ width: '100%', padding: '14px', borderRadius: 12, background: paying ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: paying ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <button onClick={handleRenew} disabled={paying} style={{ width: '100%', padding: '14px', borderRadius: 12, background: paying ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: paying ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             <RefreshCw size={18} />
-            {paying ? 'Redirecting to payment...' : 'Renew for ETB 300 — 3 more months'}
+            {paying ? 'Redirecting to payment...' : 'Renew Listing — 3 more months'}
           </button>
         </div>
 
-        {/* What happens note */}
         <div style={{ background: '#f0f6ff', borderRadius: 12, border: '1px solid #dbeafe', padding: '16px 20px' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>✅ After renewal:</div>
           <div style={{ fontSize: 13, color: '#1e40af', lineHeight: 1.7 }}>
             • Your listing stays active for 3 more months<br />
             • Listing goes back to <strong>active</strong> status immediately after payment<br />
-            • You'll receive reminder emails at 30, 7, and 1 day before next expiry<br />
-            • You can renew unlimited times at ETB 300 each time
+            • You will receive reminder emails at 30, 7, and 1 day before next expiry<br />
+            • You can renew unlimited times
           </div>
         </div>
       </div>

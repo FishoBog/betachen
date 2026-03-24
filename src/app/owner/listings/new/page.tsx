@@ -35,6 +35,12 @@ const AMENITIES = [
   { key: 'balcony', label: '🏠 Balcony' },
 ];
 
+const LANDMARKS = [
+  'School', 'University', 'Hospital', 'Clinic', 'Market', 'Supermarket',
+  'Mosque', 'Church', 'Bank', 'ATM', 'Bus Stop', 'Main Road',
+  'Shopping Mall', 'Restaurant', 'Hotel', 'Police Station',
+];
+
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 16px',
   border: '1.5px solid #e5e7eb', borderRadius: 10,
@@ -79,11 +85,14 @@ export default function NewListingPage() {
     type: 'sale',
     currency: 'ETB',
     price: '',
+    price_negotiable: false,
     bedrooms: '',
     bathrooms: '',
+    total_rooms: '',
     area: '',
     floor: '',
     total_floors: '',
+    condition: 'good',
     region: '',
     city: '',
     subcity: '',
@@ -95,14 +104,20 @@ export default function NewListingPage() {
     location_precision: 'approximate',
     whatsapp: '',
     amenities: [] as string[],
+    nearby_landmarks: [] as string[],
     year_built: '',
     plot_area_sqm: '',
     bathroom_type: 'private',
     kitchen_type: 'none',
     distance_to_road_m: '',
+    road_type: 'asphalt',
     ground_water: false,
     water_tanker: false,
     parking_spaces: '',
+    has_compound_wall: false,
+    has_guard_house: false,
+    internet_type: 'none',
+    electricity_reliability: '24hr',
   });
 
   const set = (field: string, value: any) =>
@@ -114,6 +129,15 @@ export default function NewListingPage() {
       amenities: p.amenities.includes(key)
         ? p.amenities.filter(a => a !== key)
         : [...p.amenities, key]
+    }));
+  };
+
+  const toggleLandmark = (key: string) => {
+    setForm(p => ({
+      ...p,
+      nearby_landmarks: p.nearby_landmarks.includes(key)
+        ? p.nearby_landmarks.filter(a => a !== key)
+        : [...p.nearby_landmarks, key]
     }));
   };
 
@@ -161,23 +185,32 @@ export default function NewListingPage() {
           description: form.description,
           type: form.type,
           currency: form.currency,
-          price: parseFloat(form.price),
+          price: form.price_negotiable ? 0 : parseFloat(form.price),
+          price_negotiable: form.price_negotiable,
           bedrooms: form.bedrooms ? parseInt(form.bedrooms) : null,
           bathrooms: form.bathrooms ? parseInt(form.bathrooms) : null,
+          total_rooms: form.total_rooms ? parseInt(form.total_rooms) : null,
           area: form.area ? parseFloat(form.area) : null,
+          condition: form.condition,
           location: fullLocation,
           subcity: form.subcity,
           lat: form.lat ? parseFloat(form.lat) : null,
           lng: form.lng ? parseFloat(form.lng) : null,
           images: photoUrls,
           amenities: form.amenities,
+          nearby_landmarks: form.nearby_landmarks,
           plot_area_sqm: form.plot_area_sqm ? parseFloat(form.plot_area_sqm) : null,
           bathroom_type: form.bathroom_type,
           kitchen_type: form.kitchen_type,
           distance_to_road_m: form.distance_to_road_m ? parseInt(form.distance_to_road_m) : null,
+          road_type: form.road_type,
           ground_water: form.ground_water,
           water_tanker: form.water_tanker,
           parking_spaces: form.parking_spaces ? parseInt(form.parking_spaces) : null,
+          has_compound_wall: form.has_compound_wall,
+          has_guard_house: form.has_guard_house,
+          internet_type: form.internet_type,
+          electricity_reliability: form.electricity_reliability,
           status: 'pending_review',
           owner_email: user.primaryEmailAddress?.emailAddress,
           owner_whatsapp: form.whatsapp,
@@ -261,10 +294,11 @@ export default function NewListingPage() {
           <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 6 }}>Post a Listing</h1>
           <p style={{ color: '#6b7280', fontSize: 15 }}>Fill in the details below. Your listing will be reviewed before going live.</p>
         </div>
+
         <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
           {steps.map((s, i) => (
             <div key={s} style={{ flex: 1, minWidth: 80 }}>
-              <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6, transition: 'background 0.3s' }} />
+              <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
               <div style={{ fontSize: 11, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>
                 {i + 1}. {s}
               </div>
@@ -300,18 +334,56 @@ export default function NewListingPage() {
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>Currency</label>
-                    <select style={inputStyle} value={form.currency} onChange={e => set('currency', e.target.value)}>
-                      <option value="ETB">ETB — Ethiopian Birr</option>
-                      <option value="USD">USD — US Dollar</option>
+                    <label style={labelStyle}>Property Condition</label>
+                    <select style={inputStyle} value={form.condition} onChange={e => set('condition', e.target.value)}>
+                      <option value="new">New / Recently Built</option>
+                      <option value="good">Good Condition</option>
+                      <option value="needs_renovation">Needs Renovation</option>
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label style={labelStyle}>Price ({form.currency}) *{form.type === 'long_rent' && ' — per month'}{form.type === 'short_rent' && ' — per night'}</label>
-                  <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder={form.type === 'sale' ? 'e.g. 5000000' : 'e.g. 15000'} />
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>💡 Not sure? Use the AI Price Suggestion on the final step</div>
+
+                {/* Price section */}
+                <div style={{ background: '#f9fafb', borderRadius: 12, padding: '16px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <label style={{ ...labelStyle, marginBottom: 0 }}>
+                      Price {form.type === 'long_rent' ? '(per month)' : form.type === 'short_rent' ? '(per night)' : ''}
+                    </label>
+                    {form.type !== 'short_rent' && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 13, color: '#374151', fontWeight: 500 }}>Price on negotiation</span>
+                        <div onClick={() => set('price_negotiable', !form.price_negotiable)} style={{ width: 44, height: 24, borderRadius: 12, background: form.price_negotiable ? '#006AFF' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                          <div style={{ position: 'absolute', top: 2, left: form.price_negotiable ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {form.price_negotiable && form.type !== 'short_rent' ? (
+                    <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46', fontWeight: 500 }}>
+                      ✓ Price will be negotiated between owner and interested party. Contact details will be shown instead.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={labelStyle}>Currency</label>
+                        <select style={inputStyle} value={form.currency} onChange={e => set('currency', e.target.value)}>
+                          <option value="ETB">ETB — Ethiopian Birr</option>
+                          <option value="USD">USD — US Dollar</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>Amount *</label>
+                        <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder={form.type === 'sale' ? 'e.g. 5000000' : 'e.g. 15000'} />
+                      </div>
+                    </div>
+                  )}
+                  {form.type === 'short_rent' && (
+                    <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
+                      💡 Short stay pricing follows industry standard — price per night is required for booking confirmation.
+                    </div>
+                  )}
                 </div>
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Bedrooms</label>
@@ -322,11 +394,15 @@ export default function NewListingPage() {
                     <input style={inputStyle} type="number" min="0" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="e.g. 2" />
                   </div>
                   <div>
-                    <label style={labelStyle}>House Area (m²)</label>
-                    <input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" />
+                    <label style={labelStyle}>Total Rooms</label>
+                    <input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" />
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={labelStyle}>House Area (m²)</label>
+                    <input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" />
+                  </div>
                   <div>
                     <label style={labelStyle}>Floor Number</label>
                     <input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" />
@@ -335,19 +411,20 @@ export default function NewListingPage() {
                     <label style={labelStyle}>Total Floors</label>
                     <input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 10" />
                   </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Year Built</label>
                     <input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" />
                   </div>
-                </div>
-                <div>
-                  <label style={labelStyle}>WhatsApp Number</label>
-                  <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="e.g. +251911234567" />
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Interested buyers/renters can contact you directly via WhatsApp</div>
+                  <div>
+                    <label style={labelStyle}>WhatsApp Number</label>
+                    <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="e.g. +251911234567" />
+                  </div>
                 </div>
               </div>
             </div>
-            <button onClick={() => { if (!form.title || !form.price) { setError('Please fill in title and price'); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError('Please fill in title and price (or select negotiable)'); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               Next: Location <ArrowRight size={18} />
             </button>
             {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
@@ -450,6 +527,7 @@ export default function NewListingPage() {
             <div style={sectionStyle}>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Details & Amenities</div>
               <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>Provide specific details about the property</div>
+
               <div style={{ display: 'grid', gap: 16, marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
@@ -478,10 +556,37 @@ export default function NewListingPage() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label style={labelStyle}>Distance to Main Road (meters)</label>
-                  <input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={labelStyle}>Distance to Main Road (meters)</label>
+                    <input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Road Type</label>
+                    <select style={inputStyle} value={form.road_type} onChange={e => set('road_type', e.target.value)}>
+                      <option value="asphalt">Asphalt / Paved</option>
+                      <option value="cobblestone">Cobblestone</option>
+                      <option value="dirt">Dirt Road</option>
+                    </select>
+                  </div>
                 </div>
+
+                {/* Security & compound */}
+                <div>
+                  <label style={labelStyle}>Security & Compound</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div onClick={() => set('has_compound_wall', !form.has_compound_wall)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_compound_wall ? '#006AFF' : '#e5e7eb'}`, background: form.has_compound_wall ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_compound_wall ? '#006AFF' : '#374151' }}>🧱 {form.has_compound_wall ? '✓ ' : ''}Compound Wall / Fence</div>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Property is walled/fenced</div>
+                    </div>
+                    <div onClick={() => set('has_guard_house', !form.has_guard_house)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_guard_house ? '#006AFF' : '#e5e7eb'}`, background: form.has_guard_house ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_guard_house ? '#006AFF' : '#374151' }}>💂 {form.has_guard_house ? '✓ ' : ''}Guard House</div>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Security guard house on site</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Water supply */}
                 <div>
                   <label style={labelStyle}>💧 Water Supply — highly desirable features!</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -495,7 +600,45 @@ export default function NewListingPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Utilities */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={labelStyle}>⚡ Electricity Reliability</label>
+                    <select style={inputStyle} value={form.electricity_reliability} onChange={e => set('electricity_reliability', e.target.value)}>
+                      <option value="24hr">24 Hours (reliable)</option>
+                      <option value="frequent_cuts">Frequent Power Cuts</option>
+                      <option value="solar_only">Solar Only</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>🌐 Internet / Telecom</label>
+                    <select style={inputStyle} value={form.internet_type} onChange={e => set('internet_type', e.target.value)}>
+                      <option value="none">No Internet</option>
+                      <option value="mobile">Mobile Data Only</option>
+                      <option value="fiber">Ethio Telecom Fiber</option>
+                      <option value="both">Fiber + Mobile</option>
+                    </select>
+                  </div>
+                </div>
               </div>
+
+              {/* Nearby landmarks */}
+              <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 4 }}>📍 Nearby Landmarks</div>
+                <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>Select what is nearby — helps buyers find the property</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+                  {LANDMARKS.map(l => (
+                    <div key={l} onClick={() => toggleLandmark(l)} style={{ padding: '8px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(l) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(l) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: form.nearby_landmarks.includes(l) ? '#006AFF' : '#374151' }}>
+                        {form.nearby_landmarks.includes(l) ? '✓ ' : ''}{l}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amenities */}
               <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>Amenities</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
                 {AMENITIES.map(a => (
@@ -507,6 +650,7 @@ export default function NewListingPage() {
                 ))}
               </div>
             </div>
+
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep(2)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <ArrowLeft size={18} /> Back
@@ -594,19 +738,26 @@ export default function NewListingPage() {
                 {[
                   ['Title', form.title],
                   ['Type', form.type === 'sale' ? 'For Sale' : form.type === 'long_rent' ? 'Long-term Rent' : 'Short Stay'],
-                  ['Price', `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}${form.type === 'long_rent' ? '/mo' : form.type === 'short_rent' ? '/night' : ''}`],
+                  ['Condition', form.condition === 'new' ? 'New / Recently Built' : form.condition === 'good' ? 'Good Condition' : 'Needs Renovation'],
+                  ['Price', form.price_negotiable ? 'Price on negotiation' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}${form.type === 'long_rent' ? '/mo' : form.type === 'short_rent' ? '/night' : ''}`],
                   ['Region', form.region || '—'],
                   ['City', form.city || '—'],
                   ['Subcity', form.subcity || '—'],
                   ['Bedrooms', form.bedrooms || '—'],
                   ['Bathrooms', `${form.bathrooms || '—'} (${form.bathroom_type})`],
+                  ['Total Rooms', form.total_rooms || '—'],
                   ['Kitchen', form.kitchen_type === 'none' ? 'No kitchen' : form.kitchen_type],
                   ['House Area', form.area ? `${form.area} m²` : '—'],
                   ['Plot Area', form.plot_area_sqm ? `${form.plot_area_sqm} m²` : '—'],
+                  ['Road Type', form.road_type],
                   ['Parking Spaces', form.parking_spaces || '—'],
-                  ['Distance to Road', form.distance_to_road_m ? `${form.distance_to_road_m}m` : '—'],
+                  ['Compound Wall', form.has_compound_wall ? '✓ Yes' : 'No'],
+                  ['Guard House', form.has_guard_house ? '✓ Yes' : 'No'],
                   ['Ground Water', form.ground_water ? '✓ Yes' : 'No'],
                   ['Water Tanker', form.water_tanker ? '✓ Yes' : 'No'],
+                  ['Electricity', form.electricity_reliability === '24hr' ? '24hrs reliable' : form.electricity_reliability === 'frequent_cuts' ? 'Frequent cuts' : 'Solar only'],
+                  ['Internet', form.internet_type === 'none' ? 'None' : form.internet_type === 'fiber' ? 'Ethio Fiber' : form.internet_type === 'mobile' ? 'Mobile data' : 'Fiber + Mobile'],
+                  ['Nearby', form.nearby_landmarks.length > 0 ? form.nearby_landmarks.join(', ') : 'None selected'],
                   ['Amenities', form.amenities.length > 0 ? form.amenities.join(', ') : 'None'],
                   ['Photos', `${photoUrls.length} photo(s) uploaded`],
                   ['WhatsApp', form.whatsapp || 'Not provided'],
@@ -620,14 +771,17 @@ export default function NewListingPage() {
             </div>
             <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Listing Fee</div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>One-time payment to publish your listing.</div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: '#006AFF' }}>ETB 500</div>
-              <div style={{ fontSize: 12, color: '#9ca3af' }}>One-time • 3 months active • Renew for ETB 300</div>
+              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>One-time payment to publish your listing.</div>
+              <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
+                • 3 months active listing<br />
+                • Reviewed by admin within 24 hours<br />
+                • Renewable after expiry
+              </div>
             </div>
             <div style={{ background: '#fffbeb', borderRadius: 12, border: '1px solid #fde68a', padding: '16px 20px', marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 8 }}>📋 What happens next?</div>
               <div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.8 }}>
-                1. Submit listing → pay ETB 500 via Chapa<br />
+                1. Submit listing → proceed to payment<br />
                 2. Payment confirmed → listing sent for admin review<br />
                 3. Admin reviews within 24 hours<br />
                 4. Listing goes LIVE on ጎጆ for 3 months ✅
@@ -639,7 +793,7 @@ export default function NewListingPage() {
                 <ArrowLeft size={18} /> Back
               </button>
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? 'Submitting...' : '💳 Submit & Pay ETB 500'}
+                {loading ? 'Submitting...' : '💳 Submit & Pay'}
               </button>
             </div>
           </div>
