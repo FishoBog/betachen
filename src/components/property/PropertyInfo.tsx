@@ -1,4 +1,4 @@
-import { BedDouble, Bath, Maximize2, MapPin, Calendar, Building, Car, Droplets, UtensilsCrossed, Navigation } from 'lucide-react';
+import { BedDouble, Bath, Maximize2, MapPin, Calendar, Building, Car, Droplets, UtensilsCrossed, Navigation, Zap, Wifi, Shield } from 'lucide-react';
 import type { Property } from '@/types';
 
 const AMENITY_LABELS: Record<string, string> = {
@@ -9,75 +9,103 @@ const AMENITY_LABELS: Record<string, string> = {
   garden: '🌿 Garden', balcony: '🏠 Balcony',
 };
 
+const CONDITION_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  new: { label: '✨ New / Recently Built', color: '#065f46', bg: '#d1fae5' },
+  good: { label: '✓ Good Condition', color: '#1d4ed8', bg: '#dbeafe' },
+  needs_renovation: { label: '🔧 Needs Renovation', color: '#92400e', bg: '#fef3c7' },
+};
+
 export function PropertyInfo({ property }: { property: Property }) {
+  const condition = property.condition ? CONDITION_LABELS[property.condition] : null;
+
   return (
-    <div style={{display:"grid",gap:"1.5rem"}}>
-      <div style={{display:"flex",flexWrap:"wrap",gap:"0.75rem"}}>
+    <div style={{ display: 'grid', gap: '1.5rem' }}>
+
+      {/* Condition badge */}
+      {condition && (
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: condition.bg, borderRadius: 20, width: 'fit-content' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: condition.color }}>{condition.label}</span>
+        </div>
+      )}
+
+      {/* Key stats */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
         {property.bedrooms && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <BedDouble style={{width:16,height:16,color:"#6b7280"}} />{property.bedrooms} Bedroom{property.bedrooms > 1 ? 's' : ''}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <BedDouble style={{ width: 16, height: 16, color: '#6b7280' }} />{property.bedrooms} Bedroom{property.bedrooms > 1 ? 's' : ''}
           </div>
         )}
         {property.bathrooms && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Bath style={{width:16,height:16,color:"#6b7280"}} />{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}
-            {property.bathroom_type && <span style={{fontSize:"0.75rem",color:"#9ca3af"}}>({property.bathroom_type})</span>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Bath style={{ width: 16, height: 16, color: '#6b7280' }} />{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}
+            {property.bathroom_type && <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>({property.bathroom_type})</span>}
+          </div>
+        )}
+        {(property as any).total_rooms && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            🚪 {(property as any).total_rooms} Total Rooms
           </div>
         )}
         {property.area_sqm && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Maximize2 style={{width:16,height:16,color:"#6b7280"}} />{property.area_sqm} m² house
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Maximize2 style={{ width: 16, height: 16, color: '#6b7280' }} />{property.area_sqm} m² house
           </div>
         )}
         {property.plot_area_sqm && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Maximize2 style={{width:16,height:16,color:"#6b7280"}} />{property.plot_area_sqm} m² plot
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Maximize2 style={{ width: 16, height: 16, color: '#6b7280' }} />{property.plot_area_sqm} m² plot
           </div>
         )}
         {property.floor && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Building style={{width:16,height:16,color:"#6b7280"}} />Floor {property.floor}{property.total_floors ? ` of ${property.total_floors}` : ''}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Building style={{ width: 16, height: 16, color: '#6b7280' }} />Floor {property.floor}{property.total_floors ? ` of ${property.total_floors}` : ''}
           </div>
         )}
         {property.year_built && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Calendar style={{width:16,height:16,color:"#6b7280"}} />Built {property.year_built}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Calendar style={{ width: 16, height: 16, color: '#6b7280' }} />Built {property.year_built}
           </div>
         )}
         {property.parking_spaces ? (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Car style={{width:16,height:16,color:"#6b7280"}} />{property.parking_spaces} Parking space{property.parking_spaces > 1 ? 's' : ''}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Car style={{ width: 16, height: 16, color: '#6b7280' }} />{property.parking_spaces} Parking space{property.parking_spaces > 1 ? 's' : ''}
           </div>
         ) : null}
         {property.distance_to_road_m && (
-          <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-            <Navigation style={{width:16,height:16,color:"#6b7280"}} />{property.distance_to_road_m}m from main road
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            <Navigation style={{ width: 16, height: 16, color: '#6b7280' }} />{property.distance_to_road_m}m from main road
           </div>
         )}
-        <div style={{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",background:"#f8fafc",borderRadius:"8px",border:"1px solid #e2e8f0",fontSize:"0.875rem",color:"#374151"}}>
-          <MapPin style={{width:16,height:16,color:"#6b7280"}} />{property.location_name}
+        {(property as any).road_type && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+            🛣️ {(property as any).road_type === 'asphalt' ? 'Asphalt Road' : (property as any).road_type === 'cobblestone' ? 'Cobblestone' : 'Dirt Road'}
+          </div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
+          <MapPin style={{ width: 16, height: 16, color: '#6b7280' }} />{property.location_name}
         </div>
       </div>
 
+      {/* Water supply highlights */}
       {(property.ground_water || property.water_tanker) && (
         <div>
-          <h3 style={{fontWeight:"700",fontSize:"1.1rem",color:"#111827",marginBottom:"0.75rem"}}>💧 Water Supply</h3>
-          <div style={{display:"flex",gap:"0.75rem",flexWrap:"wrap"}}>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>💧 Water Supply</h3>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {property.ground_water && (
-              <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"12px 18px",background:"#ecfdf5",borderRadius:"10px",border:"1px solid #6ee7b7"}}>
-                <Droplets style={{width:18,height:18,color:"#059669"}} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', background: '#ecfdf5', borderRadius: '10px', border: '1px solid #6ee7b7' }}>
+                <Droplets style={{ width: 18, height: 18, color: '#059669' }} />
                 <div>
-                  <div style={{fontWeight:"700",fontSize:"0.875rem",color:"#065f46"}}>Ground Water Available</div>
-                  <div style={{fontSize:"0.75rem",color:"#047857"}}>Borehole/well on site ⭐ Desirable</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.875rem', color: '#065f46' }}>Ground Water Available</div>
+                  <div style={{ fontSize: '0.75rem', color: '#047857' }}>Borehole/well on site ⭐ Desirable</div>
                 </div>
               </div>
             )}
             {property.water_tanker && (
-              <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"12px 18px",background:"#eff6ff",borderRadius:"10px",border:"1px solid #93c5fd"}}>
-                <Droplets style={{width:18,height:18,color:"#2563eb"}} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', background: '#eff6ff', borderRadius: '10px', border: '1px solid #93c5fd' }}>
+                <Droplets style={{ width: 18, height: 18, color: '#2563eb' }} />
                 <div>
-                  <div style={{fontWeight:"700",fontSize:"0.875rem",color:"#1e40af"}}>Water Tanker Access</div>
-                  <div style={{fontSize:"0.75rem",color:"#1d4ed8"}}>Tanker delivery available ⭐ Desirable</div>
+                  <div style={{ fontWeight: '700', fontSize: '0.875rem', color: '#1e40af' }}>Water Tanker Access</div>
+                  <div style={{ fontSize: '0.75rem', color: '#1d4ed8' }}>Tanker delivery available ⭐ Desirable</div>
                 </div>
               </div>
             )}
@@ -85,45 +113,116 @@ export function PropertyInfo({ property }: { property: Property }) {
         </div>
       )}
 
+      {/* Security & compound */}
+      {((property as any).has_compound_wall || (property as any).has_guard_house) && (
+        <div>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>🔒 Security</h3>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {(property as any).has_compound_wall && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#f0f6ff', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                <Shield style={{ width: 16, height: 16, color: '#2563eb' }} />
+                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>Compound Wall / Fence</span>
+              </div>
+            )}
+            {(property as any).has_guard_house && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#f0f6ff', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                <Shield style={{ width: 16, height: 16, color: '#2563eb' }} />
+                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>Guard House on Site</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Utilities */}
+      {((property as any).electricity_reliability || (property as any).internet_type) && (
+        <div>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>⚡ Utilities</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '500px' }}>
+            {(property as any).electricity_reliability && (
+              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Zap style={{ width: 15, height: 15, color: '#f59e0b' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Electricity</span>
+                </div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827' }}>
+                  {(property as any).electricity_reliability === '24hr' ? '24hrs Reliable' :
+                   (property as any).electricity_reliability === 'frequent_cuts' ? 'Frequent Cuts' : 'Solar Only'}
+                </div>
+              </div>
+            )}
+            {(property as any).internet_type && (property as any).internet_type !== 'none' && (
+              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Wifi style={{ width: 15, height: 15, color: '#2563eb' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Internet</span>
+                </div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827' }}>
+                  {(property as any).internet_type === 'fiber' ? 'Ethio Fiber' :
+                   (property as any).internet_type === 'mobile' ? 'Mobile Data' : 'Fiber + Mobile'}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Kitchen & bathroom for long rent */}
       {(property.kitchen_type || property.bathroom_type) && property.type === 'long_rent' && (
         <div>
-          <h3 style={{fontWeight:"700",fontSize:"1.1rem",color:"#111827",marginBottom:"0.75rem"}}>🏠 Room Details</h3>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.75rem",maxWidth:"400px"}}>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>🏠 Room Details</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '400px' }}>
             {property.kitchen_type && property.kitchen_type !== 'none' && (
-              <div style={{padding:"12px 16px",background:"#fafafa",borderRadius:"10px",border:"1px solid #e5e7eb"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}}>
-                  <UtensilsCrossed style={{width:15,height:15,color:"#6b7280"}} />
-                  <span style={{fontSize:"0.75rem",fontWeight:"600",color:"#6b7280",textTransform:"uppercase"}}>Kitchen</span>
+              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <UtensilsCrossed style={{ width: 15, height: 15, color: '#6b7280' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Kitchen</span>
                 </div>
-                <div style={{fontSize:"0.95rem",fontWeight:"700",color:"#111827",textTransform:"capitalize"}}>{property.kitchen_type}</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', textTransform: 'capitalize' }}>{property.kitchen_type}</div>
               </div>
             )}
             {property.bathroom_type && (
-              <div style={{padding:"12px 16px",background:"#fafafa",borderRadius:"10px",border:"1px solid #e5e7eb"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}}>
-                  <Bath style={{width:15,height:15,color:"#6b7280"}} />
-                  <span style={{fontSize:"0.75rem",fontWeight:"600",color:"#6b7280",textTransform:"uppercase"}}>Bathroom</span>
+              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Bath style={{ width: 15, height: 15, color: '#6b7280' }} />
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Bathroom</span>
                 </div>
-                <div style={{fontSize:"0.95rem",fontWeight:"700",color:"#111827",textTransform:"capitalize"}}>{property.bathroom_type}</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', textTransform: 'capitalize' }}>{property.bathroom_type}</div>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {property.description && (
+      {/* Nearby landmarks */}
+      {(property as any).nearby_landmarks?.length > 0 && (
         <div>
-          <h3 style={{fontWeight:"700",fontSize:"1.1rem",color:"#111827",marginBottom:"0.5rem"}}>Description</h3>
-          <p style={{color:"#4b5563",lineHeight:"1.7",fontSize:"0.95rem"}}>{property.description}</p>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>📍 Nearby</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {(property as any).nearby_landmarks.map((l: string) => (
+              <span key={l} style={{ padding: '6px 14px', background: '#f0f6ff', border: '1px solid #bfdbfe', borderRadius: '20px', fontSize: '0.875rem', color: '#1e40af', fontWeight: '500' }}>
+                📍 {l}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
+      {/* Description */}
+      {property.description && (
+        <div>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.5rem' }}>Description</h3>
+          <p style={{ color: '#4b5563', lineHeight: '1.7', fontSize: '0.95rem' }}>{property.description}</p>
+        </div>
+      )}
+
+      {/* Amenities */}
       {property.amenities?.length > 0 && (
         <div>
-          <h3 style={{fontWeight:"700",fontSize:"1.1rem",color:"#111827",marginBottom:"0.75rem"}}>Amenities</h3>
-          <div style={{display:"flex",flexWrap:"wrap",gap:"0.5rem"}}>
+          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>Amenities</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {property.amenities.map(a => (
-              <span key={a} style={{padding:"6px 14px",background:"#f8fafc",border:"1px solid #e2e8f0",borderRadius:"8px",fontSize:"0.875rem",color:"#374151"}}>
+              <span key={a} style={{ padding: '6px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.875rem', color: '#374151' }}>
                 {AMENITY_LABELS[a] ?? a}
               </span>
             ))}
