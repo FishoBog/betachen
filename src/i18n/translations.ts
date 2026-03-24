@@ -51,12 +51,3 @@ export const translations = {
   }
 };
 export type Lang = 'EN' | 'AM';
-```
-
-Ctrl+S ✅
-
----
-
-## File 3 — `src/app/owner/listings/[id]/renew/page.tsx`
-```
-code src/app/owner/listings/[id]/renew/page.tsx
