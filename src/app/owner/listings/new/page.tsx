@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
@@ -34,7 +34,19 @@ const AMENITIES = [
   { key: 'garden', label: '🌿 Garden' },
   { key: 'balcony', label: '🏠 Balcony' },
 ];
+const [verificationStatus, setVerificationStatus] = useState<string>('loading');
 
+  useEffect(() => {
+    if (!user) return;
+    const supabase = createBrowserClient();
+    supabase.from('profiles').select('verification_status, is_verified')
+      .eq('clerk_id', user.id).single()
+      .then(({ data }) => {
+        setVerificationStatus(data?.verification_status ?? 'unverified');
+      });
+  }, [user]);
+
+  const [form, setForm] = useState({
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 16px',
   border: '1.5px solid #e5e7eb', borderRadius: 10,
@@ -62,7 +74,7 @@ export default function NewListingPage() {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
-  const [form, setForm] = useState({
+ 
     title: '',
     description: '',
     type: 'sale',
@@ -192,6 +204,438 @@ export default function NewListingPage() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Sign in to post a listing</div>
         <div style={{ fontSize: 15, color: '#6b7280' }}>You need an account to advertise your property</div>
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (verificationStatus === 'loading') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
+    </div>
+  );
+
+  if (verificationStatus !== 'verified') return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
+          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
+          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          {verificationStatus === 'pending'
+            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
+            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing. This is a one-time process.'}
+        </p>
+        {verificationStatus !== 'pending' && (
+          <div style={{ display: 'grid', gap: 12, marginBottom: 32, textAlign: 'left', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px' }}>
+            {[
+              '✓ Upload a National ID, Kebele ID, or Passport',
+              '✓ Admin reviews within 24 hours',
+              '✓ One-time process — post unlimited listings after',
+              '✓ Your documents are never shared publicly',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', gap: 8 }}>{item}</div>
+            ))}
+          </div>
+        )}
+        {verificationStatus !== 'pending' && (
+          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            🛡️ Verify My Identity
+          </a>
+        )}
+        {verificationStatus === 'pending' && (
+          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+          </div>
+        )}
       </div>
     </div>
   );

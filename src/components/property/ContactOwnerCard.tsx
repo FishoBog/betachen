@@ -57,21 +57,21 @@ export function ContactOwnerCard({ property }: { property: Property }) {
       </div>
 
       {/* Owner info */}
-      {property.profiles && (
+     {property.profiles && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, padding: '12px 16px', background: '#f9fafb', borderRadius: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 700, flexShrink: 0 }}>
-            {property.profiles.full_name?.[0] ?? 'O'}
+            🏠
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{property.profiles.full_name ?? 'Owner'}</span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Property Owner</span>
               {(property.profiles as any).is_verified && (
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#ecfdf5', color: '#059669', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
-                  <CheckCircle size={11} /> Verified
+                  <CheckCircle size={11} /> ID Verified
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Property Owner</div>
+            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Identity verified by ጎጆ Homes</div>
           </div>
         </div>
       )}
@@ -90,14 +90,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
           </a>
         )}
 
-        {property.profiles?.phone && (
-          <a href={`tel:${property.profiles.phone}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#f3f4f6', color: '#374151', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
-            <Phone size={18} />
-            Call Owner
-          </a>
-        )}
-
-        <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 12, background: shared ? '#ecfdf5' : '#f9fafb', color: shared ? '#059669' : '#6b7280', fontSize: 14, fontWeight: 600, border: '1px solid #e5e7eb', cursor: 'pointer' }}>
+              <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 12, background: shared ? '#ecfdf5' : '#f9fafb', color: shared ? '#059669' : '#6b7280', fontSize: 14, fontWeight: 600, border: '1px solid #e5e7eb', cursor: 'pointer' }}>
           {shared ? <><CheckCircle size={16} /> Link Copied!</> : <><Share2 size={16} /> Share Property</>}
         </button>
       </div>
