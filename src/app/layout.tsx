@@ -72,6 +72,9 @@ export const metadata: Metadata = {
     description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia.',
     images: ['https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg'],
   },
+ verification: {
+    google: 'uBxm0oxxyRvmMztHXEXLlRAUqcXiSaKvtijuVN9TL6I',
+  },
   alternates: {
     canonical: 'https://www.gojo-homes.com',
     languages: {
