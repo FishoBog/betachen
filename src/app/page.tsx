@@ -4,14 +4,15 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
 
 type Property = {
   id: string; title: string; type: string; price: number;
   bedrooms: number; bathrooms: number; area: number;
-  location: string; subcity: string; images: string[]; status: string;
+  location: string; subcity: string; images: string[];
+  status: string; currency: string; price_negotiable: boolean;
 };
 
 const TYPE_COLORS: Record<string, { color: string; bg: string }> = {
@@ -20,10 +21,11 @@ const TYPE_COLORS: Record<string, { color: string; bg: string }> = {
   short_rent: { color: '#92400e', bg: '#fef3c7' },
 };
 
-function formatPrice(price: number) {
-  if (price >= 1000000) return `ETB ${(price / 1000000).toFixed(1)}M`;
-  if (price >= 1000) return `ETB ${(price / 1000).toFixed(0)}K`;
-  return `ETB ${price.toLocaleString()}`;
+function formatPrice(price: number, currency: string) {
+  if (!price) return 'Negotiable';
+  if (price >= 1000000) return `${currency} ${(price / 1000000).toFixed(1)}M`;
+  if (price >= 1000) return `${currency} ${(price / 1000).toFixed(0)}K`;
+  return `${currency} ${price.toLocaleString()}`;
 }
 
 const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
@@ -42,7 +44,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [bedrooms, setBedrooms] = useState('any');
@@ -96,8 +97,6 @@ export default function HomePage() {
     fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white',
   };
 
-  const labelStyle = { fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
-
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', width: '100%', overflowX: 'hidden' }}>
       <Navbar />
@@ -141,41 +140,33 @@ export default function HomePage() {
             {[['all', t.allProps], ['sale', t.forSale], ['long_rent', t.forRent], ['short_rent', t.shortStay]].map(([val, label]) => (
               <button key={val} onClick={() => setTypeFilter(val)} style={{ padding: '8px 18px', borderRadius: 25, border: `2px solid ${typeFilter === val ? '#006AFF' : '#e5e7eb'}`, background: typeFilter === val ? '#006AFF' : 'white', color: typeFilter === val ? 'white' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{label}</button>
             ))}
-
             <button onClick={() => setShowFilters(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 25, border: `2px solid ${showFilters || activeFilterCount > 0 ? '#E8431A' : '#e5e7eb'}`, background: showFilters || activeFilterCount > 0 ? '#fef2ee' : 'white', color: showFilters || activeFilterCount > 0 ? '#E8431A' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               <SlidersHorizontal size={14} />
               Filters {activeFilterCount > 0 && <span style={{ background: '#E8431A', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{activeFilterCount}</span>}
             </button>
-
             {activeFilterCount > 0 && (
               <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 14px', borderRadius: 25, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 13, cursor: 'pointer' }}>
                 <X size={13} /> Clear all
               </button>
             )}
-
             <span style={{ marginLeft: 'auto', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
               {loading ? t.loading : `${filtered.length} ${t.propsFound}`}
             </span>
           </div>
 
-          {/* Expanded filters panel */}
           {showFilters && (
             <div style={{ marginTop: 16, padding: '20px 24px', background: '#f9fafb', borderRadius: 16, border: '1px solid #e5e7eb' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-
-                {/* Price range */}
                 <div>
-                  <label style={labelStyle}>Min Price (ETB)</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Min Price (ETB)</label>
                   <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="e.g. 500000" style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Max Price (ETB)</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Max Price (ETB)</label>
                   <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="e.g. 5000000" style={inputStyle} />
                 </div>
-
-                {/* Bedrooms */}
                 <div>
-                  <label style={labelStyle}>Bedrooms</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Bedrooms</label>
                   <select value={bedrooms} onChange={e => setBedrooms(e.target.value)} style={inputStyle}>
                     <option value="any">Any</option>
                     <option value="1">1 Bedroom</option>
@@ -185,19 +176,15 @@ export default function HomePage() {
                     <option value="5">5+ Bedrooms</option>
                   </select>
                 </div>
-
-                {/* Subcity */}
                 <div>
-                  <label style={labelStyle}>Subcity / Location</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Subcity / Location</label>
                   <select value={subcity} onChange={e => setSubcity(e.target.value)} style={inputStyle}>
                     <option value="">Any location</option>
                     {SUBCITIES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-
-                {/* Sort */}
                 <div>
-                  <label style={labelStyle}>Sort By</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Sort By</label>
                   <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={inputStyle}>
                     <option value="newest">Newest First</option>
                     <option value="price_asc">Price: Low to High</option>
@@ -205,8 +192,6 @@ export default function HomePage() {
                   </select>
                 </div>
               </div>
-
-              {/* Active filter tags */}
               {activeFilterCount > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8, marginTop: 16 }}>
                   {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Min: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
@@ -272,19 +257,19 @@ export default function HomePage() {
                       </button>
                     </div>
                   </Link>
-                  <Link href={`/properties/${p.id}`}{ style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: '#006AFF', marginBottom: 4 }}>
-                      {formatPrice(p.price)}
-                      {p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perMonth}</span>}
-                      {p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perNight}</span>}
+                  <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
+                      {p.price_negotiable ? '🤝 Price on Negotiation' : formatPrice(p.price, p.currency)}
+                      {!p.price_negotiable && p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perMonth}</span>}
+                      {!p.price_negotiable && p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perNight}</span>}
                     </div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 13, marginBottom: 14 }}>
                       <MapPin size={13} />{p.location || p.subcity || 'Ethiopia'}
                     </div>
                     <div style={{ display: 'flex', gap: 16, paddingTop: 14, borderTop: '1px solid #f3f4f6', fontSize: 13, color: '#6b7280' }}>
-                      {p.bedrooms && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} />{p.bedrooms} {t.bd}</span>}
-                      {p.bathrooms && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Bath size={14} />{p.bathrooms} {t.ba}</span>}
+                      {p.bedrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} />{p.bedrooms} {t.bd}</span>}
+                      {p.bathrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Bath size={14} />{p.bathrooms} {t.ba}</span>}
                       {p.area && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Maximize2 size={14} />{p.area} m²</span>}
                     </div>
                   </Link>
