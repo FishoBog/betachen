@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     url: 'https://www.gojo-homes.com',
     siteName: 'ጎጆ Homes',
     title: 'ጎጆ Homes — Real Estate in Ethiopia',
-    description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia. Ethiopia\'s #1 real estate platform.',
+    description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia.',
     images: [
       {
         url: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg',
@@ -71,9 +71,6 @@ export const metadata: Metadata = {
     title: 'ጎጆ Homes — Real Estate in Ethiopia',
     description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia.',
     images: ['https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg'],
-  },
- verification: {
-    google: 'uBxm0oxxyRvmMztHXEXLlRAUqcXiSaKvtijuVN9TL6I',
   },
   alternates: {
     canonical: 'https://www.gojo-homes.com',
@@ -108,6 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider publishableKey={key}>
       <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <head>
+          <meta name="google-site-verification" content="uBxm0oxxyRvmMztHXEXLlRAUqcXiSaKvtijuVN9TL6I" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
           <link rel="manifest" href="/manifest.json" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
