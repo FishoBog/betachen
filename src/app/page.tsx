@@ -30,10 +30,20 @@ function formatPrice(price: number, currency: string) {
 
 const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
 
-const SUBCITIES = [
-  'ቦሌ / Bole', 'ቂርቆስ / Kirkos', 'የካ / Yeka', 'ንፋስ ስልክ / Nifas Silk',
-  'አቃቂ / Akaki', 'ልደታ / Lideta', 'ጉለሌ / Gulele', 'ኮልፌ / Kolfe',
-  'አራዳ / Arada', 'አዲስ ከተማ / Addis Ketema', 'ለሚ ኩራ / Lemi Kura',
+const LOCATIONS = [
+  { group: 'አዲስ አበባ / Addis Ababa', options: [
+    'ቦሌ / Bole', 'ቂርቆስ / Kirkos', 'የካ / Yeka', 'ንፋስ ስልክ / Nifas Silk',
+    'አቃቂ / Akaki', 'ልደታ / Lideta', 'ጉለሌ / Gulele', 'ኮልፌ / Kolfe',
+    'አራዳ / Arada', 'አዲስ ከተማ / Addis Ketema', 'ለሚ ኩራ / Lemi Kura',
+  ]},
+  { group: 'ድሬዳዋ / Dire Dawa', options: ['Dire Dawa'] },
+  { group: 'ኦሮሚያ / Oromia', options: ['Adama / Nazret', 'Jimma', 'Bishoftu / Debre Zeit', 'Shashamane', 'Bahir Dar', 'Nekemte', 'Harar'] },
+  { group: 'አማራ / Amhara', options: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Markos', 'Woldia'] },
+  { group: 'ትግራይ / Tigray', options: ['Mekelle', 'Axum', 'Adwa', 'Shire'] },
+  { group: 'ደቡብ / SNNPR & Sidama', options: ['Hawassa', 'Arba Minch', 'Wolaita Sodo', 'Dilla'] },
+  { group: 'ሐረሪ / Harari', options: ['Harar'] },
+  { group: 'አፋር / Afar', options: ['Semera', 'Logia', 'Dubti'] },
+  { group: 'ሶማሌ / Somali', options: ['Jigjiga', 'Gode'] },
 ];
 
 export default function HomePage() {
@@ -178,9 +188,13 @@ export default function HomePage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Subcity / Location</label>
-                  <select value={subcity} onChange={e => setSubcity(e.target.value)} style={inputStyle}>
-                    <option value="">Any location</option>
-                    {SUBCITIES.map(s => <option key={s} value={s}>{s}</option>)}
+                   <select value={subcity} onChange={e => setSubcity(e.target.value)} style={inputStyle}>
+                    <option value="">All Ethiopia</option>
+                    {LOCATIONS.map(group => (
+                      <optgroup key={group.group} label={group.group}>
+                        {group.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      </optgroup>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -293,14 +307,14 @@ export default function HomePage() {
                 Invest in Ethiopia<br /><span style={{ color: '#FF6B35' }}>From Anywhere</span>
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>
-                Browse verified properties with USD pricing, schedule video call tours, and manage your investment remotely.
+                Browse verified properties, schedule video call tours with local agents, get legal title verification and manage your investment remotely from anywhere in the world.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
                 {[
-                  { icon: '💵', title: 'USD Pricing', desc: 'All prices in USD & ETB' },
-                  { icon: '📹', title: 'Video Tours', desc: 'Virtual property walkthroughs' },
+                  { icon: '📹', title: 'Video Tours', desc: 'Live walkthrough with local agent' },
+                  { icon: '🛡️', title: 'Legal Verification', desc: 'Title deed checked before you pay' },
                   { icon: '📄', title: 'Online Contracts', desc: 'Sign agreements digitally' },
-                  { icon: '🛡️', title: 'Managed Rental', desc: 'We handle everything for you' },
+                  { icon: '🏠', title: 'Managed Rental', desc: 'We handle tenants for you' },
                 ].map(item => (
                   <div key={item.title} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{item.icon}</div>
@@ -315,10 +329,10 @@ export default function HomePage() {
                 🌍 Explore Diaspora Hub <ArrowRight size={18} />
               </Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
                 { number: '1,200+', label: 'Properties Available', icon: '🏠' },
-                { number: 'ETB 130', label: 'Per 1 USD (approx)', icon: '💱' },
+                { number: '4', label: 'Diaspora Services', icon: '🛡️' },
                 { number: '48hrs', label: 'Average Response Time', icon: '⚡' },
                 { number: '100%', label: 'Secure Transactions', icon: '🔒' },
               ].map(stat => (
