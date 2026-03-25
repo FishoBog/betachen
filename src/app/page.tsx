@@ -32,7 +32,7 @@ const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/p
 
 const SUBCITIES = [
   'ቦሌ / Bole', 'ቂርቆስ / Kirkos', 'የካ / Yeka', 'ንፋስ ስልክ / Nifas Silk',
-  'አቃቂ / Akaki', 'ሊደታ / Lideta', 'ጉለሌ / Gulele', 'ቆልፈ / Kolfe',
+  'አቃቂ / Akaki', 'ልደታ / Lideta', 'ጉለሌ / Gulele', 'ኮልፌ / Kolfe',
   'አራዳ / Arada', 'አዲስ ከተማ / Addis Ketema', 'ለሚ ኩራ / Lemi Kura',
 ];
 
