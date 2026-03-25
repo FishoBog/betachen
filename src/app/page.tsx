@@ -1,10 +1,10 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
 
@@ -30,20 +30,50 @@ function formatPrice(price: number, currency: string) {
 
 const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
 
-const LOCATIONS = [
-  { group: 'አዲስ አበባ / Addis Ababa', options: [
-    'ቦሌ / Bole', 'ቂርቆስ / Kirkos', 'የካ / Yeka', 'ንፋስ ስልክ / Nifas Silk',
-    'አቃቂ / Akaki', 'ልደታ / Lideta', 'ጉለሌ / Gulele', 'ኮልፌ / Kolfe',
-    'አራዳ / Arada', 'አዲስ ከተማ / Addis Ketema', 'ለሚ ኩራ / Lemi Kura',
-  ]},
-  { group: 'ድሬዳዋ / Dire Dawa', options: ['Dire Dawa'] },
-  { group: 'ኦሮሚያ / Oromia', options: ['Adama / Nazret', 'Jimma', 'Bishoftu / Debre Zeit', 'Shashamane', 'Bahir Dar', 'Nekemte', 'Harar'] },
-  { group: 'አማራ / Amhara', options: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Markos', 'Woldia'] },
-  { group: 'ትግራይ / Tigray', options: ['Mekelle', 'Axum', 'Adwa', 'Shire'] },
-  { group: 'ደቡብ / SNNPR & Sidama', options: ['Hawassa', 'Arba Minch', 'Wolaita Sodo', 'Dilla'] },
-  { group: 'ሐረሪ / Harari', options: ['Harar'] },
-  { group: 'አፋር / Afar', options: ['Semera', 'Logia', 'Dubti'] },
-  { group: 'ሶማሌ / Somali', options: ['Jigjiga', 'Gode'] },
+const ETHIOPIA_CITIES = [
+  { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ', subsEn: ['Bole','Yeka','Kirkos','Lemi Kura','Nifas Silk-Lafto','Arada','Lideta','Gullele','Kolfe Keraniyo','Akaki-Kality','Addis Ketema'], subsAm: ['ቦሌ','የካ','ቂርቆስ','ለሚ ኩራ','ንፋስ ስልክ ላፍቶ','አራዳ','ልደታ','ጉለሌ','ኮልፌ ቀራኒዮ','አቃቂ ቃሊቲ','አዲስ ከተማ'] },
+  { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ', subsEn: ['Kezira','Magala','Melka Jebdu','Sabiyan','Gende Qore','Gende Tesfa'], subsAm: ['ቀዚራ','መጋላ','መልካ ጀብዱ','ሳቢያን','ገንደ ቆሬ','ገንደ ተስፋ'] },
+  { cityEn: 'Adama', cityAm: 'አዳማ', subsEn: ['Bole','Arada','Dabe Soloke','Melka Adama','Boku','Migira','Posta Bet'], subsAm: ['ቦሌ','አራዳ','ዳቤ ሶሎቄ','መልካ አዳማ','ቦቁ','ሚጊራ','ፖስታ ቤት'] },
+  { cityEn: 'Gondar', cityAm: 'ጎንደር', subsEn: ['Maraki','Arada','Azezo','Fasil','Jantekel','Lideta','Gebriel'], subsAm: ['ማራኪ','አራዳ','አዘዞ','ፋሲል','ጃንተከል','ልደታ','ገብርኤል'] },
+  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ', subsEn: ['Hayiq Dar','Misrak','Tabor','Mehal','Bahil Adarash','Tula','Monopol'], subsAm: ['ሐይቅ ዳር','ምሥራቅ','ታቦር','መሀል','ባህል አዳራሽ','ቱላ','ሞኖፖል'] },
+  { cityEn: 'Bahir Dar', cityAm: 'ባሕር ዳር', subsEn: ['Belay Zeleke','Atse Tewodros','Fasilo','Shimbit','Ginbot 20','Tana','Diaspora Sefer'], subsAm: ['በላይ ዘለቀ','አፄ ቴዎድሮስ','ፋሲሎ','ሽምቢት','ግንቦት 20','ጣና','ዲያስፖራ ሰፈር'] },
+  { cityEn: 'Mekelle', cityAm: 'መቐለ', subsEn: ['Hadnet','Ayder','Kedamay Weyane','Qwiha','Semien','Saharti','Adi Haki'], subsAm: ['ሃድነት','አይደር','ቀዳማይ ወያነ','ኩዊሃ','ሰሜን','ሰሐርቲ','ዓዲ ሓቂ'] },
+  { cityEn: 'Jimma', cityAm: 'ጅማ', subsEn: ['Hermata','Jiren','Bosa Bazab','Mendera Kochino','Ginjo','Seto Semero'], subsAm: ['ሀርማታ','ጅሬን','ቦሳ ባዛብ','መንደራ ኮቺኖ','ጊንጆ','ሴቶ ሰመሮ'] },
+  { cityEn: 'Dessie', cityAm: 'ደሴ', subsEn: ['Arada','Piazza','Dawudo','Segno Gebeya','Hotie','Memhir Akale Wold','Kurkur'], subsAm: ['አራዳ','ፒያሳ','ዳውዶ','ሰኞ ገበያ','ሆጤ','መምህር አካለ ወልድ','ኩርኩር'] },
+  { cityEn: 'Jijiga', cityAm: 'ጅጅጋ', subsEn: ['Kebele 01','Kebele 04','Taiwan','Dudaxada','Dudahidhi'], subsAm: ['ቀበሌ 01','ቀበሌ 04','ታይዋን','ዱዳሀዳ','ዱዳሂዲ'] },
+  { cityEn: 'Shashemene', cityAm: 'ሻሸመኔ', subsEn: ['Bulchana','Arada','Kuyera','Abosto','Alelu','Haile Selassie'], subsAm: ['ቡልቻና','አራዳ','ኩየራ','አቦስቶ','አለሉ','ኃይለ ሥላሴ'] },
+  { cityEn: 'Bishoftu', cityAm: 'ቢሾፍቱ', subsEn: ['Kebele 01','Kebele 02','Kuriftu','Babogaya','Hora'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ኩሪፍቱ','ባቦጋያ','ሆራ'] },
+  { cityEn: 'Sodo', cityAm: 'ሶዶ', subsEn: ['Arada','Mehal','Wolaita Sodo Zuria','Gurumu','Kercheche'], subsAm: ['አራዳ','መሀል','ወላይታ ሶዶ ዙሪያ','ጉሩሙ','ቀርጨጬ'] },
+  { cityEn: 'Arba Minch', cityAm: 'አርባ ምንጭ', subsEn: ['Secha','Sikela','Kulfo','Limat','Dozo'], subsAm: ['ሰጫ','ሲከላ','ኩልፎ','ልማት','ዶዞ'] },
+  { cityEn: 'Hosaena', cityAm: 'ሆሳዕና', subsEn: ['Gojeb','Sech Duna','Lichamba','Bobicho'], subsAm: ['ጎጀብ','ሰጭ ዱና','ሊቻምባ','ቦቢቾ'] },
+  { cityEn: 'Nekemte', cityAm: 'ነቀምት', subsEn: ['Bakanisa','Chalalaki','Kumsa Moroda','Cheleleki'], subsAm: ['በቀኒሳ','ጨለለቂ','ኩምሳ ሞሮዳ','ጨለለቂ'] },
+  { cityEn: 'Asella', cityAm: 'አሰላ', subsEn: ['Kebele 01','Kebele 02','Arada','Chilalo'], subsAm: ['ቀበሌ 01','ቀበሌ 02','አራዳ','ጭላሎ'] },
+  { cityEn: 'Dilla', cityAm: 'ዲላ', subsEn: ['Arada','Mehal','Odey','Chichu'], subsAm: ['አራዳ','መሀል','ኦዴይ','ቺቹ'] },
+  { cityEn: 'Ambo', cityAm: 'አምቦ', subsEn: ['Kebele 01','Senkele','Abebe Bikila','Oda Nabee'], subsAm: ['ቀበሌ 01','ሰንቀሌ','አበበ ቢቂላ','ኦዳ ነቤ'] },
+  { cityEn: 'Debre Birhan', cityAm: 'ደብረ ብርሃን', subsEn: ['Kebele 01','Kebele 04','Kebele 09','Atse Zerayacob'], subsAm: ['ቀበሌ 01','ቀበሌ 04','ቀበሌ 09','አፄ ዘርዓ ያዕቆብ'] },
+  { cityEn: 'Debre Markos', cityAm: 'ደብረ ማርቆስ', subsEn: ['Kebele 03','Kebele 05','Gojjam Ber','Nigus Teklehaimanot'], subsAm: ['ቀበሌ 03','ቀበሌ 05','ጎጃም በር','ንጉሥ ተክለሃይማኖት'] },
+  { cityEn: 'Kombolcha', cityAm: 'ኮምቦልቻ', subsEn: ['Kebele 01','Kebele 03','Worka','Millennium'], subsAm: ['ቀበሌ 01','ቀበሌ 03','ወርቃ','ሚሊኒየም'] },
+  { cityEn: 'Harar', cityAm: 'ሐረር', subsEn: ['Jugol','Shenkor','Aboker','JinEala','Duk Ber'], subsAm: ['ጁጎል','ሸንኮር','አቦከር','ጅን ኤላ','ዱክ በር'] },
+  { cityEn: 'Lalibela', cityAm: 'ላሊበላ', subsEn: ['Kebele 01','Kebele 02','Shimberma','Neakuto Leab'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ሽምብርማ','ነአኩቶ ለአብ'] },
+  { cityEn: 'Aksum', cityAm: 'አክሱም', subsEn: ['Hayelom','Hawelti','Nebrid','Kindeya'], subsAm: ['ሃየሎም','ሓወልቲ','ነብሪድ','ክንደያ'] },
+  { cityEn: 'Adigrat', cityAm: 'ዓዲግራት', subsEn: ['Kebele 01','Kebele 03','Agazi','GindaAt'], subsAm: ['ቀበሌ 01','ቀበሌ 03','ዓጋዚ','ጊንዳዓት'] },
+  { cityEn: 'Shire', cityAm: 'ሽረ እንዳሥላሴ', subsEn: ['Kebele 01','Kebele 02','Kebele 03','Axum Road'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ቀበሌ 03','አክሱም መንገድ'] },
+  { cityEn: 'Maychew', cityAm: 'ማይጨው', subsEn: ['Kebele 01','Kebele 02','Adi-Goshu'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ዓዲ ጎሹ'] },
+  { cityEn: 'Alamata', cityAm: 'አላማጣ', subsEn: ['Kebele 01','Kebele 02','Garjale'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ጋርጃሌ'] },
+  { cityEn: 'Kobo', cityAm: 'ቆቦ', subsEn: ['Kebele 01','Kebele 02','Arada'], subsAm: ['ቀበሌ 01','ቀበሌ 02','አራዳ'] },
+  { cityEn: 'Debre Tabor', cityAm: 'ደብረ ታቦር', subsEn: ['Kebele 01','Kebele 03','Kebele 04','Guna'], subsAm: ['ቀበሌ 01','ቀበሌ 03','ቀበሌ 04','ጉና'] },
+  { cityEn: 'Debark', cityAm: 'ደባርቅ', subsEn: ['Kebele 01','Kebele 02','Simien Gate'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ስሜን መግቢያ'] },
+  { cityEn: 'Woldiya', cityAm: 'ወልድያ', subsEn: ['Piazza','Arada','Gubalafto'], subsAm: ['ፒያሳ','አራዳ','ጉባላፍቶ'] },
+  { cityEn: 'Welkite', cityAm: 'ወልቂጤ', subsEn: ['Kebele 01','Kebele 02','Gubre'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ጉብሬ'] },
+  { cityEn: 'Goba', cityAm: 'ጎባ', subsEn: ['Arada','Furuna','Kebele 01'], subsAm: ['አራዳ','ፉሩና','ቀበሌ 01'] },
+  { cityEn: 'Robe', cityAm: 'ሮቤ', subsEn: ['Mehal Ketema','Beklo Bet','Airport Road'], subsAm: ['መሀል ከተማ','በቅሎ ቤት','አየር መንገድ'] },
+  { cityEn: 'Burayu', cityAm: 'ቡራዩ', subsEn: ['Gefersa','Keta','Sansusi'], subsAm: ['ገፈርሳ','ቀታ','ሳንሱሲ'] },
+  { cityEn: 'Sululta', cityAm: 'ሱሉልታ', subsEn: ['Sululta Center','Mulu'], subsAm: ['ሱሉልታ መሀል','ሙሉ'] },
+  { cityEn: 'Sebeta', cityAm: 'ሰበታ', subsEn: ['Alem Gena','Sebeta Center','Walayte'], subsAm: ['ዓለም ገና','ሰበታ መሀል','ወላይቴ'] },
+  { cityEn: 'Legetafo', cityAm: 'ለገጣፎ', subsEn: ['Legedadi','Legetafo Center'], subsAm: ['ለገዳዲ','ለገጣፎ መሀል'] },
+  { cityEn: 'Gambela', cityAm: 'ጋምቤላ', subsEn: ['Kebele 01','Kebele 03','Baro River side','Newland'], subsAm: ['ቀበሌ 01','ቀበሌ 03','ባሮ ወንዝ ዳር','ኒውላንድ'] },
+  { cityEn: 'Assosa', cityAm: 'አሶሳ', subsEn: ['Kebele 01','Kebele 02','Amba 14','Selga'], subsAm: ['ቀበሌ 01','ቀበሌ 02','አምባ 14','ሰልጋ'] },
+  { cityEn: 'Semera', cityAm: 'ሰመራ', subsEn: ['Semera Center','Logia Town','Agat'], subsAm: ['ሰመራ መሀል','ሎጊያ ከተማ','አጋት'] },
 ];
 
 export default function HomePage() {
@@ -57,8 +87,19 @@ export default function HomePage() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [bedrooms, setBedrooms] = useState('any');
+  const [cityFilter, setCityFilter] = useState('');
   const [subcity, setSubcity] = useState('');
+  const [citySearch, setCitySearch] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const cityRef = useRef<HTMLDivElement>(null);
+
+  const selectedCity = ETHIOPIA_CITIES.find(c => c.cityEn === cityFilter);
+  const filteredCities = ETHIOPIA_CITIES.filter(c =>
+    citySearch === '' ||
+    c.cityEn.toLowerCase().includes(citySearch.toLowerCase()) ||
+    c.cityAm.includes(citySearch)
+  );
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -67,12 +108,23 @@ export default function HomePage() {
       .then(({ data }) => { setProperties(data || []); setLoading(false); });
   }, []);
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (cityRef.current && !cityRef.current.contains(e.target as Node)) {
+        setShowCityDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const filtered = properties.filter(p => {
     if (typeFilter !== 'all' && p.type !== typeFilter) return false;
     if (search && !p.title?.toLowerCase().includes(search.toLowerCase()) && !p.location?.toLowerCase().includes(search.toLowerCase())) return false;
     if (minPrice && p.price < parseFloat(minPrice)) return false;
     if (maxPrice && p.price > parseFloat(maxPrice)) return false;
     if (bedrooms !== 'any' && p.bedrooms !== parseInt(bedrooms)) return false;
+    if (cityFilter && !p.location?.toLowerCase().includes(cityFilter.toLowerCase())) return false;
     if (subcity && !p.subcity?.toLowerCase().includes(subcity.toLowerCase()) && !p.location?.toLowerCase().includes(subcity.toLowerCase())) return false;
     return true;
   }).sort((a, b) => {
@@ -90,13 +142,14 @@ export default function HomePage() {
   const activeFilterCount = [
     minPrice, maxPrice,
     bedrooms !== 'any' ? bedrooms : '',
-    subcity,
+    cityFilter, subcity,
     sortBy !== 'newest' ? sortBy : '',
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setMinPrice(''); setMaxPrice('');
     setBedrooms('any'); setSubcity('');
+    setCityFilter(''); setCitySearch('');
     setSortBy('newest'); setSearch('');
     setTypeFilter('all');
   };
@@ -105,6 +158,11 @@ export default function HomePage() {
     width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb',
     borderRadius: 10, fontSize: 14, color: '#111827', outline: 'none',
     fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white',
+  };
+
+  const labelStyle = {
+    fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block',
+    marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px'
   };
 
   return (
@@ -167,16 +225,22 @@ export default function HomePage() {
           {showFilters && (
             <div style={{ marginTop: 16, padding: '20px 24px', background: '#f9fafb', borderRadius: 16, border: '1px solid #e5e7eb' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+
+                {/* Min Price */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Min Price (ETB)</label>
+                  <label style={labelStyle}>Min Price (ETB)</label>
                   <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="e.g. 500000" style={inputStyle} />
                 </div>
+
+                {/* Max Price */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Max Price (ETB)</label>
+                  <label style={labelStyle}>Max Price (ETB)</label>
                   <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="e.g. 5000000" style={inputStyle} />
                 </div>
+
+                {/* Bedrooms */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Bedrooms</label>
+                  <label style={labelStyle}>Bedrooms</label>
                   <select value={bedrooms} onChange={e => setBedrooms(e.target.value)} style={inputStyle}>
                     <option value="any">Any</option>
                     <option value="1">1 Bedroom</option>
@@ -186,19 +250,58 @@ export default function HomePage() {
                     <option value="5">5+ Bedrooms</option>
                   </select>
                 </div>
+
+                {/* City — searchable dropdown */}
+                <div ref={cityRef} style={{ position: 'relative' }}>
+                  <label style={labelStyle}>City / ከተማ</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      value={citySearch}
+                      onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { setCityFilter(''); setSubcity(''); } }}
+                      onFocus={() => setShowCityDropdown(true)}
+                      placeholder="Search city... / ከተማ ፈልግ"
+                      style={inputStyle}
+                    />
+                    <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                  </div>
+                  {showCityDropdown && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 220, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
+                      <div onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); setShowCityDropdown(false); }}
+                        style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#6b7280', borderBottom: '1px solid #f3f4f6', fontWeight: 500 }}>
+                        🇪🇹 All Ethiopia
+                      </div>
+                      {filteredCities.map(c => (
+                        <div key={c.cityEn}
+                          onClick={() => { setCityFilter(c.cityEn); setCitySearch(`${c.cityEn} (${c.cityAm})`); setSubcity(''); setShowCityDropdown(false); }}
+                          style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#111827', borderBottom: '1px solid #f3f4f6', background: cityFilter === c.cityEn ? '#f0f6ff' : 'white' }}
+                          onMouseEnter={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = '#f9fafb'; }}
+                          onMouseLeave={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = 'white'; }}>
+                          <span style={{ fontWeight: cityFilter === c.cityEn ? 700 : 400 }}>{c.cityEn}</span>
+                          <span style={{ color: '#9ca3af', marginLeft: 6, fontSize: 12 }}>{c.cityAm}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Subcity — only shown when city is selected */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Subcity / Location</label>
-                   <select value={subcity} onChange={e => setSubcity(e.target.value)} style={inputStyle}>
-                    <option value="">All Ethiopia</option>
-                    {LOCATIONS.map(group => (
-                      <optgroup key={group.group} label={group.group}>
-                        {group.options.map(o => <option key={o} value={o}>{o}</option>)}
-                      </optgroup>
+                  <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>Subcity / Location</label>
+                  <select
+                    value={subcity}
+                    onChange={e => setSubcity(e.target.value)}
+                    disabled={!selectedCity}
+                    style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5, cursor: selectedCity ? 'pointer' : 'not-allowed' }}>
+                    <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
+                    {selectedCity?.subsEn.map((sub, i) => (
+                      <option key={sub} value={sub}>{sub} — {selectedCity.subsAm[i]}</option>
                     ))}
                   </select>
                 </div>
+
+                {/* Sort */}
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Sort By</label>
+                  <label style={labelStyle}>Sort By</label>
                   <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={inputStyle}>
                     <option value="newest">Newest First</option>
                     <option value="price_asc">Price: Low to High</option>
@@ -206,11 +309,14 @@ export default function HomePage() {
                   </select>
                 </div>
               </div>
+
+              {/* Active filter tags */}
               {activeFilterCount > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8, marginTop: 16 }}>
                   {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Min: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {maxPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Max: ETB {parseInt(maxPrice).toLocaleString()} <button onClick={() => setMaxPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {bedrooms !== 'any' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{bedrooms} bed <button onClick={() => setBedrooms('any')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
+                  {cityFilter && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{cityFilter} <button onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {subcity && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{subcity} <button onClick={() => setSubcity('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {sortBy !== 'newest' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{sortBy === 'price_asc' ? 'Price ↑' : 'Price ↓'} <button onClick={() => setSortBy('newest')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                 </div>
@@ -329,7 +435,7 @@ export default function HomePage() {
                 🌍 Explore Diaspora Hub <ArrowRight size={18} />
               </Link>
             </div>
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
                 { number: '1,200+', label: 'Properties Available', icon: '🏠' },
                 { number: '4', label: 'Diaspora Services', icon: '🛡️' },
