@@ -77,11 +77,19 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
               </div>
             </div>
             <div style={{ textAlign: 'right' as const }}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#006AFF' }}>
-                {property.price?.toLocaleString()} {property.currency}
-              </div>
-              {property.type !== 'sale' && (
-                <div style={{ fontSize: 13, color: '#9ca3af' }}>per {property.type === 'short_rent' ? 'night' : 'month'}</div>
+              {(property as any).price_negotiable ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '8px 16px' }}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: '#92400e' }}>🤝 Price on Negotiation</span>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#006AFF' }}>
+                    {property.price?.toLocaleString()} {property.currency}
+                  </div>
+                  {property.type !== 'sale' && (
+                    <div style={{ fontSize: 13, color: '#9ca3af' }}>per {property.type === 'short_rent' ? 'night' : 'month'}</div>
+                  )}
+                </>
               )}
             </div>
           </div>
