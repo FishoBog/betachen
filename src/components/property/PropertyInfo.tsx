@@ -1,206 +1,145 @@
+'use client';
 import { BedDouble, Bath, Maximize2, MapPin, Calendar, Building, Car, Droplets, UtensilsCrossed, Navigation, Zap, Wifi, Shield } from 'lucide-react';
 import type { Property } from '@/types';
+import { useLang } from '@/context/LangContext';
 
-const AMENITY_LABELS: Record<string, string> = {
-  parking: '🚗 Parking', wifi: '📶 WiFi', generator: '⚡ Generator',
-  water_tank: '💧 Water Tank', security: '💂 Security', cctv: '📹 CCTV',
-  gym: '🏋️ Gym', pool: '🏊 Pool', elevator: '🛗 Elevator',
-  furnished: '🛋️ Furnished', ac: '❄️ A/C', solar: '☀️ Solar',
-  garden: '🌿 Garden', balcony: '🏠 Balcony',
+const AMENITY_LABELS: Record<string, { en: string; am: string }> = {
+  parking:    { en: '🚗 Parking',    am: '🚗 ፓርኪንግ' },
+  wifi:       { en: '📶 WiFi',       am: '📶 ዋይፋይ' },
+  generator:  { en: '⚡ Generator',  am: '⚡ ጀነሬተር' },
+  water_tank: { en: '💧 Water Tank', am: '💧 የውሃ ታንከር' },
+  security:   { en: '💂 Security',   am: '💂 ጠባቂ' },
+  cctv:       { en: '📹 CCTV',       am: '📹 ካሜራ' },
+  gym:        { en: '🏋️ Gym',        am: '🏋️ ጂም' },
+  pool:       { en: '🏊 Pool',       am: '🏊 መዋኛ' },
+  elevator:   { en: '🛗 Elevator',   am: '🛗 ሊፍት' },
+  furnished:  { en: '🛋️ Furnished',  am: '🛋️ የተዘጋጀ' },
+  ac:         { en: '❄️ A/C',        am: '❄️ ኤርኮንዲሽን' },
+  solar:      { en: '☀️ Solar',      am: '☀️ ሶላር' },
+  garden:     { en: '🌿 Garden',     am: '🌿 የአትክልት ቦታ' },
+  balcony:    { en: '🏠 Balcony',    am: '🏠 በረንዳ' },
 };
 
-const CONDITION_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  new: { label: '✨ New / Recently Built', color: '#065f46', bg: '#d1fae5' },
-  good: { label: '✓ Good Condition', color: '#1d4ed8', bg: '#dbeafe' },
-  needs_renovation: { label: '🔧 Needs Renovation', color: '#92400e', bg: '#fef3c7' },
+const CONDITION_LABELS: Record<string, { en: string; am: string; color: string; bg: string }> = {
+  new:              { en: '✨ New / Recently Built', am: '✨ አዲስ / በቅርብ የተሰራ', color: '#065f46', bg: '#d1fae5' },
+  good:             { en: '✓ Good Condition',        am: '✓ ጥሩ ሁኔታ',            color: '#1d4ed8', bg: '#dbeafe' },
+  needs_renovation: { en: '🔧 Needs Renovation',     am: '🔧 ጥገና ያስፈልጋል',       color: '#92400e', bg: '#fef3c7' },
 };
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, paddingBottom: 10, borderBottom: '2px solid #f3f4f6' }}>
+      <span style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>{children}</span>
+    </div>
+  );
+}
+
+function FactRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+      <span style={{ fontSize: 14, color: '#6b7280', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: 14, color: '#111827', fontWeight: 700, textAlign: 'right' as const }}>{value}</span>
+    </div>
+  );
+}
 
 export function PropertyInfo({ property }: { property: Property }) {
-  const condition = property.condition ? CONDITION_LABELS[property.condition] : null;
+  const { lang } = useLang();
+  const am = lang === 'AM';
+
+  const p = property as any;
+  const condition = p.condition ? CONDITION_LABELS[p.condition] : null;
 
   return (
-    <div style={{ display: 'grid', gap: '1.5rem' }}>
+    <div style={{ display: 'grid', gap: 28 }}>
 
       {/* Condition badge */}
       {condition && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: condition.bg, borderRadius: 20, width: 'fit-content' }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: condition.color }}>{condition.label}</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: condition.bg, borderRadius: 20, width: 'fit-content' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: condition.color }}>
+            {am ? condition.am : condition.en}
+          </span>
         </div>
       )}
 
-      {/* Key stats */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-        {property.bedrooms && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <BedDouble style={{ width: 16, height: 16, color: '#6b7280' }} />{property.bedrooms} Bedroom{property.bedrooms > 1 ? 's' : ''}
+      {/* Description */}
+      {property.description && (
+        <div>
+          <SectionTitle>{am ? 'መግለጫ' : 'Description'}</SectionTitle>
+          <p style={{ color: '#4b5563', lineHeight: 1.8, fontSize: 15 }}>{property.description}</p>
+        </div>
+      )}
+
+      {/* Facts & Features — Zillow style */}
+      <div>
+        <SectionTitle>{am ? 'እውነታዎች እና ባህሪያት' : 'Facts & Features'}</SectionTitle>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0 32px' }}>
+
+          {/* Interior */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4, marginTop: 8 }}>
+              {am ? 'ውስጥ' : 'Interior'}
+            </div>
+            {property.bedrooms ? <FactRow label={am ? 'መኝታ ክፍሎች' : 'Bedrooms'} value={property.bedrooms} /> : null}
+            {property.bathrooms ? <FactRow label={am ? 'መታጠቢያ ክፍሎች' : 'Bathrooms'} value={`${property.bathrooms} (${am ? (property.bathroom_type === 'private' ? 'የግል' : 'የጋራ') : property.bathroom_type})`} /> : null}
+            {p.total_rooms ? <FactRow label={am ? 'ጠቅላላ ክፍሎች' : 'Total Rooms'} value={p.total_rooms} /> : null}
+            {property.kitchen_type && property.kitchen_type !== 'none' ? <FactRow label={am ? 'ወጥ ቤት' : 'Kitchen'} value={am ? (property.kitchen_type === 'private' ? 'የግል' : 'የጋራ') : property.kitchen_type} /> : null}
+            {property.kitchen_type === 'none' ? <FactRow label={am ? 'ወጥ ቤት' : 'Kitchen'} value={am ? 'የለም' : 'None'} /> : null}
           </div>
-        )}
-        {property.bathrooms && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Bath style={{ width: 16, height: 16, color: '#6b7280' }} />{property.bathrooms} Bathroom{property.bathrooms > 1 ? 's' : ''}
-            {property.bathroom_type && <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>({property.bathroom_type})</span>}
+
+          {/* Building */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4, marginTop: 8 }}>
+              {am ? 'ህንፃ' : 'Building'}
+            </div>
+            {property.area_sqm ? <FactRow label={am ? 'የቤት ስፋት' : 'House Area'} value={`${property.area_sqm} m²`} /> : null}
+            {p.plot_area_sqm ? <FactRow label={am ? 'የቦታ ስፋት' : 'Plot Area'} value={`${p.plot_area_sqm} m²`} /> : null}
+            {property.floor ? <FactRow label={am ? 'ፎቅ' : 'Floor'} value={`${property.floor}${property.total_floors ? ` / ${property.total_floors}` : ''}`} /> : null}
+            {property.year_built ? <FactRow label={am ? 'የተሰራበት ዓመት' : 'Year Built'} value={property.year_built} /> : null}
+            {p.condition ? <FactRow label={am ? 'ሁኔታ' : 'Condition'} value={am ? CONDITION_LABELS[p.condition]?.am?.replace(/^[^ ]+ /, '') : CONDITION_LABELS[p.condition]?.en?.replace(/^[^ ]+ /, '')} /> : null}
           </div>
-        )}
-        {(property as any).total_rooms && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            🚪 {(property as any).total_rooms} Total Rooms
+
+          {/* Location */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4, marginTop: 8 }}>
+              {am ? 'አካባቢ' : 'Location'}
+            </div>
+            {property.location_name ? <FactRow label={am ? 'አድራሻ' : 'Address'} value={property.location_name} /> : null}
+            {p.road_type ? <FactRow label={am ? 'የመንገድ አይነት' : 'Road Type'} value={am ? (p.road_type === 'asphalt' ? 'አስፋልት' : p.road_type === 'cobblestone' ? 'ኮብልስቶን' : 'የጸና መንገድ') : (p.road_type === 'asphalt' ? 'Asphalt' : p.road_type === 'cobblestone' ? 'Cobblestone' : 'Dirt Road')} /> : null}
+            {p.distance_to_road_m ? <FactRow label={am ? 'ከዋና መንገድ ርቀት' : 'Distance to Main Road'} value={`${p.distance_to_road_m}m`} /> : null}
+            {p.parking_spaces ? <FactRow label={am ? 'ፓርኪንግ' : 'Parking'} value={`${p.parking_spaces} ${am ? 'ቦታ' : 'spaces'}`} /> : null}
           </div>
-        )}
-        {property.area_sqm && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Maximize2 style={{ width: 16, height: 16, color: '#6b7280' }} />{property.area_sqm} m² house
+
+          {/* Utilities */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4, marginTop: 8 }}>
+              {am ? 'አገልግሎቶች' : 'Utilities'}
+            </div>
+            {p.electricity_reliability ? <FactRow label={am ? 'ኤሌክትሪክ' : 'Electricity'} value={am ? (p.electricity_reliability === '24hr' ? '24 ሰዓት' : p.electricity_reliability === 'frequent_cuts' ? 'ተደጋጋሚ መቆራረጥ' : 'ሶላር ብቻ') : (p.electricity_reliability === '24hr' ? '24hrs Reliable' : p.electricity_reliability === 'frequent_cuts' ? 'Frequent Cuts' : 'Solar Only')} /> : null}
+            {p.internet_type && p.internet_type !== 'none' ? <FactRow label={am ? 'ኢንተርኔት' : 'Internet'} value={am ? (p.internet_type === 'fiber' ? 'ኢትዮ ፋይበር' : p.internet_type === 'mobile' ? 'ሞባይል ዳታ' : 'ፋይበር + ሞባይል') : (p.internet_type === 'fiber' ? 'Ethio Fiber' : p.internet_type === 'mobile' ? 'Mobile Data' : 'Fiber + Mobile')} /> : null}
+            {p.ground_water !== undefined ? <FactRow label={am ? 'የከርሰ ምድር ውሃ' : 'Ground Water'} value={p.ground_water ? (am ? '✓ አለ' : '✓ Available') : (am ? 'የለም' : 'No')} /> : null}
+            {p.water_tanker !== undefined ? <FactRow label={am ? 'የውሃ ታንከር' : 'Water Tanker'} value={p.water_tanker ? (am ? '✓ አለ' : '✓ Available') : (am ? 'የለም' : 'No')} /> : null}
           </div>
-        )}
-        {property.plot_area_sqm && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Maximize2 style={{ width: 16, height: 16, color: '#6b7280' }} />{property.plot_area_sqm} m² plot
+
+          {/* Security */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E8431A', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4, marginTop: 8 }}>
+              {am ? 'ደህንነት' : 'Security'}
+            </div>
+            {p.has_compound_wall !== undefined ? <FactRow label={am ? 'የግቢ ግድግዳ' : 'Compound Wall'} value={p.has_compound_wall ? (am ? '✓ አለ' : '✓ Yes') : (am ? 'የለም' : 'No')} /> : null}
+            {p.has_guard_house !== undefined ? <FactRow label={am ? 'የጠባቂ ቤት' : 'Guard House'} value={p.has_guard_house ? (am ? '✓ አለ' : '✓ Yes') : (am ? 'የለም' : 'No')} /> : null}
           </div>
-        )}
-        {property.floor && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Building style={{ width: 16, height: 16, color: '#6b7280' }} />Floor {property.floor}{property.total_floors ? ` of ${property.total_floors}` : ''}
-          </div>
-        )}
-        {property.year_built && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Calendar style={{ width: 16, height: 16, color: '#6b7280' }} />Built {property.year_built}
-          </div>
-        )}
-        {property.parking_spaces ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Car style={{ width: 16, height: 16, color: '#6b7280' }} />{property.parking_spaces} Parking space{property.parking_spaces > 1 ? 's' : ''}
-          </div>
-        ) : null}
-        {property.distance_to_road_m && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            <Navigation style={{ width: 16, height: 16, color: '#6b7280' }} />{property.distance_to_road_m}m from main road
-          </div>
-        )}
-        {(property as any).road_type && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-            🛣️ {(property as any).road_type === 'asphalt' ? 'Asphalt Road' : (property as any).road_type === 'cobblestone' ? 'Cobblestone' : 'Dirt Road'}
-          </div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem', color: '#374151' }}>
-          <MapPin style={{ width: 16, height: 16, color: '#6b7280' }} />{property.location_name}
+
         </div>
       </div>
 
-      {/* Water supply highlights */}
-      {(property.ground_water || property.water_tanker) && (
-        <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>💧 Water Supply</h3>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {property.ground_water && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', background: '#ecfdf5', borderRadius: '10px', border: '1px solid #6ee7b7' }}>
-                <Droplets style={{ width: 18, height: 18, color: '#059669' }} />
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.875rem', color: '#065f46' }}>Ground Water Available</div>
-                  <div style={{ fontSize: '0.75rem', color: '#047857' }}>Borehole/well on site ⭐ Desirable</div>
-                </div>
-              </div>
-            )}
-            {property.water_tanker && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', background: '#eff6ff', borderRadius: '10px', border: '1px solid #93c5fd' }}>
-                <Droplets style={{ width: 18, height: 18, color: '#2563eb' }} />
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.875rem', color: '#1e40af' }}>Water Tanker Access</div>
-                  <div style={{ fontSize: '0.75rem', color: '#1d4ed8' }}>Tanker delivery available ⭐ Desirable</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Security & compound */}
-      {((property as any).has_compound_wall || (property as any).has_guard_house) && (
-        <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>🔒 Security</h3>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {(property as any).has_compound_wall && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#f0f6ff', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
-                <Shield style={{ width: 16, height: 16, color: '#2563eb' }} />
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>Compound Wall / Fence</span>
-              </div>
-            )}
-            {(property as any).has_guard_house && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#f0f6ff', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
-                <Shield style={{ width: 16, height: 16, color: '#2563eb' }} />
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>Guard House on Site</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Utilities */}
-      {((property as any).electricity_reliability || (property as any).internet_type) && (
-        <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>⚡ Utilities</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '500px' }}>
-            {(property as any).electricity_reliability && (
-              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <Zap style={{ width: 15, height: 15, color: '#f59e0b' }} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Electricity</span>
-                </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827' }}>
-                  {(property as any).electricity_reliability === '24hr' ? '24hrs Reliable' :
-                   (property as any).electricity_reliability === 'frequent_cuts' ? 'Frequent Cuts' : 'Solar Only'}
-                </div>
-              </div>
-            )}
-            {(property as any).internet_type && (property as any).internet_type !== 'none' && (
-              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <Wifi style={{ width: 15, height: 15, color: '#2563eb' }} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Internet</span>
-                </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827' }}>
-                  {(property as any).internet_type === 'fiber' ? 'Ethio Fiber' :
-                   (property as any).internet_type === 'mobile' ? 'Mobile Data' : 'Fiber + Mobile'}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Kitchen & bathroom for long rent */}
-      {(property.kitchen_type || property.bathroom_type) && property.type === 'long_rent' && (
-        <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>🏠 Room Details</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '400px' }}>
-            {property.kitchen_type && property.kitchen_type !== 'none' && (
-              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <UtensilsCrossed style={{ width: 15, height: 15, color: '#6b7280' }} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Kitchen</span>
-                </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', textTransform: 'capitalize' }}>{property.kitchen_type}</div>
-              </div>
-            )}
-            {property.bathroom_type && (
-              <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <Bath style={{ width: 15, height: 15, color: '#6b7280' }} />
-                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Bathroom</span>
-                </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#111827', textTransform: 'capitalize' }}>{property.bathroom_type}</div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Nearby landmarks */}
-      {(property as any).nearby_landmarks?.length > 0 && (
+      {p.nearby_landmarks?.length > 0 && (
         <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>📍 Nearby</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {(property as any).nearby_landmarks.map((l: string) => (
-              <span key={l} style={{ padding: '6px 14px', background: '#f0f6ff', border: '1px solid #bfdbfe', borderRadius: '20px', fontSize: '0.875rem', color: '#1e40af', fontWeight: '500' }}>
+          <SectionTitle>{am ? 'አቅራቢያ' : 'Nearby'}</SectionTitle>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {p.nearby_landmarks.map((l: string) => (
+              <span key={l} style={{ padding: '6px 14px', background: '#f0f6ff', border: '1px solid #bfdbfe', borderRadius: 20, fontSize: 13, color: '#1e40af', fontWeight: 500 }}>
                 📍 {l}
               </span>
             ))}
@@ -208,27 +147,20 @@ export function PropertyInfo({ property }: { property: Property }) {
         </div>
       )}
 
-      {/* Description */}
-      {property.description && (
-        <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.5rem' }}>Description</h3>
-          <p style={{ color: '#4b5563', lineHeight: '1.7', fontSize: '0.95rem' }}>{property.description}</p>
-        </div>
-      )}
-
       {/* Amenities */}
       {property.amenities?.length > 0 && (
         <div>
-          <h3 style={{ fontWeight: '700', fontSize: '1.1rem', color: '#111827', marginBottom: '0.75rem' }}>Amenities</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <SectionTitle>{am ? 'አገልግሎቶች' : 'Amenities'}</SectionTitle>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {property.amenities.map(a => (
-              <span key={a} style={{ padding: '6px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.875rem', color: '#374151' }}>
-                {AMENITY_LABELS[a] ?? a}
+              <span key={a} style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 13, color: '#374151', fontWeight: 500 }}>
+                {am ? (AMENITY_LABELS[a]?.am ?? a) : (AMENITY_LABELS[a]?.en ?? a)}
               </span>
             ))}
           </div>
         </div>
       )}
+
     </div>
   );
 }
