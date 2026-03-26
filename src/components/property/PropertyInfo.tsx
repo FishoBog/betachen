@@ -25,14 +25,7 @@ const CONDITION_CONFIG: Record<string, { en: string; am: string; color: string; 
   needs_renovation: { en: 'Needs Renovation',      am: 'ጥገና ያስፈልጋል',       color: '#92400e', bg: '#fef3c7' },
 };
 
-interface FactItemProps {
-  icon: string;
-  label: string;
-  value: string;
-  highlight?: boolean;
-}
-
-function FactItem({ icon, label, value, highlight }: FactItemProps) {
+function FactItem({ icon, label, value, highlight }: { icon: string; label: string; value: string; highlight?: boolean }) {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 4,
@@ -42,7 +35,7 @@ function FactItem({ icon, label, value, highlight }: FactItemProps) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 16 }}>{icon}</span>
-        <span style={{ fontSize: 11, fontWeight: 700, color: highlight ? '#E8431A' : '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: highlight ? '#E8431A' : '#6b7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</span>
       </div>
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', paddingLeft: 22 }}>{value}</div>
     </div>
@@ -51,9 +44,9 @@ function FactItem({ icon, label, value, highlight }: FactItemProps) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-      {children}
-      <div style={{ flex: 1, height: 1, background: '#f3f4f6', marginLeft: 8 }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+      <span style={{ fontSize: 16, fontWeight: 800, color: '#111827', whiteSpace: 'nowrap' as const }}>{children}</span>
+      <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
     </div>
   );
 }
@@ -62,8 +55,32 @@ export function PropertyInfo({ property }: { property: Property }) {
   const { lang } = useLang();
   const am = lang === 'AM';
   const p = property as any;
-
   const condition = p.condition ? CONDITION_CONFIG[p.condition] : null;
+
+  const roadLabel = (type: string) => {
+    if (am) return type === 'asphalt' ? 'አስፋልት' : type === 'cobblestone' ? 'ኮብልስቶን' : 'የጸና መንገድ';
+    return type === 'asphalt' ? 'Asphalt Road' : type === 'cobblestone' ? 'Cobblestone' : 'Dirt Road';
+  };
+
+  const kitchenLabel = (type: string) => {
+    if (am) return type === 'private' ? 'የግል ወጥ ቤት' : type === 'shared' ? 'የጋራ ወጥ ቤት' : 'ወጥ ቤት የለም';
+    return type === 'private' ? 'Private Kitchen' : type === 'shared' ? 'Shared Kitchen' : 'No Kitchen';
+  };
+
+  const bathroomLabel = (type: string) => {
+    if (am) return type === 'private' ? 'የግል' : 'የጋራ';
+    return type === 'private' ? 'Private' : 'Shared';
+  };
+
+  const electricityLabel = (type: string) => {
+    if (am) return type === '24hr' ? '24 ሰዓት ያለ መቆራረጥ' : type === 'frequent_cuts' ? 'ተደጋጋሚ መቆራረጥ አለ' : 'ሶላር ብቻ';
+    return type === '24hr' ? '24hrs — Reliable' : type === 'frequent_cuts' ? 'Frequent Power Cuts' : 'Solar Only';
+  };
+
+  const internetLabel = (type: string) => {
+    if (am) return type === 'fiber' ? 'ኢትዮ ፋይበር' : type === 'mobile' ? 'ሞባይል ዳታ' : 'ፋይበር + ሞባይል';
+    return type === 'fiber' ? 'Ethio Telecom Fiber' : type === 'mobile' ? 'Mobile Data Only' : 'Fiber + Mobile Data';
+  };
 
   return (
     <div style={{ display: 'grid', gap: 28 }}>
@@ -72,73 +89,66 @@ export function PropertyInfo({ property }: { property: Property }) {
       {property.description && (
         <div>
           <SectionHeading>{am ? '📝 መግለጫ' : '📝 About this property'}</SectionHeading>
-          <p style={{ color: '#4b5563', lineHeight: 1.8, fontSize: 15, margin: 0 }}>{property.description}</p>
+          <p style={{ color: '#374151', lineHeight: 1.8, fontSize: 15, margin: 0 }}>{property.description}</p>
         </div>
       )}
 
       {/* Condition */}
       {condition && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: condition.bg, borderRadius: 20, width: 'fit-content', border: `1px solid ${condition.bg}` }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: condition.bg, borderRadius: 20, width: 'fit-content' }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: condition.color }}>
-            {am ? `🏗️ ${condition.am}` : `🏗️ ${condition.en}`}
+            🏗️ {am ? condition.am : condition.en}
           </span>
         </div>
       )}
 
-      {/* Key facts grid */}
+      {/* Key facts */}
       <div>
         <SectionHeading>{am ? '🔑 ዋና መረጃዎች' : '🔑 Key Facts'}</SectionHeading>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
-          {property.bedrooms ? <FactItem icon="🛏" label={am ? 'መኝታ' : 'Bedrooms'} value={`${property.bedrooms}`} /> : null}
-          {property.bathrooms ? <FactItem icon="🚿" label={am ? 'መታጠቢያ' : 'Bathrooms'} value={`${property.bathrooms} (${am ? (property.bathroom_type === 'private' ? 'የግል' : 'የጋራ') : property.bathroom_type})`} /> : null}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 10 }}>
+          {property.bedrooms ? <FactItem icon="🛏" label={am ? 'መኝታ ክፍሎች' : 'Bedrooms'} value={`${property.bedrooms}`} /> : null}
+          {property.bathrooms ? <FactItem icon="🚿" label={am ? 'መታጠቢያ' : 'Bathrooms'} value={`${property.bathrooms} — ${bathroomLabel(property.bathroom_type ?? 'private')}`} /> : null}
           {p.total_rooms ? <FactItem icon="🚪" label={am ? 'ጠቅላላ ክፍሎች' : 'Total Rooms'} value={`${p.total_rooms}`} /> : null}
+          {property.kitchen_type ? <FactItem icon="🍳" label={am ? 'ወጥ ቤት' : 'Kitchen'} value={kitchenLabel(property.kitchen_type)} highlight={property.kitchen_type === 'private'} /> : null}
           {property.area_sqm ? <FactItem icon="📐" label={am ? 'የቤት ስፋት' : 'House Area'} value={`${property.area_sqm} m²`} /> : null}
-          {p.plot_area_sqm ? <FactItem icon="🗺" label={am ? 'የቦታ ስፋት' : 'Plot Area'} value={`${p.plot_area_sqm} m²`} /> : null}
-          {property.floor ? <FactItem icon="🏢" label={am ? 'ፎቅ' : 'Floor'} value={`${property.floor}${property.total_floors ? `/${property.total_floors}` : ''}`} /> : null}
+          {p.plot_area_sqm ? <FactItem icon="🗺️" label={am ? 'የቦታ ስፋት' : 'Plot Area'} value={`${p.plot_area_sqm} m²`} /> : null}
+          {property.floor ? <FactItem icon="🏢" label={am ? 'ፎቅ' : 'Floor'} value={`${property.floor}${property.total_floors ? ` / ${property.total_floors}` : ''}`} /> : null}
           {property.year_built ? <FactItem icon="📅" label={am ? 'የተሰራ' : 'Year Built'} value={`${property.year_built}`} /> : null}
           {p.parking_spaces ? <FactItem icon="🚗" label={am ? 'ፓርኪንግ' : 'Parking'} value={`${p.parking_spaces} ${am ? 'ቦታ' : 'spaces'}`} /> : null}
         </div>
       </div>
 
-      {/* Location facts */}
+      {/* Location */}
       <div>
         <SectionHeading>{am ? '📍 አካባቢ' : '📍 Location Details'}</SectionHeading>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
-          {p.road_type ? <FactItem icon="🛣" label={am ? 'የመንገድ አይነት' : 'Road Type'} value={am ? (p.road_type === 'asphalt' ? 'አስፋልት' : p.road_type === 'cobblestone' ? 'ኮብልስቶን' : 'የጸና') : (p.road_type === 'asphalt' ? 'Asphalt' : p.road_type === 'cobblestone' ? 'Cobblestone' : 'Dirt Road')} /> : null}
-          {p.distance_to_road_m ? <FactItem icon="📏" label={am ? 'ከዋና መንገድ' : 'From Main Road'} value={`${p.distance_to_road_m}m`} /> : null}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 10 }}>
           {property.location_name ? <FactItem icon="📌" label={am ? 'አካባቢ' : 'Area'} value={property.location_name} /> : null}
+          {p.road_type ? <FactItem icon="🛣️" label={am ? 'የመንገድ አይነት' : 'Road Type'} value={roadLabel(p.road_type)} highlight={p.road_type === 'asphalt'} /> : null}
+          {p.distance_to_road_m ? (
+            <FactItem
+              icon="📏"
+              label={am ? 'ከዋና መንገድ' : 'From Main Road'}
+              value={`${p.distance_to_road_m}m ${am ? 'ርቀት' : 'to'} ${p.road_type ? roadLabel(p.road_type) : ''}`}
+            />
+          ) : null}
         </div>
       </div>
 
       {/* Utilities */}
       <div>
         <SectionHeading>{am ? '⚡ አገልግሎቶች' : '⚡ Utilities & Infrastructure'}</SectionHeading>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 10 }}>
           {p.electricity_reliability ? (
-            <FactItem
-              icon="💡"
-              label={am ? 'ኤሌክትሪክ' : 'Electricity'}
-              value={am
-                ? (p.electricity_reliability === '24hr' ? '24 ሰዓት' : p.electricity_reliability === 'frequent_cuts' ? 'ተደጋጋሚ መቆራረጥ' : 'ሶላር ብቻ')
-                : (p.electricity_reliability === '24hr' ? '24hrs Reliable' : p.electricity_reliability === 'frequent_cuts' ? 'Frequent Cuts' : 'Solar Only')}
-              highlight={p.electricity_reliability === '24hr'}
-            />
+            <FactItem icon="💡" label={am ? 'ኤሌክትሪክ' : 'Electricity'} value={electricityLabel(p.electricity_reliability)} highlight={p.electricity_reliability === '24hr'} />
           ) : null}
           {p.internet_type && p.internet_type !== 'none' ? (
-            <FactItem
-              icon="🌐"
-              label={am ? 'ኢንተርኔት' : 'Internet'}
-              value={am
-                ? (p.internet_type === 'fiber' ? 'ኢትዮ ፋይበር' : p.internet_type === 'mobile' ? 'ሞባይል ዳታ' : 'ፋይበር + ሞባይል')
-                : (p.internet_type === 'fiber' ? 'Ethio Fiber' : p.internet_type === 'mobile' ? 'Mobile Data' : 'Fiber + Mobile')}
-              highlight={p.internet_type === 'fiber' || p.internet_type === 'both'}
-            />
+            <FactItem icon="🌐" label={am ? 'ኢንተርኔት' : 'Internet'} value={internetLabel(p.internet_type)} highlight={p.internet_type === 'fiber' || p.internet_type === 'both'} />
           ) : null}
           {p.ground_water ? (
-            <FactItem icon="💧" label={am ? 'የከርሰ ምድር ውሃ' : 'Ground Water'} value={am ? '✓ አለ' : '✓ Available'} highlight />
+            <FactItem icon="💧" label={am ? 'የከርሰ ምድር ውሃ' : 'Ground Water'} value={am ? '✓ ቦሪሆል / ጉድጓድ አለ' : '✓ Borehole / Well on site'} highlight />
           ) : null}
           {p.water_tanker ? (
-            <FactItem icon="🚛" label={am ? 'የውሃ ታንከር' : 'Water Tanker'} value={am ? '✓ ይገኛል' : '✓ Available'} highlight />
+            <FactItem icon="🚛" label={am ? 'የውሃ ታንከር' : 'Water Tanker'} value={am ? '✓ ይገኛል' : '✓ Delivery Available'} highlight />
           ) : null}
         </div>
       </div>
@@ -151,7 +161,7 @@ export function PropertyInfo({ property }: { property: Property }) {
             {p.has_compound_wall && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: '#f0f6ff', border: '1px solid #bfdbfe', borderRadius: 10 }}>
                 <span style={{ fontSize: 18 }}>🧱</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#1e40af' }}>{am ? 'የግቢ ግድግዳ አለ' : 'Compound Wall / Fence'}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#1e40af' }}>{am ? 'የግቢ ግድግዳ / አጥር አለ' : 'Compound Wall / Fence'}</span>
               </div>
             )}
             {p.has_guard_house && (
@@ -167,10 +177,13 @@ export function PropertyInfo({ property }: { property: Property }) {
       {/* Nearby */}
       {p.nearby_landmarks?.length > 0 && (
         <div>
-          <SectionHeading>{am ? '🏫 አቅራቢያ' : '🏫 Nearby'}</SectionHeading>
+          <SectionHeading>{am ? '🏫 አቅራቢያ የሚገኙ' : '🏫 Walking Distance To'}</SectionHeading>
+          <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 10, marginTop: -8 }}>
+            {am ? 'ከዚህ ንብረት አቅራቢያ የሚገኙ:' : 'The following places are accessible nearby:'}
+          </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {p.nearby_landmarks.map((l: string) => (
-              <span key={l} style={{ padding: '7px 14px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 20, fontSize: 13, color: '#374151', fontWeight: 500 }}>
+              <span key={l} style={{ padding: '7px 14px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 20, fontSize: 13, color: '#374151', fontWeight: 600 }}>
                 📍 {l}
               </span>
             ))}

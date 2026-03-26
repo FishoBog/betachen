@@ -1,46 +1,54 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trash2, Edit, CheckCircle } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { Trash2, RefreshCw } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase';
 
 interface Props { propertyId: string; status: string; }
 
 export function ListingActions({ propertyId, status }: Props) {
   const router = useRouter();
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const supabase = createBrowserClient();
 
-  const markSold = async () => {
-    setLoading(true);
-    await supabase.from('properties').update({ status: 'sold' }).eq('id', propertyId);
-    router.refresh();
-    setLoading(false);
-  };
-
   const deleteListing = async () => {
-    if (!confirm('Delete this listing?')) return;
+    if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
     setLoading(true);
     await supabase.from('properties').delete().eq('id', propertyId);
     router.push('/owner/dashboard');
   };
 
+  if (!user) return null;
+
   return (
-    <div className="flex gap-2">
-      <button onClick={() => router.push(`/property/${propertyId}/edit`)}
-        className="btn-secondary flex items-center gap-2 text-sm">
-        <Edit className="w-4 h-4" /> Edit
-      </button>
-      {status === 'published' && (
-        <button onClick={markSold} disabled={loading}
-          className="btn-secondary flex items-center gap-2 text-sm">
-          <CheckCircle className="w-4 h-4" /> Mark Sold
+    <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '16px 20px' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+        Owner Actions
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <a href={`/owner/listings/${propertyId}/renew`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+          <RefreshCw size={14} /> Renew
+        </a>
+        <button
+          onClick={deleteListing}
+          disabled={loading}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer' }}>
+          <Trash2 size={14} /> {loading ? '...' : 'Delete'}
         </button>
-      )}
-      <button onClick={deleteListing} disabled={loading}
-        className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
-        <Trash2 className="w-4 h-4" /> Delete
-      </button>
+      </div>
     </div>
   );
 }
+```
+
+Ctrl+S ✅
+
+---
+
+## File 3 — `src/components/property/PropertyInfo.tsx`
+
+Fix the nearby section and kitchen/bathroom details:
+```
+code src/components/property/PropertyInfo.tsx
