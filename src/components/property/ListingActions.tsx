@@ -31,24 +31,10 @@ export function ListingActions({ propertyId, status }: Props) {
         <a href={`/owner/listings/${propertyId}/renew`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
           <RefreshCw size={14} /> Renew
         </a>
-        <button
-          onClick={deleteListing}
-          disabled={loading}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer' }}>
+        <button onClick={deleteListing} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer' }}>
           <Trash2 size={14} /> {loading ? '...' : 'Delete'}
         </button>
       </div>
     </div>
   );
 }
-```
-
-Ctrl+S ✅
-
----
-
-## File 3 — `src/components/property/PropertyInfo.tsx`
-
-Fix the nearby section and kitchen/bathroom details:
-```
-code src/components/property/PropertyInfo.tsx
