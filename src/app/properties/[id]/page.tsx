@@ -28,7 +28,11 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
     .eq('id', id)
     .single();
 
-  if (!property || error) notFound();
+  console.log('Property query result:', { property: !!property, error: error?.message, id });
+  if (!property || error) {
+    console.log('Returning notFound for id:', id);
+    notFound();
+  }
 
   const typeColors: Record<string, { bg: string; color: string }> = {
     sale: { bg: '#dbeafe', color: '#1d4ed8' },
