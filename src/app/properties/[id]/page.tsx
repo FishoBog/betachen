@@ -24,7 +24,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
 
   const { data: property, error } = await supabase
     .from('properties')
-    .select('*, profiles(*)')
+    .select('*')
     .eq('id', id)
     .single();
 
