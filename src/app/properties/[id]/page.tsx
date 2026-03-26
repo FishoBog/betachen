@@ -24,15 +24,24 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
 
   const { data: property, error } = await supabase
     .from('properties')
-    .select('*, property_images(*), profiles(*)')
+    .select('*, profiles(*)')
     .eq('id', id)
     .single();
 
-  console.log('Property query result:', { property: !!property, error: error?.message, id });
-  if (!property || error) {
-    console.log('Returning notFound for id:', id);
-    notFound();
-  }
+  if (!property || error) notFound();
+
+  const { data: propertyImages } = await supabase
+    .from('property_images')
+    .select('*')
+    .eq('property_id', id);
+
+  const { data: similarProperties } = await supabase
+    .from('properties')
+    .select('id, title, price, currency, type, location, bedrooms')
+    .eq('status', 'active')
+    .eq('type', property.type)
+    .neq('id', id)
+    .limit(3);
 
   const typeColors: Record<string, { bg: string; color: string }> = {
     sale: { bg: '#dbeafe', color: '#1d4ed8' },
@@ -41,13 +50,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
   };
   const tc = typeColors[property.type] ?? typeColors.sale;
 
-  const { data: similarProperties } = await supabase
-    .from('properties')
-    .select('id, title, price, currency, type, location, bedrooms, property_images(*)')
-    .eq('status', 'active')
-    .eq('type', property.type)
-    .neq('id', id)
-    .limit(3);
+  const propertyWithImages = { ...property, property_images: propertyImages ?? [] };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -107,16 +110,16 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
         {/* Main grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 24, alignItems: 'start' }}>
           <div style={{ display: 'grid', gap: 24 }}>
-            <PropertyGallery images={property.property_images ?? []} />
+            <PropertyGallery images={propertyWithImages.property_images} />
             <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
-              <PropertyInfo property={property as Property} />
+              <PropertyInfo property={propertyWithImages as unknown as Property} />
             </div>
             <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
               <PropertyReviews propertyId={id} />
             </div>
           </div>
           <div style={{ display: 'grid', gap: 16 }}>
-            <ContactOwnerCard property={property as Property} />
+            <ContactOwnerCard property={propertyWithImages as unknown as Property} />
             <ListingActions propertyId={id} status={property.status} />
           </div>
         </div>
@@ -128,13 +131,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
               {similarProperties.map((p: any) => (
                 <Link key={p.id} href={`/properties/${p.id}`} style={{ textDecoration: 'none', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', display: 'block' }}>
-                  <div style={{ height: 180, overflow: 'hidden', background: '#f3f4f6' }}>
-                    {p.property_images?.[0] ? (
-                      <img src={p.property_images[0].image_url} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏠</div>
-                    )}
-                  </div>
+                  <div style={{ height: 180, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏠</div>
                   <div style={{ padding: '16px' }}>
                     <div style={{ fontSize: 18, fontWeight: 800, color: '#006AFF', marginBottom: 4 }}>{p.price?.toLocaleString()} {p.currency}</div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 6 }}>{p.title}</div>
