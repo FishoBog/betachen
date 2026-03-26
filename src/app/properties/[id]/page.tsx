@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 import { Navbar } from '@/components/layout/Navbar';
 import { PropertyGallery } from '@/components/property/PropertyGallery';
 import { PropertyInfo } from '@/components/property/PropertyInfo';
@@ -6,8 +7,7 @@ import { ContactOwnerCard } from '@/components/property/ContactOwnerCard';
 import { PropertyReviews } from '@/components/reviews/PropertyReviews';
 import { ViewTracker } from '@/components/property/ViewTracker';
 import { ListingActions } from '@/components/property/ListingActions';
-import { createServerClient } from '@/lib/supabase';
-import { typeLabel, formatPrice } from '@/lib/utils';
+import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
 import Link from 'next/link';
 import { ChevronRight, MapPin } from 'lucide-react';
@@ -16,14 +16,19 @@ interface Props { params: Promise<{ id: string }> }
 
 export default async function PropertyDetailPage({ params: paramsPromise }: Props) {
   const { id } = await paramsPromise;
-  const supabase = createServerClient();
-  const { data: property } = await supabase
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: property, error } = await supabase
     .from('properties')
     .select('*, property_images(*), profiles(*)')
     .eq('id', id)
     .single();
 
-  if (!property) notFound();
+  if (!property || error) notFound();
 
   const typeColors: Record<string, { bg: string; color: string }> = {
     sale: { bg: '#dbeafe', color: '#1d4ed8' },
@@ -97,8 +102,6 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
 
         {/* Main grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 24, alignItems: 'start' }}>
-
-          {/* Left column */}
           <div style={{ display: 'grid', gap: 24 }}>
             <PropertyGallery images={property.property_images ?? []} />
             <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
@@ -108,8 +111,6 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
               <PropertyReviews propertyId={id} />
             </div>
           </div>
-
-          {/* Right column */}
           <div style={{ display: 'grid', gap: 16 }}>
             <ContactOwnerCard property={property as Property} />
             <ListingActions propertyId={id} status={property.status} />
@@ -122,12 +123,12 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 20 }}>Similar Properties</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
               {similarProperties.map((p: any) => (
-                <Link key={p.id} href={`/properties/${p.id}`} style={{ textDecoration: 'none', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', display: 'block', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <Link key={p.id} href={`/properties/${p.id}`} style={{ textDecoration: 'none', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', display: 'block' }}>
                   <div style={{ height: 180, overflow: 'hidden', background: '#f3f4f6' }}>
                     {p.property_images?.[0] ? (
                       <img src={p.property_images[0].image_url} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: 40 }}>🏠</div>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏠</div>
                     )}
                   </div>
                   <div style={{ padding: '16px' }}>
