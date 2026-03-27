@@ -182,6 +182,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
 
           {whatsappNumber && (
             
+            <a
               href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
