@@ -21,22 +21,33 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const whatsappNumber = (property as any).owner_whatsapp;
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in your property "${property.title}" listed on ጎጆ Homes. ${typeof window !== 'undefined' ? window.location.href : ''}`);
 
-  const startChat = () => {
+  const handleMessageClick = async () => {
     if (!isSignedIn) {
-      setShowGuestForm(v => !v);
-      return;
-    }
+      setShowGuestForm(true);
       return;
     }
     setLoading(true);
-    const supabase = createBrowserClient();
-    const { data: existing } = await supabase.from('chats')
-      .select('id').eq('property_id', property.id).eq('buyer_id', user.id).single();
-    if (existing) { router.push(`/messages/${existing.id}`); return; }
-    const { data } = await supabase.from('chats')
-      .insert({ property_id: property.id, buyer_id: user.id, owner_id: property.owner_id })
-      .select('id').single();
-    if (data) router.push(`/messages/${data.id}`);
+    try {
+      const supabase = createBrowserClient();
+      const { data: existing } = await supabase
+        .from('chats')
+        .select('id')
+        .eq('property_id', property.id)
+        .eq('buyer_id', user!.id)
+        .single();
+      if (existing) {
+        router.push(`/messages/${existing.id}`);
+        return;
+      }
+      const { data } = await supabase
+        .from('chats')
+        .insert({ property_id: property.id, buyer_id: user!.id, owner_id: property.owner_id })
+        .select('id')
+        .single();
+      if (data) router.push(`/messages/${data.id}`);
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -55,8 +66,10 @@ export function ContactOwnerCard({ property }: { property: Property }) {
           message: guestMsg,
         }),
       });
-      setGuestSent(true);
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
+    setGuestSent(true);
     setLoading(false);
   };
 
@@ -163,6 +176,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
         </div>
       )}
 
+      {/* Success message */}
       {guestSent && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '14px', marginBottom: 16, textAlign: 'center' as const }}>
           <div style={{ fontSize: 24, marginBottom: 6 }}>✅</div>
@@ -171,11 +185,11 @@ export function ContactOwnerCard({ property }: { property: Property }) {
         </div>
       )}
 
-     {/* Action buttons */}
+      {/* Action buttons — always show unless guest form is open */}
       {!showGuestForm && !guestSent && (
         <div style={{ display: 'grid', gap: 10 }}>
           <button
-            onClick={startChat}
+            onClick={handleMessageClick}
             disabled={loading}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
             <MessageSquare size={18} />
@@ -184,7 +198,6 @@ export function ContactOwnerCard({ property }: { property: Property }) {
 
           {whatsappNumber && (
             
-            <a
               href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
