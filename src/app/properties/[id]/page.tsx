@@ -143,7 +143,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           </div>
 
           {/* Right column */}
-          <div classname="property-sidebar" style={{ display: 'grid', gap: 16 }}>
+          <div className="property-sidebar" style={{ display: 'grid', gap: 16 }}>
             <ContactOwnerCard property={propertyWithImages as unknown as Property} />
             <ListingActions propertyId={id} status={property.status} />
 
