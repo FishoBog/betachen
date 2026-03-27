@@ -7,7 +7,7 @@ import { createBrowserClient } from '@/lib/supabase';
 import type { Property } from '@/types';
 
 export function ContactOwnerCard({ property }: { property: Property }) {
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [shared, setShared] = useState(false);
@@ -21,11 +21,15 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const whatsappNumber = (property as any).owner_whatsapp;
   const whatsappMsg = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Gojo Homes.`);
 
-   const handleMessageClick = async () => {
+    const handleMessageClick = async () => {
+    if (!isLoaded) return;
     if (!isSignedIn) {
-      setShowGuestForm(prev => !prev);
+      setShowGuestForm(true);
       return;
     }
+  const [guestMsg, setGuestMsg] = useState('');
+  const [guestSent, setGuestSent] = useState(false);
+  const [showGuestForm, setShowGuestForm] = useState(false);
     setLoading(true);
     try {
       const supabase = createBrowserClient();
