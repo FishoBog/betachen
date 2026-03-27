@@ -19,3 +19,12 @@ body {
   font-family: var(--font-dm-sans), 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+@media (min-width: 900px) {
+  .property-grid {
+    grid-template-columns: minmax(0, 1fr) 320px !important;
+  }
+  .property-sidebar {
+    position: sticky;
+    top: 80px;
+  }
+}

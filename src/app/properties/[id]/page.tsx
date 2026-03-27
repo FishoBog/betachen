@@ -114,7 +114,8 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
         </div>
 
         {/* Main layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 20, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 20, alignItems: 'start' }} className="property-grid">
+
 
           {/* Left column */}
           <div style={{ display: 'grid', gap: 20 }}>
@@ -142,7 +143,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           </div>
 
           {/* Right column */}
-          <div style={{ display: 'grid', gap: 16, position: 'sticky', top: 80 }}>
+          <div classname="property-sidebar" style={{ display: 'grid', gap: 16 }}>
             <ContactOwnerCard property={propertyWithImages as unknown as Property} />
             <ListingActions propertyId={id} status={property.status} />
 
