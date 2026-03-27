@@ -21,9 +21,9 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const whatsappNumber = (property as any).owner_whatsapp;
   const whatsappMsg = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Gojo Homes.`);
 
-  const handleMessageClick = async () => {
+   const handleMessageClick = async () => {
     if (!isSignedIn) {
-      setShowGuestForm(true);
+      setShowGuestForm(prev => !prev);
       return;
     }
     setLoading(true);
