@@ -21,9 +21,11 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const whatsappNumber = (property as any).owner_whatsapp;
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in your property "${property.title}" listed on ጎጆ Homes. ${typeof window !== 'undefined' ? window.location.href : ''}`);
 
-  const startChat = async () => {
+  const startChat = () => {
     if (!isSignedIn) {
-      setShowGuestForm(true);
+      setShowGuestForm(v => !v);
+      return;
+    }
       return;
     }
     setLoading(true);
@@ -169,8 +171,8 @@ export function ContactOwnerCard({ property }: { property: Property }) {
         </div>
       )}
 
-      {/* Action buttons */}
-      {!showGuestForm && (
+     {/* Action buttons */}
+      {!showGuestForm && !guestSent && (
         <div style={{ display: 'grid', gap: 10 }}>
           <button
             onClick={startChat}
