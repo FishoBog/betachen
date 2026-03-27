@@ -21,15 +21,12 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const whatsappNumber = (property as any).owner_whatsapp;
   const whatsappMsg = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Gojo Homes.`);
 
-    const handleMessageClick = async () => {
+  const handleMessageClick = async () => {
     if (!isLoaded) return;
     if (!isSignedIn) {
       setShowGuestForm(true);
       return;
     }
-  const [guestMsg, setGuestMsg] = useState('');
-  const [guestSent, setGuestSent] = useState(false);
-  const [showGuestForm, setShowGuestForm] = useState(false);
     setLoading(true);
     try {
       const supabase = createBrowserClient();
@@ -198,10 +195,10 @@ export function ContactOwnerCard({ property }: { property: Property }) {
         <div style={{ display: 'grid', gap: 10 }}>
           <button
             onClick={handleMessageClick}
-            disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, border: 'none', cursor: 'pointer', width: '100%' }}>
+            disabled={!isLoaded || loading}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: !isLoaded ? '#9ca3af' : '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, border: 'none', cursor: !isLoaded ? 'wait' : 'pointer', width: '100%' }}>
             <MessageSquare size={18} />
-            {loading ? 'Opening...' : isNegotiable ? 'Message to Negotiate' : 'Message Owner'}
+            {!isLoaded ? 'Loading...' : loading ? 'Opening...' : isNegotiable ? 'Message to Negotiate' : 'Message Owner'}
           </button>
 
           {whatsappNumber && (
