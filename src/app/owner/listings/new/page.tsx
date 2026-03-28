@@ -122,7 +122,7 @@ const CITY_COORDS: Record<string, [number, number]> = {
           width="100%"
           height="320"
           style={{ border: 'none', display: 'block' }}
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${centerLng - 0.01},${centerlat - 0.01},${centerLng + 0.01},${centerLat + 0.01}&layer=mapnik${lat && lng ? `&marker=${lat},${lng}` : ''}`}
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${centerLng - 0.01},${centerLat - 0.01},${centerLng + 0.01},${centerLat + 0.01}&layer=mapnik${lat && lng ? `&marker=${lat},${lng}` : ''}`}
         />
       </div>
       <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
