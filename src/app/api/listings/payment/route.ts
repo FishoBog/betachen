@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     });
 
     const chapaData = await chapaRes.json();
-    if (chapaData.status !== 'success') throw new Error(chapaData.message || 'Payment init failed');
+    if (chapaData.status !== 'success') throw new Error(JSON.stringify(chapaData));
 
     // Save checkout URL
     await supabase.from('listing_payments').update({
