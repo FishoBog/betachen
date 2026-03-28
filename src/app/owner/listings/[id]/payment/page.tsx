@@ -45,7 +45,7 @@ export default function ListingPaymentPage() {
       if (data.error) throw new Error(data.error);
       window.location.href = data.checkoutUrl;
     } catch (err: any) {
-      setError(err.message);
+      setError(typeof err.message === 'string' ? err.message : JSON.stringify(err));
       setLoading(false);
     }
   };
