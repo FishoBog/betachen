@@ -53,6 +53,20 @@ const ETHIOPIA_CITIES = [
   { cityEn: 'Semera', cityAm: 'ሰመራ', subsEn: ['Semera Center','Logia Town','Agat'], subsAm: ['ሰመራ መሀል','ሎጊያ ከተማ','አጋት'] },
 ];
 
+const CITY_COORDS: Record<string, [number, number]> = {
+  'Addis Ababa': [9.0192, 38.7525],
+  'Dire Dawa': [9.5931, 41.8661],
+  'Adama': [8.5400, 39.2700],
+  'Gondar': [12.6000, 37.4667],
+  'Hawassa': [7.0500, 38.4667],
+  'Bahir Dar': [11.5742, 37.3614],
+  'Mekelle': [13.4967, 39.4767],
+  'Jimma': [7.6667, 36.8333],
+  'Dessie': [11.1333, 39.6333],
+  'Jijiga': [9.3500, 42.8000],
+  'Harar': [9.3131, 42.1188],
+};
+
 const AMENITIES = [
   { key: 'wifi', label: '📶 WiFi' },
   { key: 'generator', label: '⚡ Generator' },
@@ -93,68 +107,76 @@ const sectionStyle: React.CSSProperties = {
   border: '1px solid #e5e7eb', padding: '28px 32px', marginBottom: 20,
 };
 
-// City default coordinates for map centering
-const CITY_COORDS: Record<string, [number, number]> = {
-  'Addis Ababa': [9.0192, 38.7525],
-  'Dire Dawa': [9.5931, 41.8661],
-  'Adama': [8.5400, 39.2700],
-  'Gondar': [12.6000, 37.4667],
-  'Hawassa': [7.0500, 38.4667],
-  'Bahir Dar': [11.5742, 37.3614],
-  'Mekelle': [13.4967, 39.4767],
-  'Jimma': [7.6667, 36.8333],
-  'Dessie': [11.1333, 39.6333],
-  'Jijiga': [9.3500, 42.8000],
-  'Harar': [9.3131, 42.1188],
-};
-
-  function MapPinPicker({ lat, lng, onPick, city }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string }) {
+function MapPinPicker({ lat, lng, onPick, city }: {
+  lat: string; lng: string;
+  onPick: (lat: number, lng: number) => void;
+  city: string;
+}) {
   const defaultCoords = CITY_COORDS[city] || [9.0192, 38.7525];
-  const centerLat = lat ? parseFloat(lat) : defaultCoords[0];
-  const centerLng = lng ? parseFloat(lng) : defaultCoords[1];
-  const zoom = lat ? 16 : 13;
-  const marker = lat && lng ? `&markers=color:red|${lat},${lng}` : '';
+  const [coordText, setCoordText] = useState(lat && lng ? `${lat}, ${lng}` : '');
+
+  const parseCoords = (text: string) => {
+    const parts = text.split(',').map(s => s.trim());
+    if (parts.length === 2) {
+      const parsedLat = parseFloat(parts[0]);
+      const parsedLng = parseFloat(parts[1]);
+      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+        onPick(parsedLat, parsedLng);
+      }
+    }
+  };
 
   return (
-    <div>
-      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e5e7eb', marginTop: 8, background: '#f3f4f6' }}>
-        <iframe
-          width="100%"
-          height="320"
-          style={{ border: 'none', display: 'block' }}
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${centerLng - 0.01},${centerLat - 0.01},${centerLng + 0.01},${centerLat + 0.01}&layer=mapnik${lat && lng ? `&marker=${lat},${lng}` : ''}`}
+    <div style={{ display: 'grid', gap: 14 }}>
+      <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>
+          📍 How to find your property coordinates
+        </div>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {[
+            { n: '1', t: 'Open Google Maps on your phone or computer' },
+            { n: '2', t: 'Navigate to your property location' },
+            { n: '3', t: 'Long-press (mobile) or right-click (computer) on the exact location' },
+            { n: '4', t: 'You will see numbers like "9.0234, 38.7612" — tap them to copy' },
+            { n: '5', t: 'Come back here and paste them in the box below' },
+          ].map(({ n, t }) => (
+            <div key={n} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{n}</div>
+              <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{t}</span>
+            </div>
+          ))}
+        </div>
+        
+          href="https://maps.google.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+          🗺️ Open Google Maps
+        </a>
+      </div>
+
+      <div>
+        <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
+          Paste coordinates here *
+        </label>
+        <input
+          type="text"
+          value={coordText}
+          onChange={e => { setCoordText(e.target.value); parseCoords(e.target.value); }}
+          placeholder={`e.g. ${defaultCoords[0].toFixed(4)}, ${defaultCoords[1].toFixed(4)}`}
+          style={{ ...inputStyle, fontSize: 15 }}
         />
-      </div>
-      <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>Latitude</label>
-          <input
-            type="number"
-            step="any"
-            value={lat}
-            onChange={e => onPick(parseFloat(e.target.value) || 0, parseFloat(lng) || 0)}
-            placeholder={`e.g. ${defaultCoords[0].toFixed(4)}`}
-            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
-          />
-        </div>
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>Longitude</label>
-          <input
-            type="number"
-            step="any"
-            value={lng}
-            onChange={e => onPick(parseFloat(lat) || 0, parseFloat(e.target.value) || 0)}
-            placeholder={`e.g. ${defaultCoords[1].toFixed(4)}`}
-            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
-          />
+        <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
+          Format: latitude, longitude (e.g. 9.0234, 38.7612)
         </div>
       </div>
-      <div style={{ fontSize: 12, color: '#6b7280', marginTop: 8, background: '#f0f6ff', padding: '10px 12px', borderRadius: 8, border: '1px solid #dbeafe' }}>
-        💡 <strong>How to get coordinates:</strong> Open Google Maps, find your property, right-click on it and select "What's here?" — you will see the coordinates. Copy and paste them above.
-      </div>
+
       {lat && lng && (
-        <div style={{ fontSize: 12, color: '#059669', marginTop: 6, fontWeight: 600 }}>
-          ✓ Location set: {parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)}
+        <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46' }}>✓ Location set!</div>
+          <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
+            {parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)} — approximate area will be shown publicly
+          </div>
         </div>
       )}
     </div>
@@ -313,7 +335,7 @@ export default function NewListingPage() {
         <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
           {verificationStatus === 'pending'
             ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
-            : 'To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before posting a listing.'}
+            : 'To protect buyers and maintain trust on Gojo Homes, all property owners must verify their identity before posting a listing.'}
         </p>
         {verificationStatus !== 'pending' && (
           <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
@@ -322,7 +344,7 @@ export default function NewListingPage() {
         )}
         {verificationStatus === 'pending' && (
           <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
-            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified ✓
+            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified
           </div>
         )}
       </div>
@@ -338,7 +360,6 @@ export default function NewListingPage() {
           <p style={{ color: '#6b7280', fontSize: 15 }}>Fill in the details below. Your listing will be reviewed before going live.</p>
         </div>
 
-        {/* Step indicators */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
           {steps.map((s, i) => (
             <div key={s} style={{ flex: 1, minWidth: 80 }}>
@@ -350,7 +371,7 @@ export default function NewListingPage() {
           ))}
         </div>
 
-        {/* STEP 1 — Basic Info */}
+        {/* STEP 1 */}
         {step === 1 && (
           <div>
             <div style={sectionStyle}>
@@ -367,7 +388,7 @@ export default function NewListingPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>Description *</label>
-                  <textarea style={{ ...inputStyle, height: 100, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe the property — condition, features, nearby landmarks..." />
+                  <textarea style={{ ...inputStyle, height: 100, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe the property..." />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
@@ -403,7 +424,7 @@ export default function NewListingPage() {
                   </div>
                   {form.price_negotiable && form.type !== 'short_rent' ? (
                     <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46', fontWeight: 500 }}>
-                      ✓ Price will be negotiated directly with interested parties.
+                      Price will be negotiated directly with interested parties.
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -462,13 +483,13 @@ export default function NewListingPage() {
               </div>
             </div>
             <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError('Please fill in title and price'); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              Next: Location & Map <ArrowRight size={18} />
+              Next: Location <ArrowRight size={18} />
             </button>
             {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
           </div>
         )}
 
-        {/* STEP 2 — Location & Map */}
+        {/* STEP 2 */}
         {step === 2 && (
           <div>
             <div style={sectionStyle}>
@@ -476,11 +497,9 @@ export default function NewListingPage() {
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MapPin size={18} color="#E8431A" />
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>Property Location</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>Location & Coordinates</div>
               </div>
               <div style={{ display: 'grid', gap: 16 }}>
-
-                {/* City searchable dropdown */}
                 <div ref={cityRef} style={{ position: 'relative' }}>
                   <label style={labelStyle}>City / ከተማ *</label>
                   <div style={{ position: 'relative' }}>
@@ -488,7 +507,7 @@ export default function NewListingPage() {
                       value={citySearch || (form.city ? `${form.city} (${ETHIOPIA_CITIES.find(c => c.cityEn === form.city)?.cityAm})` : '')}
                       onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { set('city', ''); set('subcity', ''); } }}
                       onFocus={() => setShowCityDropdown(true)}
-                      placeholder="Search or select city... / ከተማ ፈልግ"
+                      placeholder="Search city... / ከተማ ፈልግ"
                       style={inputStyle}
                     />
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
@@ -509,14 +528,9 @@ export default function NewListingPage() {
                   )}
                 </div>
 
-                {/* Subcity dropdown */}
                 <div>
                   <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>Subcity / ክፍለ ከተማ</label>
-                  <select
-                    value={form.subcity}
-                    onChange={e => set('subcity', e.target.value)}
-                    disabled={!selectedCity}
-                    style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5, cursor: selectedCity ? 'pointer' : 'not-allowed' }}>
+                  <select value={form.subcity} onChange={e => set('subcity', e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5 }}>
                     <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
                     {selectedCity?.subsEn.map((sub, i) => (
                       <option key={sub} value={sub}>{sub} — {selectedCity.subsAm[i]}</option>
@@ -524,7 +538,6 @@ export default function NewListingPage() {
                   </select>
                 </div>
 
-                {/* Additional location details */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Woreda / ወረዳ</label>
@@ -535,43 +548,34 @@ export default function NewListingPage() {
                     <input style={inputStyle} value={form.kebele} onChange={e => set('kebele', e.target.value)} placeholder="e.g. Kebele 05" />
                   </div>
                 </div>
+
                 <div>
-                  <label style={labelStyle}>Nearest Landmark / የቅርብ ምልክት *</label>
+                  <label style={labelStyle}>Nearest Landmark / የቅርብ ምልክት</label>
                   <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)} placeholder="e.g. Near Bole Medhanialem Church, behind Edna Mall..." />
-                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
-                    This helps buyers find the property without revealing exact address
-                  </div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Helps buyers find the property without revealing exact address</div>
                 </div>
 
-                {/* Map pin */}
-                <div>
-                  <label style={labelStyle}>📍 Drop a Pin on Your Property *</label>
-                  <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 10, padding: '12px 14px', marginBottom: 8, fontSize: 13, color: '#1d4ed8' }}>
-                    <strong>How to use:</strong> Click anywhere on the map to mark your property location. You can drag the pin to adjust. The exact location will be kept private — only the approximate area (~500m) will be shown to the public.
-                  </div>
-                  <MapPinPicker
-                    lat={form.lat}
-                    lng={form.lng}
-                    city={form.city}
-                    onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }}
-                  />
-                </div>
-
+                <MapPinPicker
+                  lat={form.lat}
+                  lng={form.lng}
+                  city={form.city}
+                  onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }}
+                />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <ArrowLeft size={18} /> Back
               </button>
-              <button onClick={() => { if (!form.city) { setError('Please select a city'); return; } if (!form.lat || !form.lng) { setError('Please drop a pin on the map to mark your property location'); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                Next: Details & Amenities <ArrowRight size={18} />
+              <button onClick={() => { if (!form.city) { setError('Please select a city'); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                Next: Details <ArrowRight size={18} />
               </button>
             </div>
             {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
           </div>
         )}
 
-        {/* STEP 3 — Details & Amenities */}
+        {/* STEP 3 */}
         {step === 3 && (
           <div>
             <div style={sectionStyle}>
@@ -607,7 +611,7 @@ export default function NewListingPage() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={labelStyle}>Distance to Main Road (meters)</label>
+                    <label style={labelStyle}>Distance to Main Road (m)</label>
                     <input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" />
                   </div>
                   <div>
@@ -623,17 +627,17 @@ export default function NewListingPage() {
                   <label style={labelStyle}>Security & Compound</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div onClick={() => set('has_compound_wall', !form.has_compound_wall)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_compound_wall ? '#006AFF' : '#e5e7eb'}`, background: form.has_compound_wall ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_compound_wall ? '#006AFF' : '#374151' }}>🧱 {form.has_compound_wall ? '✓ ' : ''}Compound Wall / Fence</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_compound_wall ? '#006AFF' : '#374151' }}>🧱 {form.has_compound_wall ? '✓ ' : ''}Compound Wall</div>
                       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Property is walled/fenced</div>
                     </div>
                     <div onClick={() => set('has_guard_house', !form.has_guard_house)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_guard_house ? '#006AFF' : '#e5e7eb'}`, background: form.has_guard_house ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: form.has_guard_house ? '#006AFF' : '#374151' }}>💂 {form.has_guard_house ? '✓ ' : ''}Guard House</div>
-                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Security guard house on site</div>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Security guard on site</div>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>💧 Water Supply</label>
+                  <label style={labelStyle}>Water Supply</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div onClick={() => set('ground_water', !form.ground_water)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.ground_water ? '#059669' : '#e5e7eb'}`, background: form.ground_water ? '#ecfdf5' : 'white', cursor: 'pointer' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: form.ground_water ? '#065f46' : '#374151' }}>💧 {form.ground_water ? '✓ ' : ''}Ground Water</div>
@@ -647,7 +651,7 @@ export default function NewListingPage() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={labelStyle}>⚡ Electricity Reliability</label>
+                    <label style={labelStyle}>Electricity</label>
                     <select style={inputStyle} value={form.electricity_reliability} onChange={e => set('electricity_reliability', e.target.value)}>
                       <option value="24hr">24 Hours (reliable)</option>
                       <option value="frequent_cuts">Frequent Power Cuts</option>
@@ -655,7 +659,7 @@ export default function NewListingPage() {
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>🌐 Internet / Telecom</label>
+                    <label style={labelStyle}>Internet</label>
                     <select style={inputStyle} value={form.internet_type} onChange={e => set('internet_type', e.target.value)}>
                       <option value="none">No Internet</option>
                       <option value="mobile">Mobile Data Only</option>
@@ -666,8 +670,8 @@ export default function NewListingPage() {
                 </div>
               </div>
               <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 4 }}>📍 Nearby Landmarks</div>
-                <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>Select what is nearby — helps buyers find the property</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Nearby Landmarks</div>
+                <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>Select what is accessible near the property</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
                   {LANDMARKS.map(l => (
                     <div key={l} onClick={() => toggleLandmark(l)} style={{ padding: '8px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(l) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(l) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
@@ -700,7 +704,7 @@ export default function NewListingPage() {
           </div>
         )}
 
-        {/* STEP 4 — Photos */}
+        {/* STEP 4 */}
         {step === 4 && (
           <div>
             <div style={sectionStyle}>
@@ -719,7 +723,7 @@ export default function NewListingPage() {
                     <>
                       <Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
                       <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Click to upload photos</div>
-                      <div style={{ fontSize: 13, color: '#9ca3af' }}>JPG, PNG up to 10MB each • Max 10 photos</div>
+                      <div style={{ fontSize: 13, color: '#9ca3af' }}>JPG, PNG up to 10MB each</div>
                     </>
                   )}
                 </div>
@@ -750,7 +754,7 @@ export default function NewListingPage() {
           </div>
         )}
 
-        {/* STEP 5 — Review & Pay */}
+        {/* STEP 5 */}
         {step === 5 && (
           <div>
             <div style={{ marginBottom: 20 }}>
@@ -774,16 +778,16 @@ export default function NewListingPage() {
                   ['Price', form.price_negotiable ? 'Price on negotiation' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`],
                   ['City', form.city || '—'],
                   ['Subcity', form.subcity || '—'],
-                  ['Nearest Landmark', form.specific_location || '—'],
-                  ['Location Pin', form.lat && form.lng ? `${parseFloat(form.lat).toFixed(4)}, ${parseFloat(form.lng).toFixed(4)} ✓` : '— Not set'],
+                  ['Landmark', form.specific_location || '—'],
+                  ['Coordinates', form.lat && form.lng ? `${parseFloat(form.lat).toFixed(4)}, ${parseFloat(form.lng).toFixed(4)} ✓` : '— Not set'],
                   ['Bedrooms', form.bedrooms || '—'],
                   ['Bathrooms', `${form.bathrooms || '—'} (${form.bathroom_type})`],
                   ['Kitchen', form.kitchen_type === 'none' ? 'No kitchen' : form.kitchen_type],
                   ['House Area', form.area ? `${form.area} m²` : '—'],
                   ['Road Type', form.road_type],
                   ['Electricity', form.electricity_reliability === '24hr' ? '24hrs reliable' : 'Frequent cuts'],
-                  ['Ground Water', form.ground_water ? '✓ Yes' : 'No'],
-                  ['Compound Wall', form.has_compound_wall ? '✓ Yes' : 'No'],
+                  ['Ground Water', form.ground_water ? 'Yes' : 'No'],
+                  ['Compound Wall', form.has_compound_wall ? 'Yes' : 'No'],
                   ['Nearby', form.nearby_landmarks.length > 0 ? form.nearby_landmarks.join(', ') : 'None'],
                   ['Amenities', form.amenities.length > 0 ? form.amenities.join(', ') : 'None'],
                   ['Photos', `${photoUrls.length} photo(s)`],
@@ -809,7 +813,7 @@ export default function NewListingPage() {
                 <ArrowLeft size={18} /> Back
               </button>
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? 'Submitting...' : '💳 Submit & Pay'}
+                {loading ? 'Submitting...' : 'Submit & Pay'}
               </button>
             </div>
           </div>
