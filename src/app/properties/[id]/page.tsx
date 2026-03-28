@@ -10,14 +10,14 @@ import { ListingActions } from '@/components/property/ListingActions';
 import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
 import Link from 'next/link';
-import { ChevronRight, MapPin, Eye } from 'lucide-react';
-function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
-  const zoom = 15;
-  const size = '600x400';
-  const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=${zoom}&size=${size}&maptype=mapnik`;
+import { ChevronRight, MapPin } from 'lucide-react';
 
+interface Props { params: Promise<{ id: string }> }
+
+function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
+  const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=600x400&maptype=mapnik`;
   return (
-    <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden', marginBottom: 0 }}>
+    <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📍 Approximate Location</div>
         <div style={{ fontSize: 12, color: '#6b7280', background: '#f3f4f6', padding: '4px 10px', borderRadius: 20 }}>~500m radius shown</div>
@@ -27,18 +27,10 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
           src={mapUrl}
           alt="Property location map"
           style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(4px)', transform: 'scale(1.1)' }}
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{
-            width: 120, height: 120, borderRadius: '50%',
-            border: '3px solid #E8431A',
-            background: 'rgba(232, 67, 26, 0.15)',
-            boxShadow: '0 0 0 8px rgba(232, 67, 26, 0.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+          <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #E8431A', background: 'rgba(232,67,26,0.15)', boxShadow: '0 0 0 8px rgba(232,67,26,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ fontSize: 28 }}>🏠</div>
           </div>
         </div>
@@ -51,7 +43,6 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
     </div>
   );
 }
-interface Props { params: Promise<{ id: string }> }
 
 export default async function PropertyDetailPage({ params: paramsPromise }: Props) {
   const { id } = await paramsPromise;
@@ -89,7 +80,6 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
   };
   const tc = typeColors[property.type] ?? typeColors.sale;
   const propertyWithImages = JSON.parse(JSON.stringify({ ...property, property_images: propertyImages ?? [] }));
-
   const isNegotiable = property.price_negotiable;
 
   return (
@@ -108,7 +98,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           <span style={{ color: '#111827', fontWeight: 600 }}>{property.title}</span>
         </div>
 
-        {/* Header card */}
+        {/* Header */}
         <div style={{ marginBottom: 20, background: 'white', borderRadius: 16, padding: '20px 24px', border: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -153,13 +143,12 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
         </div>
 
         {/* Main layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 20, alignItems: 'start' }} className="property-grid">
-
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 20, alignItems: 'start' }} className="property-grid">
 
           {/* Left column */}
           <div style={{ display: 'grid', gap: 20 }}>
 
-            {/* Gallery — compact when no photos */}
+            {/* Gallery */}
             {propertyImages && propertyImages.length > 0 ? (
               <PropertyGallery images={propertyWithImages.property_images} />
             ) : (
@@ -168,6 +157,11 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
                 <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>No photos yet</div>
                 <div style={{ fontSize: 13, color: '#9ca3af' }}>The owner has not uploaded photos for this listing</div>
               </div>
+            )}
+
+            {/* Blurred map */}
+            {property.latitude && property.longitude && (
+              <BlurredMap lat={property.latitude} lng={property.longitude} />
             )}
 
             {/* Property info */}
@@ -194,7 +188,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
               </div>
             </div>
 
-            {/* Property quick stats */}
+            {/* Quick summary */}
             <div style={{ background: 'white', borderRadius: 14, padding: '16px', border: '1px solid #e5e7eb' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Quick Summary</div>
               <div style={{ display: 'grid', gap: 8 }}>
