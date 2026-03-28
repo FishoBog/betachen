@@ -152,10 +152,9 @@ function MapPinPicker({ lat, lng, onPick, city }: {
           🗺️ Open Google Maps
         </button>
       </div>
-
       <div>
         <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
-          Paste coordinates here *
+          Paste coordinates here
         </label>
         <input
           type="text"
@@ -168,7 +167,6 @@ function MapPinPicker({ lat, lng, onPick, city }: {
           Format: latitude, longitude (e.g. 9.0234, 38.7612)
         </div>
       </div>
-
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46' }}>✓ Location set!</div>
@@ -189,18 +187,9 @@ export default function NewListingPage() {
   const [error, setError] = useState('');
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-  const [verificationStatus, setVerificationStatus] = useState<string>('loading');
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const cityRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    const supabase = createBrowserClient();
-    supabase.from('profiles').select('verification_status, is_verified')
-      .eq('clerk_id', user.id).single()
-      .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
-  }, [user]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -264,11 +253,8 @@ export default function NewListingPage() {
 
   const handleSubmit = async () => {
     if (!isSignedIn || !user) return;
-    if (verificationStatus !== 'verified') {
-      router.push('/owner/verify?redirect=/owner/listings/new');
-      return;
-    }
-    setLoading(true); setError('');
+    setLoading(true);
+    setError('');
     try {
       const supabase = createBrowserClient();
       const locationParts = [form.specific_location, form.kebele, form.woreda, form.subcity, form.city].filter(Boolean);
@@ -495,7 +481,6 @@ export default function NewListingPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>Subcity / ክፍለ ከተማ</label>
                   <select value={form.subcity} onChange={e => set('subcity', e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5 }}>
@@ -505,7 +490,6 @@ export default function NewListingPage() {
                     ))}
                   </select>
                 </div>
-
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Woreda / ወረዳ</label>
@@ -516,17 +500,13 @@ export default function NewListingPage() {
                     <input style={inputStyle} value={form.kebele} onChange={e => set('kebele', e.target.value)} placeholder="e.g. Kebele 05" />
                   </div>
                 </div>
-
                 <div>
                   <label style={labelStyle}>Nearest Landmark / የቅርብ ምልክት</label>
                   <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)} placeholder="e.g. Near Bole Medhanialem Church, behind Edna Mall..." />
                   <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>Helps buyers find the property without revealing exact address</div>
                 </div>
-
                 <MapPinPicker
-                  lat={form.lat}
-                  lng={form.lng}
-                  city={form.city}
+                  lat={form.lat} lng={form.lng} city={form.city}
                   onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }}
                 />
               </div>
@@ -739,21 +719,6 @@ export default function NewListingPage() {
                 </div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>Review Your Listing</div>
               </div>
-
-              {/* Verification warning */}
-              {verificationStatus !== 'verified' && (
-                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
-                    🛡️ ID Verification Required
-                  </div>
-                  <div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
-                    {verificationStatus === 'pending'
-                      ? 'Your verification is under review. You can submit your listing now and it will go live once verified.'
-                      : 'You will be redirected to verify your identity when you click Submit. It is a one-time process.'}
-                  </div>
-                </div>
-              )}
-
               <div style={{ display: 'grid', gap: 2 }}>
                 {[
                   ['Title', form.title],
@@ -782,24 +747,22 @@ export default function NewListingPage() {
                 ))}
               </div>
             </div>
-
             <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Listing Fee</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Listing Fee — ETB 500</div>
               <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
                 • 3 months active listing<br />
                 • Reviewed by admin within 24 hours<br />
-                • Renewable after expiry
+                • Renewable after expiry for ETB 300<br />
+                • ID verification required after payment (one-time)
               </div>
             </div>
-
             {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
-
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <ArrowLeft size={18} /> Back
               </button>
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? 'Submitting...' : verificationStatus !== 'verified' ? '🛡️ Verify & Submit' : 'Submit & Pay'}
+                {loading ? 'Submitting...' : '💳 Submit & Pay ETB 500'}
               </button>
             </div>
           </div>
