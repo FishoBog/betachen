@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         last_name: ownerName.split(' ')[1] || '',
         tx_ref: txRef,
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/payment/verify`,
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}?payment=success`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}/payment/success`,
         customization: {
           title: isRenewal ? 'ጎጆ Listing Renewal' : 'ጎጆ Listing Fee',
           description: isRenewal
