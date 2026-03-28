@@ -10,31 +10,21 @@ export async function POST(req: NextRequest) {
   try {
     const { propertyId, ownerClerkId, ownerEmail, ownerName, type } = await req.json();
 
-    console.log('Payment init:', { propertyId, ownerClerkId, ownerEmail, ownerName, type });
-
     const isRenewal = type === 'renewal';
     const amount = isRenewal ? 300 : 500;
     const txRef = `GOJO-LIST-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
-    // Get property info
     const { data: property, error: propErr } = await supabase
       .from('properties').select('*').eq('id', propertyId).single();
 
-    if (propErr) {
-      console.log('Property fetch error:', propErr);
-      throw new Error(`Property error: ${propErr.message}`);
-    }
+    if (propErr) throw new Error(`Property error: ${propErr.message}`);
     if (!property) throw new Error('Property not found');
 
-    console.log('Property found:', property.title);
-
-    // Calculate new expiry
     const baseDate = isRenewal && property.expires_at && new Date(property.expires_at) > new Date()
       ? new Date(property.expires_at) : new Date();
     const extendsUntil = new Date(baseDate);
     extendsUntil.setMonth(extendsUntil.getMonth() + 3);
 
-    // Create payment record
     const { data: payment, error: payErr } = await supabase
       .from('listing_payments').insert({
         property_id: propertyId,
@@ -46,14 +36,10 @@ export async function POST(req: NextRequest) {
         extends_until: extendsUntil.toISOString(),
       }).select().single();
 
-    if (payErr) {
-      console.log('Payment record error:', payErr);
-      throw new Error(`Payment record error: ${payErr.message}`);
-    }
+    if (payErr) throw new Error(`Payment record error: ${payErr.message}`);
 
-    console.log('Payment record created:', payment.id);
+    const cleanTitle = property.title.replace(/[^a-zA-Z0-9\s\-.]/g, '');
 
-    // Build Chapa payload
     const chapaPayload = {
       amount: amount.toFixed(2),
       currency: 'ETB',
@@ -66,15 +52,11 @@ export async function POST(req: NextRequest) {
       customization: {
         title: isRenewal ? 'Gojo Listing Renewal' : 'Gojo Listing Fee',
         description: isRenewal
-          ? `Renewal for 3 months — ${property.title}`
-          : `New listing fee — ${property.title}`,
+          ? `Renewal 3 months - ${cleanTitle}`
+          : `New listing - ${cleanTitle}`,
       }
     };
 
-    console.log('Chapa payload:', JSON.stringify(chapaPayload));
-    console.log('Chapa key exists:', !!process.env.CHAPA_SECRET_KEY);
-
-    // Initialize Chapa payment
     const chapaRes = await fetch('https://api.chapa.co/v1/transaction/initialize', {
       method: 'POST',
       headers: {
@@ -85,14 +67,11 @@ export async function POST(req: NextRequest) {
     });
 
     const chapaData = await chapaRes.json();
-    console.log('Chapa response status:', chapaRes.status);
-    console.log('Chapa response:', JSON.stringify(chapaData));
 
     if (chapaData.status !== 'success') {
       throw new Error(`Chapa error: ${JSON.stringify(chapaData)}`);
     }
 
-    // Save checkout URL
     await supabase.from('listing_payments').update({
       chapa_checkout_url: chapaData.data.checkout_url
     }).eq('id', payment.id);
