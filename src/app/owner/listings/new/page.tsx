@@ -108,85 +108,53 @@ const CITY_COORDS: Record<string, [number, number]> = {
   'Harar': [9.3131, 42.1188],
 };
 
-function MapPinPicker({ lat, lng, onPick, city }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string }) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (mapInstanceRef.current) return;
-
-    const loadLeaflet = async () => {
-      const L = (await import('leaflet' as any)).default;
-
-      // Fix default icon
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-
-      const defaultCoords = CITY_COORDS[city] || [9.0192, 38.7525];
-      const initLat = lat ? parseFloat(lat) : defaultCoords[0];
-      const initLng = lng ? parseFloat(lng) : defaultCoords[1];
-
-      const map = L.map(mapRef.current!).setView([initLat, initLng], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      if (lat && lng) {
-        markerRef.current = L.marker([parseFloat(lat), parseFloat(lng)], { draggable: true }).addTo(map);
-        markerRef.current.on('dragend', (e: any) => {
-          const pos = e.target.getLatLng();
-          onPick(pos.lat, pos.lng);
-        });
-      }
-
-      map.on('click', (e: any) => {
-        const { lat, lng } = e.latlng;
-        if (markerRef.current) {
-          markerRef.current.setLatLng([lat, lng]);
-        } else {
-          markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(map);
-          markerRef.current.on('dragend', (ev: any) => {
-            const pos = ev.target.getLatLng();
-            onPick(pos.lat, pos.lng);
-          });
-        }
-        onPick(lat, lng);
-      });
-
-      mapInstanceRef.current = map;
-    };
-
-    loadLeaflet();
-  }, []);
-
-  // Re-center map when city changes
-  useEffect(() => {
-    if (!mapInstanceRef.current) return;
-    const coords = CITY_COORDS[city];
-    if (coords) {
-      mapInstanceRef.current.setView(coords, 13);
-    }
-  }, [city]);
+  function MapPinPicker({ lat, lng, onPick, city }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string }) {
+  const defaultCoords = CITY_cOORDS[city] || [9.0192, 38.7525];
+  const centerLat = lat ? parseFloat(lat) : defaultCoords[0];
+  const centerLng = lng ? parseFloat(lng) : defaultCoords[1];
+  const zoom = lat ? 16 : 13;
+  const marker = lat && lng ? `&markers=color:red|${lat},${lng}` : '';
 
   return (
     <div>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e5e7eb', marginTop: 8 }}>
-        <div ref={mapRef} style={{ height: 320, width: '100%' }} />
+      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e5e7eb', marginTop: 8, background: '#f3f4f6' }}>
+        <iframe
+          width="100%"
+          height="320"
+          style={{ border: 'none', display: 'block' }}
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${centerLng - 0.01},${centerlat - 0.01},${centerLng + 0.01},${centerLat + 0.01}&layer=mapnik${lat && lng ? `&marker=${lat},${lng}` : ''}`}
+        />
       </div>
-      {lat && lng ? (
-        <div style={{ fontSize: 12, color: '#059669', marginTop: 6, fontWeight: 600 }}>
-          ✓ Pin placed at {parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)} — drag to adjust
+      <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>Latitude</label>
+          <input
+            type="number"
+            step="any"
+            value={lat}
+            onChange={e => onPick(parseFloat(e.target.value) || 0, parseFloat(lng) || 0)}
+            placeholder={`e.g. ${defaultCoords[0].toFixed(4)}`}
+            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
+          />
         </div>
-      ) : (
-        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-          📍 Click anywhere on the map to drop a pin on your property
+        <div>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>Longitude</label>
+          <input
+            type="number"
+            step="any"
+            value={lng}
+            onChange={e => onPick(parseFloat(lat) || 0, parseFloat(e.target.value) || 0)}
+            placeholder={`e.g. ${defaultCoords[1].toFixed(4)}`}
+            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e5e7eb', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
+          />
+        </div>
+      </div>
+      <div style={{ fontSize: 12, color: '#6b7280', marginTop: 8, background: '#f0f6ff', padding: '10px 12px', borderRadius: 8, border: '1px solid #dbeafe' }}>
+        💡 <strong>How to get coordinates:</strong> Open Google Maps, find your property, right-click on it and select "What's here?" — you will see the coordinates. Copy and paste them above.
+      </div>
+      {lat && lng && (
+        <div style={{ fontSize: 12, color: '#059669', marginTop: 6, fontWeight: 600 }}>
+          ✓ Location set: {parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)}
         </div>
       )}
     </div>
