@@ -26,7 +26,7 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
         <img
           src={mapUrl}
           alt="Property location map"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(2px)', transform: 'scale(1.05)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(1px)', transform: 'scale(1.02)' }}
         />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #E8431A', background: 'rgba(232,67,26,0.15)', boxShadow: '0 0 0 8px rgba(232,67,26,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
