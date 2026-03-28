@@ -13,12 +13,19 @@ export default function PaymentSuccessPage() {
   const [verificationStatus, setVerificationStatus] = useState('loading');
 
   useEffect(() => {
-    if (!isLoaded || !user) return; // ✅ Wait for Clerk to fully hydrate before querying
+    if (!isLoaded) return;
+
+    // ✅ If Clerk loaded but no user, redirect to sign-in and come straight back
+    if (!user) {
+      router.replace(`/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     const supabase = createBrowserClient();
     supabase.from('profiles').select('verification_status')
       .eq('clerk_id', user.id).single()
       .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
-  }, [user, isLoaded]); // ✅ Re-run when isLoaded flips to true
+  }, [user, isLoaded]);
 
   if (!isLoaded || verificationStatus === 'loading') return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
