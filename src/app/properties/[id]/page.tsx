@@ -49,7 +49,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
     short_rent: { bg: '#fef3c7', color: '#92400e' },
   };
   const tc = typeColors[property.type] ?? typeColors.sale;
-  const propertyWithImages = { ...property, property_images: propertyImages ?? [] };
+  const propertyWithImages = JSON.parse(JSON.stringify({ ...property, property_images: propertyImages ?? [] }));
 
   const isNegotiable = property.price_negotiable;
 
