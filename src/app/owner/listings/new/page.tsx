@@ -109,7 +109,7 @@ const CITY_COORDS: Record<string, [number, number]> = {
 };
 
   function MapPinPicker({ lat, lng, onPick, city }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string }) {
-  const defaultCoords = CITY_cOORDS[city] || [9.0192, 38.7525];
+  const defaultCoords = CITY_COORDS[city] || [9.0192, 38.7525];
   const centerLat = lat ? parseFloat(lat) : defaultCoords[0];
   const centerLng = lng ? parseFloat(lng) : defaultCoords[1];
   const zoom = lat ? 16 : 13;
