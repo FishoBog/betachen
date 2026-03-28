@@ -11,7 +11,46 @@ import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
 import Link from 'next/link';
 import { ChevronRight, MapPin, Eye } from 'lucide-react';
+function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
+  const zoom = 15;
+  const size = '600x400';
+  const mapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=${zoom}&size=${size}&maptype=mapnik`;
 
+  return (
+    <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden', marginBottom: 0 }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📍 Approximate Location</div>
+        <div style={{ fontSize: 12, color: '#6b7280', background: '#f3f4f6', padding: '4px 10px', borderRadius: 20 }}>~500m radius shown</div>
+      </div>
+      <div style={{ position: 'relative', height: 280, overflow: 'hidden' }}>
+        <img
+          src={mapUrl}
+          alt="Property location map"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(4px)', transform: 'scale(1.1)' }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
+        />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{
+            width: 120, height: 120, borderRadius: '50%',
+            border: '3px solid #E8431A',
+            background: 'rgba(232, 67, 26, 0.15)',
+            boxShadow: '0 0 0 8px rgba(232, 67, 26, 0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ fontSize: 28 }}>🏠</div>
+          </div>
+        </div>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))', padding: '20px 16px 12px' }}>
+          <div style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>
+            📍 Exact address shared privately by owner after contact
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 interface Props { params: Promise<{ id: string }> }
 
 export default async function PropertyDetailPage({ params: paramsPromise }: Props) {
