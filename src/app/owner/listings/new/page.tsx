@@ -147,12 +147,11 @@ function MapPinPicker({ lat, lng, onPick, city }: {
           ))}
         </div>
         
-          href="https://maps.google.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
-          🗺️ Open Google Maps
-        </a>
+          <button
+onClick={() => window.open('https://maps.google.com', '_blank')}
+style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+🗺️ Open Google Maps
+</button>
       </div>
 
       <div>
