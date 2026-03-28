@@ -146,12 +146,11 @@ function MapPinPicker({ lat, lng, onPick, city }: {
             </div>
           ))}
         </div>
-        
-          <button
-onClick={() => window.open('https://maps.google.com', '_blank')}
-style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-🗺️ Open Google Maps
-</button>
+        <button
+          onClick={() => window.open('https://maps.google.com', '_blank')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+          🗺️ Open Google Maps
+        </button>
       </div>
 
       <div>
@@ -265,6 +264,10 @@ export default function NewListingPage() {
 
   const handleSubmit = async () => {
     if (!isSignedIn || !user) return;
+    if (verificationStatus !== 'verified') {
+      router.push('/owner/verify?redirect=/owner/listings/new');
+      return;
+    }
     setLoading(true); setError('');
     try {
       const supabase = createBrowserClient();
@@ -305,47 +308,13 @@ export default function NewListingPage() {
     }
   };
 
-  const steps = ['Basic Info', 'Location & Map', 'Details & Amenities', 'Photos', 'Review & Pay'];
+  const steps = ['Basic Info', 'Location', 'Details & Amenities', 'Photos', 'Review & Pay'];
 
   if (!isSignedIn) return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar />
       <div style={{ textAlign: 'center', padding: '80px 24px' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Sign in to post a listing</div>
-      </div>
-    </div>
-  );
-
-  if (verificationStatus === 'loading') return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar />
-      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Checking verification status...</div>
-    </div>
-  );
-
-  if (verificationStatus !== 'verified') return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar />
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
-        <div style={{ width: 80, height: 80, borderRadius: '50%', background: verificationStatus === 'pending' ? '#fef3c7' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>
-          {verificationStatus === 'pending' ? '⏳' : '🛡️'}
-        </div>
-        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>
-          {verificationStatus === 'pending' ? 'Verification Pending' : 'ID Verification Required'}
-        </h1>
-        <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
-          {verificationStatus === 'pending'
-            ? 'Your ID verification is under review. We will notify you by email within 24 hours once approved.'
-            : 'To protect buyers and maintain trust on Gojo Homes, all property owners must verify their identity before posting a listing.'}
-        </p>
-        {verificationStatus !== 'pending' && (
-          <a href="/owner/verify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-            🛡️ Verify My Identity
-          </a>
-        )}
-        {verificationStatus === 'pending' && (
-          <div style={{ padding: '14px 24px', background: '#fef3c7', borderRadius: 12, fontSize: 14, color: '#92400e', fontWeight: 500 }}>
-            We will email you at {user?.primaryEmailAddress?.emailAddress} once verified
-          </div>
-        )}
       </div>
     </div>
   );
@@ -770,6 +739,21 @@ export default function NewListingPage() {
                 </div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>Review Your Listing</div>
               </div>
+
+              {/* Verification warning */}
+              {verificationStatus !== 'verified' && (
+                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
+                    🛡️ ID Verification Required
+                  </div>
+                  <div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
+                    {verificationStatus === 'pending'
+                      ? 'Your verification is under review. You can submit your listing now and it will go live once verified.'
+                      : 'You will be redirected to verify your identity when you click Submit. It is a one-time process.'}
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: 'grid', gap: 2 }}>
                 {[
                   ['Title', form.title],
@@ -798,6 +782,7 @@ export default function NewListingPage() {
                 ))}
               </div>
             </div>
+
             <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Listing Fee</div>
               <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
@@ -806,13 +791,15 @@ export default function NewListingPage() {
                 • Renewable after expiry
               </div>
             </div>
+
             {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <ArrowLeft size={18} /> Back
               </button>
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? 'Submitting...' : 'Submit & Pay'}
+                {loading ? 'Submitting...' : verificationStatus !== 'verified' ? '🛡️ Verify & Submit' : 'Submit & Pay'}
               </button>
             </div>
           </div>
