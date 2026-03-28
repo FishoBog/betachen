@@ -7,15 +7,18 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)', '/sign-up(.*)',
   '/api/payments/webhook', '/api/cron/(.*)', '/api/telegram/(.*)',
   '/api/listings/payment/verify',
+  '/owner/listings/(.*)/payment/success', // ✅ Allow Chapa redirect without bouncing to sign-in
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
+
   if (!userId && !isPublicRoute(req)) {
     const signInUrl = new URL('/sign-in', req.url);
-    signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+    signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname + req.nextUrl.search); // ✅ Preserve full path + query params
     return NextResponse.redirect(signInUrl);
   }
+
   return NextResponse.next();
 });
 
