@@ -13,12 +13,12 @@ export default function PaymentSuccessPage() {
   const [verificationStatus, setVerificationStatus] = useState('loading');
 
   useEffect(() => {
-    if (!user) return;
+    if (!isLoaded || !user) return; // ✅ Wait for Clerk to fully hydrate before querying
     const supabase = createBrowserClient();
     supabase.from('profiles').select('verification_status')
       .eq('clerk_id', user.id).single()
       .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
-  }, [user]);
+  }, [user, isLoaded]); // ✅ Re-run when isLoaded flips to true
 
   if (!isLoaded || verificationStatus === 'loading') return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
