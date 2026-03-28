@@ -15,7 +15,7 @@ import { ChevronRight, MapPin } from 'lucide-react';
 interface Props { params: Promise<{ id: string }> }
 
 function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
-  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x400&maptype=roadmap`;
+  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
   return (
     <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -27,7 +27,7 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
           src={mapUrl}
           alt="Property location map"
           style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(4px)', transform: 'scale(1.1)' }}
-                />
+        />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #E8431A', background: 'rgba(232,67,26,0.15)', boxShadow: '0 0 0 8px rgba(232,67,26,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ fontSize: 28 }}>🏠</div>
