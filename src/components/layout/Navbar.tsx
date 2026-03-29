@@ -9,7 +9,7 @@ import { useLang } from '@/context/LangContext';
 const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg';
 
 export function Navbar() {
-  const { isSignedIn, isLoaded } = useUser(); // ✅ Added isLoaded
+  const { isSignedIn, isLoaded } = useUser();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -86,7 +86,14 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Desktop auth — only render after Clerk has loaded ✅ */}
+          {/* ✅ Post a Listing — always visible to everyone */}
+          {!isMobile && (
+            <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+              <PlusCircle size={14} />{t.navPostListing}
+            </Link>
+          )}
+
+          {/* Desktop auth */}
           {!isMobile && isLoaded && isSignedIn && (
             <>
               <Link href="/favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Favorites"><Heart size={20} /></Link>
@@ -94,9 +101,6 @@ export function Navbar() {
               <Link href="/contracts/new" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="New Contract"><FileText size={20} /></Link>
               <Link href="/owner/verify" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Get Verified"><Shield size={20} /></Link>
               <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer" style={{ padding: 8, borderRadius: 8, color: '#0088cc', display: 'flex', textDecoration: 'none' }} title="Telegram"><Send size={20} /></a>
-              <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-                <PlusCircle size={14} />{t.navPostListing}
-              </Link>
               <UserButton afterSignOutUrl="/" />
             </>
           )}
@@ -114,7 +118,14 @@ export function Navbar() {
             </>
           )}
 
-          {/* Mobile auth — only render after Clerk has loaded ✅ */}
+          {/* ✅ Mobile Post a Listing — always visible */}
+          {isMobile && (
+            <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+              <PlusCircle size={14} /> Post
+            </Link>
+          )}
+
+          {/* Mobile auth */}
           {isMobile && isLoaded && !isSignedIn && (
             <SignInButton mode="modal">
               <button style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -124,12 +135,7 @@ export function Navbar() {
           )}
 
           {isMobile && isLoaded && isSignedIn && (
-            <>
-              <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-                <PlusCircle size={14} /> Post
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </>
+            <UserButton afterSignOutUrl="/" />
           )}
 
           <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
@@ -189,8 +195,12 @@ export function Navbar() {
 
           {isLoaded && !isSignedIn && (
             <>
+              {/* ✅ Post a Listing in mobile menu for logged out users too */}
+              <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
+                <PlusCircle size={18} />{t.navPostListing}
+              </Link>
               <SignInButton mode="modal">
-                <button style={{ marginTop: 12, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+                <button style={{ marginTop: 8, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
                   {t.navSignIn}
                 </button>
               </SignInButton>
