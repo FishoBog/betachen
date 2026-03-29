@@ -9,7 +9,7 @@ import { useLang } from '@/context/LangContext';
 const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg';
 
 export function Navbar() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser(); // ✅ Added isLoaded
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -86,8 +86,8 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Desktop auth */}
-          {!isMobile && isSignedIn && (
+          {/* Desktop auth — only render after Clerk has loaded ✅ */}
+          {!isMobile && isLoaded && isSignedIn && (
             <>
               <Link href="/favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Favorites"><Heart size={20} /></Link>
               <Link href="/alerts" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Alerts"><Bell size={20} /></Link>
@@ -101,7 +101,7 @@ export function Navbar() {
             </>
           )}
 
-          {!isMobile && !isSignedIn && (
+          {!isMobile && isLoaded && !isSignedIn && (
             <>
               <SignInButton mode="modal">
                 <button style={{ padding: '9px 14px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -114,8 +114,8 @@ export function Navbar() {
             </>
           )}
 
-          {/* Mobile */}
-          {isMobile && !isSignedIn && (
+          {/* Mobile auth — only render after Clerk has loaded ✅ */}
+          {isMobile && isLoaded && !isSignedIn && (
             <SignInButton mode="modal">
               <button style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {t.navSignIn}
@@ -123,7 +123,7 @@ export function Navbar() {
             </SignInButton>
           )}
 
-          {isMobile && isSignedIn && (
+          {isMobile && isLoaded && isSignedIn && (
             <>
               <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                 <PlusCircle size={14} /> Post
@@ -164,7 +164,7 @@ export function Navbar() {
             );
           })}
 
-          {isSignedIn && (
+          {isLoaded && isSignedIn && (
             <>
               <Link href="/favorites" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Heart size={16} />{lang === 'EN' ? 'Favorites' : 'ተወዳጆች'}
@@ -187,7 +187,7 @@ export function Navbar() {
             </>
           )}
 
-          {!isSignedIn && (
+          {isLoaded && !isSignedIn && (
             <>
               <SignInButton mode="modal">
                 <button style={{ marginTop: 12, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
