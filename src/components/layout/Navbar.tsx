@@ -66,7 +66,7 @@ export function Navbar() {
               const Icon = link.icon;
               const content = (
   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>  {/* ✅ gap 5→6 */}
-    <Icon size={15} />   {/* ✅ 14→15 */}
+    <Icon size={18} />   {/* ✅ 14→18 */}
     {link.label}
   </span>
 );
