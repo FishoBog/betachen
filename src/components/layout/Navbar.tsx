@@ -23,32 +23,32 @@ export function Navbar() {
   }, []);
 
   const links = [
-    { href: '/',                label: lang === 'EN' ? 'Buy'       : 'ግዛ',      icon: Home,       authOnly: false, external: false },
-    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent'      : 'ተከራይ',   icon: Key,        authOnly: false, external: false },
-    { href: '/map',             label: lang === 'EN' ? 'Map'        : 'ካርታ',    icon: Map,        authOnly: false, external: false },
-    { href: '/market',          label: lang === 'EN' ? 'Market'    : 'ገበያ',     icon: TrendingUp, authOnly: false, external: false },
-    { href: '/diaspora',        label: lang === 'EN' ? 'Diaspora'  : 'ዲያስፖራ', icon: Globe,      authOnly: false, external: false },
-    { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',      icon: Send,       authOnly: false, external: true  },
-    { href: '/contracts',       label: lang === 'EN' ? 'Contracts' : 'ውሎች',    icon: FileText,   authOnly: true,  external: false },
-    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings'  : 'ዝርዝሮች', icon: Home,       authOnly: true,  external: false },
-    { href: '/messages',        label: lang === 'EN' ? 'Messages'  : 'መልዕክቶች', icon: Send,       authOnly: true,  external: false },
+    { href: '/',                label: lang === 'EN' ? 'Buy'      : 'ግዛ',      icon: Home,       authOnly: false, external: false },
+    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent'     : 'ተከራይ',   icon: Key,        authOnly: false, external: false },
+    { href: '/map',             label: lang === 'EN' ? 'Map'       : 'ካርታ',    icon: Map,        authOnly: false, external: false },
+    { href: '/market',          label: lang === 'EN' ? 'Market'   : 'ገበያ',     icon: TrendingUp, authOnly: false, external: false },
+    { href: '/diaspora',        label: lang === 'EN' ? 'Diaspora' : 'ዲያስፖራ', icon: Globe,      authOnly: false, external: false },
+    { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',     icon: Send,       authOnly: false, external: true  },
+    { href: '/contracts',       label: lang === 'EN' ? 'Contracts': 'ውሎች',    icon: FileText,   authOnly: true,  external: false },
+    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings' : 'ዝርዝሮች', icon: Home,       authOnly: true,  external: false },
+    { href: '/messages',        label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', icon: Send,       authOnly: true,  external: false },
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
-  padding: '9px 14px',
-  borderRadius: 10,
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: external ? '#0088cc' : active ? '#E8431A' : '#4B5563',
-  background: active ? '#fef2ee' : 'transparent',
-  textDecoration: 'none',
-  whiteSpace: 'nowrap' as const,
-  letterSpacing: '0.1px',
-  display: 'flex',
-  alignItems: 'center',
-  border: active ? '1.5px solid #fcd9cc' : '1.5px solid transparent',
-  transition: 'all 0.15s',
-});
+    padding: '9px 14px',
+    borderRadius: 10,
+    fontSize: 13.5,
+    fontWeight: 700,
+    color: external ? '#0088cc' : active ? '#E8431A' : '#4B5563',
+    background: active ? '#fef2ee' : 'transparent',
+    textDecoration: 'none',
+    whiteSpace: 'nowrap' as const,
+    letterSpacing: '0.1px',
+    display: 'flex',
+    alignItems: 'center',
+    border: active ? '1.5px solid #fcd9cc' : '1.5px solid transparent',
+    transition: 'all 0.15s',
+  });
 
   return (
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
@@ -59,92 +59,45 @@ export function Navbar() {
           <img src={LOGO_URL} alt="ጎጆ Homes" style={{ height: 46, width: 'auto' }} />
         </Link>
 
-       {/* Desktop Nav */}
-{!isMobile && (
-  <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
-    {links.map(link => {
-      if (link.authOnly && !isSignedIn) return null;
-      const active = pathname === link.href;
-      const Icon = link.icon;
-      const content = (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Icon size={15} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
-          <span style={{ fontSize: 14, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
-            {link.label}
-          </span>
-        </span>
-      );
-      return link.external ? (
-        
-          key={link.href}
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={navLinkStyle(false, true)}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
-          {content}
-        </a>
-      ) : (
-        <Link
-          key={link.href}
-          href={link.href}
-          style={navLinkStyle(active)}
-          onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
-          onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
-          {content}
-        </Link>
-      );
-    })}
-  </nav>
-)}
-      if (link.authOnly && !isSignedIn) return null;
-      const active = pathname === link.href;
-      const Icon = link.icon;
-      const content = (
-        <span style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-        }}>
-          <Icon
-            size={15}
-            color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'}
-            strokeWidth={2.2}
-          />
-          <span style={{
-            fontSize: 14,
-            fontWeight: active ? 700 : 600,
-            color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151',
-          }}>
-            {link.label}
-          </span>
-        </span>
-      );
-      return link.external ? (
-        
-          key={link.href}
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={navLinkStyle(false, true)}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
-          {content}
-        </a>
-      ) : (
-        <Link
-          key={link.href}
-          href={link.href}
-          style={navLinkStyle(active)}
-          onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
-          onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
-          {content}
-        </Link>
-      );
-    })}
-  </nav>
-)}
+        {/* Desktop Nav */}
+        {!isMobile && (
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
+            {links.map(link => {
+              if (link.authOnly && !isSignedIn) return null;
+              const active = pathname === link.href;
+              const Icon = link.icon;
+              const content = (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon size={15} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
+                  <span style={{ fontSize: 14, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
+                    {link.label}
+                  </span>
+                </span>
+              );
+              return link.external ? (
+                
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={navLinkStyle(false, true)}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
+                  {content}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  style={navLinkStyle(active)}
+                  onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
+                  onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
+                  {content}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -158,7 +111,7 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* ✅ Post Listing — always visible */}
+          {/* Post Listing — always visible on desktop */}
           {!isMobile && (
             <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               <PlusCircle size={14} />{t.navPostListing}
