@@ -35,17 +35,19 @@ export function Navbar() {
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
-  padding: '8px 13px',        // ✅ slightly more padding
-  borderRadius: 8,
-  fontSize: 14,               // ✅ keep 14px but add weight
-  fontWeight: 600,
-  color: external ? '#0088cc' : active ? '#E8431A' : '#374151',
+  padding: '9px 14px',
+  borderRadius: 10,
+  fontSize: 13.5,
+  fontWeight: 700,
+  color: external ? '#0088cc' : active ? '#E8431A' : '#4B5563',
   background: active ? '#fef2ee' : 'transparent',
   textDecoration: 'none',
   whiteSpace: 'nowrap' as const,
-  letterSpacing: '0px',       // ✅ remove negative letter spacing
+  letterSpacing: '0.1px',
   display: 'flex',
   alignItems: 'center',
+  border: active ? '1.5px solid #fcd9cc' : '1.5px solid transparent',
+  transition: 'all 0.15s',
 });
 
   return (
@@ -58,30 +60,56 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        {!isMobile && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, justifyContent: 'center' }}>
-            {links.map(link => {
-              if (link.authOnly && !isSignedIn) return null;
-              const active = pathname === link.href;
-              const Icon = link.icon;
-              const content = (
-  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>  {/* ✅ gap 5→6 */}
-    <Icon size={18} />   {/* ✅ 14→18 */}
-    {link.label}
-  </span>
-);
-              return link.external ? (
-                <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={navLinkStyle(false, true)}>
-                  {content}
-                </a>
-              ) : (
-                <Link key={link.href} href={link.href} style={navLinkStyle(active)}>
-                  {content}
-                </Link>
-              );
-            })}
-          </nav>
-        )}
+     {!isMobile && (
+  <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
+    {links.map(link => {
+      if (link.authOnly && !isSignedIn) return null;
+      const active = pathname === link.href;
+      const Icon = link.icon;
+      const content = (
+        <span style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}>
+          <Icon
+            size={15}
+            color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'}
+            strokeWidth={2.2}
+          />
+          <span style={{
+            fontSize: 14,
+            fontWeight: active ? 700 : 600,
+            color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151',
+          }}>
+            {link.label}
+          </span>
+        </span>
+      );
+      return link.external ? (
+        
+          key={link.href}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={navLinkStyle(false, true)}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
+          {content}
+        </a>
+      ) : (
+        <Link
+          key={link.href}
+          href={link.href}
+          style={navLinkStyle(active)}
+          onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
+          onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
+          {content}
+        </Link>
+      );
+    })}
+  </nav>
+)}
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
