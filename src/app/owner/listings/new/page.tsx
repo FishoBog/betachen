@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, SignInButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
@@ -180,7 +180,7 @@ function MapPinPicker({ lat, lng, onPick, city }: {
 }
 
 export default function NewListingPage() {
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -296,11 +296,60 @@ export default function NewListingPage() {
 
   const steps = ['Basic Info', 'Location', 'Details & Amenities', 'Photos', 'Review & Pay'];
 
+  // ✅ Show loading state while Clerk hydrates
+  if (!isLoaded) return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Loading...</div>
+    </div>
+  );
+
+  // ✅ Beautiful logged-out landing page
   if (!isSignedIn) return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar />
-      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Sign in to post a listing</div>
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '60px 24px', textAlign: 'center' as const }}>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>🏠</div>
+        <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 10 }}>
+          List Your Property on ጎጆ Homes
+        </h1>
+        <p style={{ fontSize: 16, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
+          Reach thousands of buyers and renters across Ethiopia. Create a free account to get started — it only takes 2 minutes.
+        </p>
+
+        {/* Benefits */}
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px', marginBottom: 32, textAlign: 'left' as const }}>
+          {[
+            { icon: '📸', title: 'Upload photos & details', desc: 'Showcase your property with photos, location, and full details' },
+            { icon: '👥', title: 'Reach real buyers', desc: 'Connect directly with verified buyers and renters across Ethiopia' },
+            { icon: '🛡️', title: 'Verified & trusted', desc: 'One-time ID verification builds trust with potential buyers' },
+            { icon: '💰', title: 'ETB 500 for 3 months', desc: 'Affordable listing fee — renew for ETB 300 after expiry' },
+          ].map(b => (
+            <div key={b.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{b.icon}</div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{b.title}</div>
+                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{b.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Buttons */}
+        <SignInButton mode="redirect" redirectUrl="/owner/listings/new">
+          <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12 }}>
+            🚀 Create Free Account & List Property
+          </button>
+        </SignInButton>
+        <SignInButton mode="redirect" redirectUrl="/owner/listings/new">
+          <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+            Already have an account? Sign In
+          </button>
+        </SignInButton>
+
+        <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 20 }}>
+          Free to join · Listings reviewed within 24 hours · Cancel anytime
+        </p>
       </div>
     </div>
   );
