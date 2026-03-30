@@ -15,7 +15,7 @@ import { ChevronRight, MapPin } from 'lucide-react';
 interface Props { params: Promise<{ id: string }> }
 
 function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
-  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=400&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
+  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=600&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
   return (
     <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
       {/* Header */}
@@ -33,12 +33,12 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
       </div>
 
       {/* Map */}
-      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: 420, overflow: 'hidden' }}>
         {/* Blurred map image */}
         <img
           src={mapUrl}
           alt="Property location map"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(2px)', transform: 'scale(1.05)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(0.5px)', transform: 'scale(1.02)' }}
         />
 
         {/* Dark overlay for contrast */}
