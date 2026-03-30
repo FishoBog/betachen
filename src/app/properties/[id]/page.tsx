@@ -15,34 +15,68 @@ import { ChevronRight, MapPin } from 'lucide-react';
 interface Props { params: Promise<{ id: string }> }
 
 function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
-  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
+  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=400&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
   return (
     <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+      {/* Header */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📍 Approximate Location</div>
-        <div style={{ fontSize: 12, color: '#6b7280', background: '#f3f4f6', padding: '4px 10px', borderRadius: 20 }}>~500m radius shown</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 16 }}>📍</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Approximate Location</div>
+            <div style={{ fontSize: 11, color: '#9ca3af' }}>Exact address shared after contact</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '4px 10px', borderRadius: 20, fontWeight: 600 }}>~500m radius</div>
       </div>
-      <div style={{ position: 'relative', height: 280, overflow: 'hidden' }}>
+
+      {/* Map */}
+      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
+        {/* Blurred map image */}
         <img
           src={mapUrl}
           alt="Property location map"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(1px)', transform: 'scale(1.02)' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(2px)', transform: 'scale(1.05)' }}
         />
+
+        {/* Dark overlay for contrast */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
+
+        {/* Center pin with animated ring */}
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: 120, height: 120, borderRadius: '50%', border: '3px solid #E8431A', background: 'rgba(232,67,26,0.15)', boxShadow: '0 0 0 8px rgba(232,67,26,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ fontSize: 28 }}>🏠</div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 12 }}>
+            {/* Outer ring */}
+            <div style={{ position: 'relative', width: 140, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(232,67,26,0.4)', background: 'rgba(232,67,26,0.08)' }} />
+              <div style={{ position: 'absolute', inset: 20, borderRadius: '50%', border: '2px solid rgba(232,67,26,0.6)', background: 'rgba(232,67,26,0.12)' }} />
+              {/* House icon */}
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'white', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, zIndex: 1 }}>
+                🏠
+              </div>
+            </div>
+            {/* Privacy badge */}
+            <div style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', borderRadius: 20, padding: '6px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 11 }}>🔒</span>
+              <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>Exact location is private</span>
+            </div>
           </div>
         </div>
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))', padding: '20px 16px 12px' }}>
-          <div style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>
-            📍 Exact address shared privately by owner after contact
+
+        {/* Bottom gradient with info */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.6))', padding: '24px 16px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+            📍 Approximate area only
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
+            Contact owner for exact address
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 export default async function PropertyDetailPage({ params: paramsPromise }: Props) {
   const { id } = await paramsPromise;
 
