@@ -75,7 +75,7 @@ export function Navbar() {
                 </span>
               );
               return link.external ? (
-                
+                <a
                   key={link.href}
                   href={link.href}
                   target="_blank"
