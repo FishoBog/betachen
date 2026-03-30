@@ -4,7 +4,7 @@ import { useUser, SignInButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
-import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown } from 'lucide-react';
+import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Camera, Users, Shield, TrendingUp, PlusCircle, Building2 } from 'lucide-react';
 import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 
 const ETHIOPIA_CITIES = [
@@ -68,19 +68,19 @@ const CITY_COORDS: Record<string, [number, number]> = {
 };
 
 const AMENITIES = [
-  { key: 'wifi', label: '📶 WiFi' },
-  { key: 'generator', label: '⚡ Generator' },
-  { key: 'water_tank', label: '💧 Water Tank' },
-  { key: 'security', label: '💂 Security' },
-  { key: 'cctv', label: '📹 CCTV' },
-  { key: 'gym', label: '🏋️ Gym' },
-  { key: 'pool', label: '🏊 Pool' },
-  { key: 'elevator', label: '🛗 Elevator' },
-  { key: 'furnished', label: '🛋️ Furnished' },
-  { key: 'ac', label: '❄️ A/C' },
-  { key: 'solar', label: '☀️ Solar' },
-  { key: 'garden', label: '🌿 Garden' },
-  { key: 'balcony', label: '🏠 Balcony' },
+  { key: 'wifi', label: 'WiFi' },
+  { key: 'generator', label: 'Generator' },
+  { key: 'water_tank', label: 'Water Tank' },
+  { key: 'security', label: 'Security' },
+  { key: 'cctv', label: 'CCTV' },
+  { key: 'gym', label: 'Gym' },
+  { key: 'pool', label: 'Pool' },
+  { key: 'elevator', label: 'Elevator' },
+  { key: 'furnished', label: 'Furnished' },
+  { key: 'ac', label: 'A/C' },
+  { key: 'solar', label: 'Solar' },
+  { key: 'garden', label: 'Garden' },
+  { key: 'balcony', label: 'Balcony' },
 ];
 
 const LANDMARKS = [
@@ -130,7 +130,7 @@ function MapPinPicker({ lat, lng, onPick, city }: {
     <div style={{ display: 'grid', gap: 14 }}>
       <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>
-          📍 How to find your property coordinates
+          How to find your property coordinates
         </div>
         <div style={{ display: 'grid', gap: 10 }}>
           {[
@@ -149,7 +149,7 @@ function MapPinPicker({ lat, lng, onPick, city }: {
         <button
           onClick={() => window.open('https://maps.google.com', '_blank')}
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-          🗺️ Open Google Maps
+          Open Google Maps
         </button>
       </div>
       <div>
@@ -169,7 +169,7 @@ function MapPinPicker({ lat, lng, onPick, city }: {
       </div>
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46' }}>✓ Location set!</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46' }}>Location set!</div>
           <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
             {parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)} — approximate area will be shown publicly
           </div>
@@ -296,7 +296,6 @@ export default function NewListingPage() {
 
   const steps = ['Basic Info', 'Location', 'Details & Amenities', 'Photos', 'Review & Pay'];
 
-  // ✅ Show loading state while Clerk hydrates
   if (!isLoaded) return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
@@ -304,79 +303,56 @@ export default function NewListingPage() {
     </div>
   );
 
-  // ✅ Beautiful logged-out landing page
   if (!isSignedIn) return (
-  <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-    <Navbar />
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
-        
-        {/* Left column — headline */}
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
-            <Building2 size={14} color="#E8431A" />
-            <span style={{ color: '#E8431A', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>PROPERTY OWNERS</span>
-          </div>
-          <h1 style={{ fontSize: 40, fontWeight: 900, color: '#111827', marginBottom: 16, lineHeight: 1.1 }}>
-            List Your Property<br />
-            <span style={{ color: '#E8431A' }}>Reach Ethiopia</span>
-          </h1>
-          <p style={{ fontSize: 16, color: '#6b7280', lineHeight: 1.8, marginBottom: 32 }}>
-            Connect with thousands of verified buyers and renters across Ethiopia. Your listing goes live within 24 hours.
-          </p>
-          <SignInButton mode="modal">
-            <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <PlusCircle size={18} /> Create Free Account & List Property
-            </button>
-          </SignInButton>
-          <SignInButton mode="modal">
-            <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
-              Already have an account? Sign In
-            </button>
-          </SignInButton>
-          <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 16, textAlign: 'center' as const }}>
-            Free to join · Listings reviewed within 24 hours · Cancel anytime
-          </p>
-        </div>
-
-        {/* Right column — benefits */}
-        <div style={{ display: 'grid', gap: 16 }}>
-          {[
-            { icon: Camera, title: 'Upload photos & details', desc: 'Showcase your property with photos, location, and full details', color: '#dbeafe', iconColor: '#1d4ed8' },
-            { icon: Users, title: 'Reach real buyers', desc: 'Connect directly with verified buyers and renters across Ethiopia', color: '#d1fae5', iconColor: '#065f46' },
-            { icon: Shield, title: 'Verified & trusted', desc: 'One-time ID verification builds trust with potential buyers', color: '#fef3c7', iconColor: '#92400e' },
-            { icon: TrendingUp, title: 'ETB 500 for 3 months', desc: 'Affordable listing fee — renew for ETB 300 after expiry', color: '#fce7f3', iconColor: '#9d174d' },
-          ].map(({ icon: Icon, title, desc, color, iconColor }) => (
-            <div key={title} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icon size={20} color={iconColor} />
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{title}</div>
-                <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>{desc}</div>
-              </div>
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
+              <Building2 size={14} color="#E8431A" />
+              <span style={{ color: '#E8431A', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>PROPERTY OWNERS</span>
             </div>
-          ))}
+            <h1 style={{ fontSize: 40, fontWeight: 900, color: '#111827', marginBottom: 16, lineHeight: 1.1 }}>
+              List Your Property<br />
+              <span style={{ color: '#E8431A' }}>Reach Ethiopia</span>
+            </h1>
+            <p style={{ fontSize: 16, color: '#6b7280', lineHeight: 1.8, marginBottom: 32 }}>
+              Connect with thousands of verified buyers and renters across Ethiopia. Your listing goes live within 24 hours.
+            </p>
+            <SignInButton mode="modal">
+              <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <PlusCircle size={18} /> Create Free Account & List Property
+              </button>
+            </SignInButton>
+            <SignInButton mode="modal">
+              <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+                Already have an account? Sign In
+              </button>
+            </SignInButton>
+            <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 16, textAlign: 'center' as const }}>
+              Free to join · Listings reviewed within 24 hours · Cancel anytime
+            </p>
+          </div>
+          <div style={{ display: 'grid', gap: 16 }}>
+            {[
+              { icon: Camera, title: 'Upload photos & details', desc: 'Showcase your property with photos, location, and full details', color: '#dbeafe', iconColor: '#1d4ed8' },
+              { icon: Users, title: 'Reach real buyers', desc: 'Connect directly with verified buyers and renters across Ethiopia', color: '#d1fae5', iconColor: '#065f46' },
+              { icon: Shield, title: 'Verified & trusted', desc: 'One-time ID verification builds trust with potential buyers', color: '#fef3c7', iconColor: '#92400e' },
+              { icon: TrendingUp, title: 'ETB 500 for 3 months', desc: 'Affordable listing fee — renew for ETB 300 after expiry', color: '#fce7f3', iconColor: '#9d174d' },
+            ].map(({ icon: Icon, title, desc, color, iconColor }) => (
+              <div key={title} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon size={20} color={iconColor} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{title}</div>
+                  <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-);
-
-        {/* CTA Buttons */}
-<SignInButton mode="modal">
-  <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12 }}>
-    🚀 Create Free Account & List Property
-  </button>
-</SignInButton>
-<SignInButton mode="modal">
-  <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
-    Already have an account? Sign In
-  </button>
-</SignInButton>
-        <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 20 }}>
-          Free to join · Listings reviewed within 24 hours · Cancel anytime
-        </p>
       </div>
     </div>
   );
@@ -651,11 +627,11 @@ export default function NewListingPage() {
                   <label style={labelStyle}>Security & Compound</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div onClick={() => set('has_compound_wall', !form.has_compound_wall)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_compound_wall ? '#006AFF' : '#e5e7eb'}`, background: form.has_compound_wall ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_compound_wall ? '#006AFF' : '#374151' }}>🧱 {form.has_compound_wall ? '✓ ' : ''}Compound Wall</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_compound_wall ? '#006AFF' : '#374151' }}>{form.has_compound_wall ? '✓ ' : ''}Compound Wall</div>
                       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Property is walled/fenced</div>
                     </div>
                     <div onClick={() => set('has_guard_house', !form.has_guard_house)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.has_guard_house ? '#006AFF' : '#e5e7eb'}`, background: form.has_guard_house ? '#f0f6ff' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_guard_house ? '#006AFF' : '#374151' }}>💂 {form.has_guard_house ? '✓ ' : ''}Guard House</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.has_guard_house ? '#006AFF' : '#374151' }}>{form.has_guard_house ? '✓ ' : ''}Guard House</div>
                       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Security guard on site</div>
                     </div>
                   </div>
@@ -664,11 +640,11 @@ export default function NewListingPage() {
                   <label style={labelStyle}>Water Supply</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div onClick={() => set('ground_water', !form.ground_water)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.ground_water ? '#059669' : '#e5e7eb'}`, background: form.ground_water ? '#ecfdf5' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.ground_water ? '#065f46' : '#374151' }}>💧 {form.ground_water ? '✓ ' : ''}Ground Water</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.ground_water ? '#065f46' : '#374151' }}>{form.ground_water ? '✓ ' : ''}Ground Water</div>
                       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Borehole / well on site</div>
                     </div>
                     <div onClick={() => set('water_tanker', !form.water_tanker)} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.water_tanker ? '#2563eb' : '#e5e7eb'}`, background: form.water_tanker ? '#eff6ff' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.water_tanker ? '#1e40af' : '#374151' }}>🚛 {form.water_tanker ? '✓ ' : ''}Water Tanker</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: form.water_tanker ? '#1e40af' : '#374151' }}>{form.water_tanker ? '✓ ' : ''}Water Tanker</div>
                       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>Tanker delivery available</div>
                     </div>
                   </div>
@@ -838,7 +814,7 @@ export default function NewListingPage() {
                 <ArrowLeft size={18} /> Back
               </button>
               <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? 'Submitting...' : '💳 Submit & Pay ETB 500'}
+                {loading ? 'Submitting...' : 'Submit & Pay ETB 500'}
               </button>
             </div>
           </div>
