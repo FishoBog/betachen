@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -23,15 +23,15 @@ export function Navbar() {
   }, []);
 
   const links = [
-    { href: '/',             label: lang === 'EN' ? '🏠 Buy'       : '🏠 ግዛ',        authOnly: false, external: false },
-    { href: '/?type=long_rent', label: lang === 'EN' ? '🔑 Rent'   : '🔑 ተከራይ',     authOnly: false, external: false },
-    { href: '/map',          label: lang === 'EN' ? '🗺️ Map'        : '🗺️ ካርታ',      authOnly: false, external: false },
-    { href: '/market',       label: lang === 'EN' ? '📊 Market'    : '📊 ገበያ',       authOnly: false, external: false },
-    { href: '/diaspora',     label: lang === 'EN' ? '🌍 Diaspora'  : '🌍 ዲያስፖራ',   authOnly: false, external: false },
-    { href: 'https://t.me/GojoEthiopiaBot', label: '✈️ Telegram',  authOnly: false, external: true  },
-    { href: '/contracts',    label: lang === 'EN' ? '📄 Contracts' : '📄 ውሎች',      authOnly: true,  external: false },
-    { href: '/owner/dashboard', label: lang === 'EN' ? '📋 Listings' : '📋 ዝርዝሮች', authOnly: true,  external: false },
-    { href: '/messages',     label: lang === 'EN' ? '💬 Messages'  : '💬 መልዕክቶች',  authOnly: true,  external: false },
+    { href: '/',                label: lang === 'EN' ? 'Buy'       : 'ግዛ',      icon: Home,       authOnly: false, external: false },
+    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent'      : 'ተከራይ',   icon: Key,        authOnly: false, external: false },
+    { href: '/map',             label: lang === 'EN' ? 'Map'        : 'ካርታ',    icon: Map,        authOnly: false, external: false },
+    { href: '/market',          label: lang === 'EN' ? 'Market'    : 'ገበያ',     icon: TrendingUp, authOnly: false, external: false },
+    { href: '/diaspora',        label: lang === 'EN' ? 'Diaspora'  : 'ዲያስፖራ', icon: Globe,      authOnly: false, external: false },
+    { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',      icon: Send,       authOnly: false, external: true  },
+    { href: '/contracts',       label: lang === 'EN' ? 'Contracts' : 'ውሎች',    icon: FileText,   authOnly: true,  external: false },
+    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings'  : 'ዝርዝሮች', icon: Home,       authOnly: true,  external: false },
+    { href: '/messages',        label: lang === 'EN' ? 'Messages'  : 'መልዕክቶች', icon: Send,       authOnly: true,  external: false },
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
@@ -61,13 +61,20 @@ export function Navbar() {
             {links.map(link => {
               if (link.authOnly && !isSignedIn) return null;
               const active = pathname === link.href;
+              const Icon = link.icon;
+              const content = (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Icon size={14} />
+                  {link.label}
+                </span>
+              );
               return link.external ? (
                 <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={navLinkStyle(false, true)}>
-                  {link.label}
+                  {content}
                 </a>
               ) : (
                 <Link key={link.href} href={link.href} style={navLinkStyle(active)}>
-                  {link.label}
+                  {content}
                 </Link>
               );
             })}
@@ -86,7 +93,7 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* ✅ Post a Listing — always visible to everyone */}
+          {/* ✅ Post Listing — always visible */}
           {!isMobile && (
             <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               <PlusCircle size={14} />{t.navPostListing}
@@ -118,7 +125,7 @@ export function Navbar() {
             </>
           )}
 
-          {/* ✅ Mobile Post a Listing — always visible */}
+          {/* Mobile Post Listing — always visible */}
           {isMobile && (
             <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               <PlusCircle size={14} /> Post
@@ -138,16 +145,17 @@ export function Navbar() {
             <UserButton afterSignOutUrl="/" />
           )}
 
-         {isMobile && (
-  <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
-    {menuOpen ? <X size={22} /> : <Menu size={22} />}
-  </button>
-)}
+          {/* Hamburger — mobile only */}
+          {isMobile && (
+            <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Mobile menu */}
-      {menuOpen && (
+      {menuOpen && isMobile && (
         <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 24px 16px', background: 'white' }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             {(['EN', 'AM'] as const).map(l => (
@@ -159,15 +167,16 @@ export function Navbar() {
 
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
+            const Icon = link.icon;
             return link.external ? (
               <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-                {link.label}
+                <Icon size={16} />{link.label}
               </a>
             ) : (
               <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-                {link.label}
+                <Icon size={16} />{link.label}
               </Link>
             );
           })}
@@ -197,7 +206,6 @@ export function Navbar() {
 
           {isLoaded && !isSignedIn && (
             <>
-              {/* ✅ Post a Listing in mobile menu for logged out users too */}
               <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
                 <PlusCircle size={18} />{t.navPostListing}
               </Link>
