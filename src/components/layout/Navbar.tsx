@@ -35,16 +35,18 @@ export function Navbar() {
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
-    padding: '7px 11px',
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 600,
-    color: external ? '#0088cc' : active ? '#E8431A' : '#374151',
-    background: active ? '#fef2ee' : 'transparent',
-    textDecoration: 'none',
-    whiteSpace: 'nowrap' as const,
-    letterSpacing: '-0.1px',
-  });
+  padding: '8px 13px',        // ✅ slightly more padding
+  borderRadius: 8,
+  fontSize: 14,               // ✅ keep 14px but add weight
+  fontWeight: 600,
+  color: external ? '#0088cc' : active ? '#E8431A' : '#374151',
+  background: active ? '#fef2ee' : 'transparent',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap' as const,
+  letterSpacing: '0px',       // ✅ remove negative letter spacing
+  display: 'flex',
+  alignItems: 'center',
+});
 
   return (
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
@@ -63,11 +65,11 @@ export function Navbar() {
               const active = pathname === link.href;
               const Icon = link.icon;
               const content = (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Icon size={14} />
-                  {link.label}
-                </span>
-              );
+  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>  {/* ✅ gap 5→6 */}
+    <Icon size={15} />   {/* ✅ 14→15 */}
+    {link.label}
+  </span>
+);
               return link.external ? (
                 <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={navLinkStyle(false, true)}>
                   {content}
