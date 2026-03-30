@@ -77,7 +77,7 @@ const ETHIOPIA_CITIES = [
 ];
 
 export default function HomePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -173,7 +173,6 @@ export default function HomePage() {
       <div style={{ padding: '100px 24px 110px', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: 540, backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)', backgroundSize: 'cover', backgroundPosition: 'center top' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
-          {/* ✅ Badge — kept flag emoji as it's branding, removed generic emoji */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28 }}>
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
           </div>
@@ -211,11 +210,11 @@ export default function HomePage() {
             ))}
             <button onClick={() => setShowFilters(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 25, border: `2px solid ${showFilters || activeFilterCount > 0 ? '#E8431A' : '#e5e7eb'}`, background: showFilters || activeFilterCount > 0 ? '#fef2ee' : 'white', color: showFilters || activeFilterCount > 0 ? '#E8431A' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               <SlidersHorizontal size={14} />
-              Filters {activeFilterCount > 0 && <span style={{ background: '#E8431A', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{activeFilterCount}</span>}
+              {lang === 'EN' ? 'Filters' : 'ማጣሪያዎች'} {activeFilterCount > 0 && <span style={{ background: '#E8431A', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{activeFilterCount}</span>}
             </button>
             {activeFilterCount > 0 && (
               <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 14px', borderRadius: 25, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 13, cursor: 'pointer' }}>
-                <X size={13} /> Clear all
+                <X size={13} /> {lang === 'EN' ? 'Clear all' : 'ሁሉንም አጽዳ'}
               </button>
             )}
             <span style={{ marginLeft: 'auto', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
@@ -227,82 +226,81 @@ export default function HomePage() {
             <div style={{ marginTop: 16, padding: '20px 24px', background: '#f9fafb', borderRadius: 16, border: '1px solid #e5e7eb' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
                 <div>
-                  <label style={labelStyle}>Min Price (ETB)</label>
-                  <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="e.g. 500000" style={inputStyle} />
+                  <label style={labelStyle}>{lang === 'EN' ? 'Min Price (ETB)' : 'ዝቅተኛ ዋጋ (ETB)'}</label>
+                  <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder={lang === 'EN' ? 'e.g. 500000' : 'ለምሳሌ 500000'} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Max Price (ETB)</label>
-                  <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="e.g. 5000000" style={inputStyle} />
+                  <label style={labelStyle}>{lang === 'EN' ? 'Max Price (ETB)' : 'ከፍተኛ ዋጋ (ETB)'}</label>
+                  <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder={lang === 'EN' ? 'e.g. 5000000' : 'ለምሳሌ 5000000'} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Bedrooms</label>
+                  <label style={labelStyle}>{lang === 'EN' ? 'Bedrooms' : 'መኝታ ክፍሎች'}</label>
                   <select value={bedrooms} onChange={e => setBedrooms(e.target.value)} style={inputStyle}>
-                    <option value="any">Any</option>
-                    <option value="1">1 Bedroom</option>
-                    <option value="2">2 Bedrooms</option>
-                    <option value="3">3 Bedrooms</option>
-                    <option value="4">4 Bedrooms</option>
-                    <option value="5">5+ Bedrooms</option>
+                    <option value="any">{lang === 'EN' ? 'Any' : 'ማንኛውም'}</option>
+                    <option value="1">{lang === 'EN' ? '1 Bedroom' : '1 መኝታ ክፍል'}</option>
+                    <option value="2">{lang === 'EN' ? '2 Bedrooms' : '2 መኝታ ክፍሎች'}</option>
+                    <option value="3">{lang === 'EN' ? '3 Bedrooms' : '3 መኝታ ክፍሎች'}</option>
+                    <option value="4">{lang === 'EN' ? '4 Bedrooms' : '4 መኝታ ክፍሎች'}</option>
+                    <option value="5">{lang === 'EN' ? '5+ Bedrooms' : '5+ መኝታ ክፍሎች'}</option>
                   </select>
                 </div>
                 <div ref={cityRef} style={{ position: 'relative' }}>
-                  <label style={labelStyle}>City / ከተማ</label>
+                  <label style={labelStyle}>{lang === 'EN' ? 'City' : 'ከተማ'}</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       value={citySearch}
                       onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { setCityFilter(''); setSubcity(''); } }}
                       onFocus={() => setShowCityDropdown(true)}
-                      placeholder="Search city..."
+                      placeholder={lang === 'EN' ? 'Search city...' : 'ከተማ ፈልግ...'}
                       style={inputStyle}
                     />
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
                   </div>
                   {showCityDropdown && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 220, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
-                      {/* ✅ Replaced emoji with Lucide Globe icon */}
                       <div onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); setShowCityDropdown(false); }}
                         style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#6b7280', borderBottom: '1px solid #f3f4f6', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Globe size={13} color="#6b7280" /> All Ethiopia
+                        <Globe size={13} color="#6b7280" /> {lang === 'EN' ? 'All Ethiopia' : 'ሁሉም ኢትዮጵያ'}
                       </div>
                       {filteredCities.map(c => (
                         <div key={c.cityEn}
-                          onClick={() => { setCityFilter(c.cityEn); setCitySearch(`${c.cityEn} (${c.cityAm})`); setSubcity(''); setShowCityDropdown(false); }}
+                          onClick={() => { setCityFilter(c.cityEn); setCitySearch(lang === 'EN' ? `${c.cityEn} (${c.cityAm})` : `${c.cityAm} (${c.cityEn})`); setSubcity(''); setShowCityDropdown(false); }}
                           style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#111827', borderBottom: '1px solid #f3f4f6', background: cityFilter === c.cityEn ? '#f0f6ff' : 'white' }}
                           onMouseEnter={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = '#f9fafb'; }}
                           onMouseLeave={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = 'white'; }}>
-                          <span style={{ fontWeight: cityFilter === c.cityEn ? 700 : 400 }}>{c.cityEn}</span>
-                          <span style={{ color: '#9ca3af', marginLeft: 6, fontSize: 12 }}>{c.cityAm}</span>
+                          <span style={{ fontWeight: cityFilter === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
+                          <span style={{ color: '#9ca3af', marginLeft: 6, fontSize: 12 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>Subcity / Location</label>
+                  <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>{lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ'}</label>
                   <select value={subcity} onChange={e => setSubcity(e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5, cursor: selectedCity ? 'pointer' : 'not-allowed' }}>
-                    <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
+                    <option value="">{selectedCity ? (lang === 'EN' ? `All ${selectedCity.cityEn}` : `ሁሉም ${selectedCity.cityAm}`) : (lang === 'EN' ? '— Select city first —' : '— መጀመሪያ ከተማ ይምረጡ —')}</option>
                     {selectedCity?.subsEn.map((sub, i) => (
-                      <option key={sub} value={sub}>{sub} — {selectedCity.subsAm[i]}</option>
+                      <option key={sub} value={sub}>{lang === 'EN' ? `${sub} — ${selectedCity.subsAm[i]}` : `${selectedCity.subsAm[i]} — ${sub}`}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label style={labelStyle}>Sort By</label>
+                  <label style={labelStyle}>{lang === 'EN' ? 'Sort By' : 'ደርድር'}</label>
                   <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={inputStyle}>
-                    <option value="newest">Newest First</option>
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
+                    <option value="newest">{lang === 'EN' ? 'Newest First' : 'አዲሱ ቀደም'}</option>
+                    <option value="price_asc">{lang === 'EN' ? 'Price: Low to High' : 'ዋጋ: ዝቅ ወደ ከፍ'}</option>
+                    <option value="price_desc">{lang === 'EN' ? 'Price: High to Low' : 'ዋጋ: ከፍ ወደ ዝቅ'}</option>
                   </select>
                 </div>
               </div>
               {activeFilterCount > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8, marginTop: 16 }}>
-                  {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Min: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {maxPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Max: ETB {parseInt(maxPrice).toLocaleString()} <button onClick={() => setMaxPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {bedrooms !== 'any' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{bedrooms} bed <button onClick={() => setBedrooms('any')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
+                  {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{lang === 'EN' ? 'Min' : 'ዝቅተኛ'}: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
+                  {maxPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{lang === 'EN' ? 'Max' : 'ከፍተኛ'}: ETB {parseInt(maxPrice).toLocaleString()} <button onClick={() => setMaxPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
+                  {bedrooms !== 'any' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{bedrooms} {lang === 'EN' ? 'bed' : 'መኝ'} <button onClick={() => setBedrooms('any')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {cityFilter && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{cityFilter} <button onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                   {subcity && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{subcity} <button onClick={() => setSubcity('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {sortBy !== 'newest' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{sortBy === 'price_asc' ? 'Price ↑' : 'Price ↓'} <button onClick={() => setSortBy('newest')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
+                  {sortBy !== 'newest' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{sortBy === 'price_asc' ? (lang === 'EN' ? 'Price ↑' : 'ዋጋ ↑') : (lang === 'EN' ? 'Price ↓' : 'ዋጋ ↓')} <button onClick={() => setSortBy('newest')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
                 </div>
               )}
             </div>
@@ -313,7 +311,6 @@ export default function HomePage() {
       {/* Property Grid */}
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
-          // ✅ Replaced emoji spinner with clean CSS spinner
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
             <div style={{ width: 48, height: 48, border: '4px solid #e5e7eb', borderTop: '4px solid #006AFF', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -321,14 +318,13 @@ export default function HomePage() {
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            {/* ✅ Replaced emoji with styled building illustration */}
             <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <Building2 size={40} color="#d1d5db" />
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? 'No properties match your filters' : t.noProps}</div>
-            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{activeFilterCount > 0 ? 'Try adjusting your filters' : t.noPropsDesc}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
+            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : t.noPropsDesc}</div>
             {activeFilterCount > 0 ? (
-              <button onClick={clearFilters} style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>Clear Filters</button>
+              <button onClick={clearFilters} style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>{lang === 'EN' ? 'Clear Filters' : 'ማጣሪያዎችን አጽዳ'}</button>
             ) : (
               <Link href="/owner/listings/new" style={{ padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 {t.postListing} <ArrowRight size={18} />
@@ -349,7 +345,6 @@ export default function HomePage() {
                       {p.images?.[0] ? (
                         <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        // ✅ Replaced emoji placeholder with styled SVG building
                         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8 }}>
                           <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Home size={32} color="#93c5fd" />
@@ -367,10 +362,9 @@ export default function HomePage() {
                   </Link>
                   <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
-                      {/* ✅ Replaced handshake emoji with clean badge */}
                       {p.price_negotiable ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: 20 }}>
-                          Price on Negotiation
+                          {t.negotiablePrice}
                         </span>
                       ) : (
                         <>
@@ -402,24 +396,22 @@ export default function HomePage() {
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 60, alignItems: 'center' }}>
             <div>
-              {/* ✅ Replaced emoji with Globe icon */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
                 <Globe size={14} color="white" />
-                <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>DIASPORA INVESTMENT HUB</span>
+                <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>{t.diasporaTag}</span>
               </div>
               <h2 style={{ fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
-                Invest in Ethiopia<br /><span style={{ color: '#FF6B35' }}>From Anywhere</span>
+                {t.diasporaTitle1}<br /><span style={{ color: '#FF6B35' }}>{t.diasporaTitle2}</span>
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>
-                Browse verified properties, schedule video call tours with local agents, get legal title verification and manage your investment remotely from anywhere in the world.
+                {t.diasporaDesc}
               </p>
-              {/* ✅ Replaced all emojis with Lucide icons */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
                 {[
-                  { icon: Video, title: 'Video Tours', desc: 'Live walkthrough with local agent' },
-                  { icon: Shield, title: 'Legal Verification', desc: 'Title deed checked before you pay' },
-                  { icon: FileText, title: 'Online Contracts', desc: 'Sign agreements digitally' },
-                  { icon: Home, title: 'Managed Rental', desc: 'We handle tenants for you' },
+                  { icon: Video, title: t.diasporaF1Title, desc: t.diasporaF1Desc },
+                  { icon: Shield, title: t.diasporaF2Title, desc: t.diasporaF2Desc },
+                  { icon: FileText, title: t.diasporaF3Title, desc: t.diasporaF3Desc },
+                  { icon: Home, title: t.diasporaF4Title, desc: t.diasporaF4Desc },
                 ].map(({ icon: Icon, title, desc }) => (
                   <div key={title} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -433,16 +425,15 @@ export default function HomePage() {
                 ))}
               </div>
               <Link href="/diaspora" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-                Explore Diaspora Hub <ArrowRight size={18} />
+                {t.diasporaBtn} <ArrowRight size={18} />
               </Link>
             </div>
-            {/* ✅ Replaced all stat emojis with Lucide icons */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
-                { number: '1,200+', label: 'Properties Available', icon: Building2 },
-                { number: '4', label: 'Diaspora Services', icon: Shield },
-                { number: '48hrs', label: 'Average Response Time', icon: Zap },
-                { number: '100%', label: 'Secure Transactions', icon: Lock },
+                { number: '1,200+', label: t.diasporaStat1, icon: Building2 },
+                { number: '4', label: t.diasporaStat2, icon: Shield },
+                { number: '48hrs', label: t.diasporaStat3, icon: Zap },
+                { number: '100%', label: t.diasporaStat4, icon: Lock },
               ].map(({ number, label, icon: Icon }) => (
                 <div key={label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' as const }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
