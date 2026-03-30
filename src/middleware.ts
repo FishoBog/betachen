@@ -7,7 +7,7 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)', '/sign-up(.*)',
   '/api/payments/webhook', '/api/cron/(.*)', '/api/telegram/(.*)',
   '/api/listings/payment/verify',
-  '/owner/listings/(.*)/payment/success', // ✅ Allow Chapa redirect without bouncing to sign-in
+  '/owner/listings/(.*)/payment/success', '/owner/listings/new', // ✅ Allow Chapa redirect without bouncing to sign-in
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
