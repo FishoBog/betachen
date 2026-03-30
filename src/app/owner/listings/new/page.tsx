@@ -336,17 +336,16 @@ export default function NewListingPage() {
         </div>
 
         {/* CTA Buttons */}
-        <SignInButton mode="redirect" redirectUrl="/owner/listings/new">
-          <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12 }}>
-            🚀 Create Free Account & List Property
-          </button>
-        </SignInButton>
-        <SignInButton mode="redirect" redirectUrl="/owner/listings/new">
-          <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
-            Already have an account? Sign In
-          </button>
-        </SignInButton>
-
+<SignInButton mode="modal">
+  <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12 }}>
+    🚀 Create Free Account & List Property
+  </button>
+</SignInButton>
+<SignInButton mode="modal">
+  <button style={{ width: '100%', padding: '15px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+    Already have an account? Sign In
+  </button>
+</SignInButton>
         <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 20 }}>
           Free to join · Listings reviewed within 24 hours · Cancel anytime
         </p>
