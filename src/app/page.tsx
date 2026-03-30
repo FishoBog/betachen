@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown, Video, FileText, Home, Zap, Lock, Globe, Building2 } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
 
@@ -173,6 +173,7 @@ export default function HomePage() {
       <div style={{ padding: '100px 24px 110px', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: 540, backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)', backgroundSize: 'cover', backgroundPosition: 'center top' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
+          {/* ✅ Badge — kept flag emoji as it's branding, removed generic emoji */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28 }}>
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
           </div>
@@ -225,20 +226,14 @@ export default function HomePage() {
           {showFilters && (
             <div style={{ marginTop: 16, padding: '20px 24px', background: '#f9fafb', borderRadius: 16, border: '1px solid #e5e7eb' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-
-                {/* Min Price */}
                 <div>
                   <label style={labelStyle}>Min Price (ETB)</label>
                   <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="e.g. 500000" style={inputStyle} />
                 </div>
-
-                {/* Max Price */}
                 <div>
                   <label style={labelStyle}>Max Price (ETB)</label>
                   <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="e.g. 5000000" style={inputStyle} />
                 </div>
-
-                {/* Bedrooms */}
                 <div>
                   <label style={labelStyle}>Bedrooms</label>
                   <select value={bedrooms} onChange={e => setBedrooms(e.target.value)} style={inputStyle}>
@@ -250,8 +245,6 @@ export default function HomePage() {
                     <option value="5">5+ Bedrooms</option>
                   </select>
                 </div>
-
-                {/* City — searchable dropdown */}
                 <div ref={cityRef} style={{ position: 'relative' }}>
                   <label style={labelStyle}>City / ከተማ</label>
                   <div style={{ position: 'relative' }}>
@@ -259,16 +252,17 @@ export default function HomePage() {
                       value={citySearch}
                       onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { setCityFilter(''); setSubcity(''); } }}
                       onFocus={() => setShowCityDropdown(true)}
-                      placeholder="Search city... / ከተማ ፈልግ"
+                      placeholder="Search city..."
                       style={inputStyle}
                     />
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
                   </div>
                   {showCityDropdown && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 220, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
+                      {/* ✅ Replaced emoji with Lucide Globe icon */}
                       <div onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); setShowCityDropdown(false); }}
-                        style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#6b7280', borderBottom: '1px solid #f3f4f6', fontWeight: 500 }}>
-                        🇪🇹 All Ethiopia
+                        style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#6b7280', borderBottom: '1px solid #f3f4f6', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Globe size={13} color="#6b7280" /> All Ethiopia
                       </div>
                       {filteredCities.map(c => (
                         <div key={c.cityEn}
@@ -283,23 +277,15 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
-
-                {/* Subcity — only shown when city is selected */}
                 <div>
                   <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>Subcity / Location</label>
-                  <select
-                    value={subcity}
-                    onChange={e => setSubcity(e.target.value)}
-                    disabled={!selectedCity}
-                    style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5, cursor: selectedCity ? 'pointer' : 'not-allowed' }}>
+                  <select value={subcity} onChange={e => setSubcity(e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5, cursor: selectedCity ? 'pointer' : 'not-allowed' }}>
                     <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
                     {selectedCity?.subsEn.map((sub, i) => (
                       <option key={sub} value={sub}>{sub} — {selectedCity.subsAm[i]}</option>
                     ))}
                   </select>
                 </div>
-
-                {/* Sort */}
                 <div>
                   <label style={labelStyle}>Sort By</label>
                   <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={inputStyle}>
@@ -309,8 +295,6 @@ export default function HomePage() {
                   </select>
                 </div>
               </div>
-
-              {/* Active filter tags */}
               {activeFilterCount > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8, marginTop: 16 }}>
                   {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>Min: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
@@ -329,14 +313,17 @@ export default function HomePage() {
       {/* Property Grid */}
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
+          // ✅ Replaced emoji spinner with clean CSS spinner
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-            <div style={{ fontSize: 18, fontWeight: 600 }}>{t.loading}</div>
+            <div style={{ width: 48, height: 48, border: '4px solid #e5e7eb', borderTop: '4px solid #006AFF', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>{t.loading}</div>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div style={{ width: 120, height: 100, borderRadius: 16, overflow: 'hidden', margin: '0 auto 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
-              <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+            {/* ✅ Replaced emoji with styled building illustration */}
+            <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <Building2 size={40} color="#d1d5db" />
             </div>
             <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? 'No properties match your filters' : t.noProps}</div>
             <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{activeFilterCount > 0 ? 'Try adjusting your filters' : t.noPropsDesc}</div>
@@ -362,11 +349,12 @@ export default function HomePage() {
                       {p.images?.[0] ? (
                         <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ textAlign: 'center' }}>
-                          <div style={{ width: 80, height: 70, borderRadius: 8, overflow: 'hidden', margin: '0 auto', opacity: 0.7 }}>
-                            <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+                        // ✅ Replaced emoji placeholder with styled SVG building
+                        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Home size={32} color="#93c5fd" />
                           </div>
-                          <div style={{ fontSize: 12, marginTop: 8, color: '#9ca3af' }}>{t.noPhoto}</div>
+                          <div style={{ fontSize: 12, color: '#93c5fd', fontWeight: 600 }}>{t.noPhoto}</div>
                         </div>
                       )}
                       <div style={{ position: 'absolute', top: 12, left: 12, background: tc.bg, color: tc.color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20 }}>
@@ -379,9 +367,18 @@ export default function HomePage() {
                   </Link>
                   <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
-                      {p.price_negotiable ? '🤝 Price on Negotiation' : formatPrice(p.price, p.currency)}
-                      {!p.price_negotiable && p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perMonth}</span>}
-                      {!p.price_negotiable && p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perNight}</span>}
+                      {/* ✅ Replaced handshake emoji with clean badge */}
+                      {p.price_negotiable ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: 20 }}>
+                          Price on Negotiation
+                        </span>
+                      ) : (
+                        <>
+                          {formatPrice(p.price, p.currency)}
+                          {p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perMonth}</span>}
+                          {p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perNight}</span>}
+                        </>
+                      )}
                     </div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 13, marginBottom: 14 }}>
@@ -405,8 +402,9 @@ export default function HomePage() {
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 60, alignItems: 'center' }}>
             <div>
+              {/* ✅ Replaced emoji with Globe icon */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
-                <span style={{ fontSize: 16 }}>🌍</span>
+                <Globe size={14} color="white" />
                 <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>DIASPORA INVESTMENT HUB</span>
               </div>
               <h2 style={{ fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
@@ -415,37 +413,43 @@ export default function HomePage() {
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>
                 Browse verified properties, schedule video call tours with local agents, get legal title verification and manage your investment remotely from anywhere in the world.
               </p>
+              {/* ✅ Replaced all emojis with Lucide icons */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
                 {[
-                  { icon: '📹', title: 'Video Tours', desc: 'Live walkthrough with local agent' },
-                  { icon: '🛡️', title: 'Legal Verification', desc: 'Title deed checked before you pay' },
-                  { icon: '📄', title: 'Online Contracts', desc: 'Sign agreements digitally' },
-                  { icon: '🏠', title: 'Managed Rental', desc: 'We handle tenants for you' },
-                ].map(item => (
-                  <div key={item.title} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{item.icon}</div>
+                  { icon: Video, title: 'Video Tours', desc: 'Live walkthrough with local agent' },
+                  { icon: Shield, title: 'Legal Verification', desc: 'Title deed checked before you pay' },
+                  { icon: FileText, title: 'Online Contracts', desc: 'Sign agreements digitally' },
+                  { icon: Home, title: 'Managed Rental', desc: 'We handle tenants for you' },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <div key={title} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon size={16} color="rgba(255,255,255,0.8)" />
+                    </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 2 }}>{item.title}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{item.desc}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 2 }}>{title}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
               <Link href="/diaspora" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-                🌍 Explore Diaspora Hub <ArrowRight size={18} />
+                Explore Diaspora Hub <ArrowRight size={18} />
               </Link>
             </div>
+            {/* ✅ Replaced all stat emojis with Lucide icons */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
-                { number: '1,200+', label: 'Properties Available', icon: '🏠' },
-                { number: '4', label: 'Diaspora Services', icon: '🛡️' },
-                { number: '48hrs', label: 'Average Response Time', icon: '⚡' },
-                { number: '100%', label: 'Secure Transactions', icon: '🔒' },
-              ].map(stat => (
-                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>{stat.icon}</div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: 'white', marginBottom: 4 }}>{stat.number}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{stat.label}</div>
+                { number: '1,200+', label: 'Properties Available', icon: Building2 },
+                { number: '4', label: 'Diaspora Services', icon: Shield },
+                { number: '48hrs', label: 'Average Response Time', icon: Zap },
+                { number: '100%', label: 'Secure Transactions', icon: Lock },
+              ].map(({ number, label, icon: Icon }) => (
+                <div key={label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' as const }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                    <Icon size={20} color="rgba(255,255,255,0.7)" />
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: 'white', marginBottom: 4 }}>{number}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -465,7 +469,7 @@ export default function HomePage() {
               { icon: Clock, title: t.f3Title, desc: t.f3Desc },
               { icon: MapPin, title: t.f4Title, desc: t.f4Desc },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid #e5e7eb', textAlign: 'left' }}>
+              <div key={title} style={{ background: 'white', borderRadius: 16, padding: 28, border: '1px solid #e5e7eb', textAlign: 'left' as const }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                   <Icon size={24} color="#E8431A" />
                 </div>
@@ -478,7 +482,7 @@ export default function HomePage() {
       </div>
 
       {/* CTA */}
-      <div style={{ background: '#006AFF', padding: '64px 24px', textAlign: 'center' }}>
+      <div style={{ background: '#006AFF', padding: '64px 24px', textAlign: 'center' as const }}>
         <h2 style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12 }}>{t.ctaTitle}</h2>
         <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, marginBottom: 32 }}>{t.ctaSub}</p>
         <Link href="/owner/listings/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
