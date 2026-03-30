@@ -59,10 +59,45 @@ export function Navbar() {
           <img src={LOGO_URL} alt="ጎጆ Homes" style={{ height: 46, width: 'auto' }} />
         </Link>
 
-        {/* Desktop Nav */}
-     {!isMobile && (
+       {/* Desktop Nav */}
+{!isMobile && (
   <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
     {links.map(link => {
+      if (link.authOnly && !isSignedIn) return null;
+      const active = pathname === link.href;
+      const Icon = link.icon;
+      const content = (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Icon size={15} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
+          <span style={{ fontSize: 14, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
+            {link.label}
+          </span>
+        </span>
+      );
+      return link.external ? (
+        
+          key={link.href}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={navLinkStyle(false, true)}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
+          {content}
+        </a>
+      ) : (
+        <Link
+          key={link.href}
+          href={link.href}
+          style={navLinkStyle(active)}
+          onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
+          onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
+          {content}
+        </Link>
+      );
+    })}
+  </nav>
+)}
       if (link.authOnly && !isSignedIn) return null;
       const active = pathname === link.href;
       const Icon = link.icon;
