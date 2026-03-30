@@ -16,7 +16,7 @@ export function Navbar() {
   const { lang, setLang, t } = useLang();
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
@@ -138,9 +138,11 @@ export function Navbar() {
             <UserButton afterSignOutUrl="/" />
           )}
 
-          <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+         {isMobile && (
+  <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
+    {menuOpen ? <X size={22} /> : <Menu size={22} />}
+  </button>
+)}
         </div>
       </div>
 
