@@ -306,34 +306,62 @@ export default function NewListingPage() {
 
   // ✅ Beautiful logged-out landing page
   if (!isSignedIn) return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-      <Navbar />
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '60px 24px', textAlign: 'center' as const }}>
-        <div style={{ fontSize: 56, marginBottom: 16 }}>🏠</div>
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 10 }}>
-          List Your Property on ጎጆ Homes
-        </h1>
-        <p style={{ fontSize: 16, color: '#6b7280', lineHeight: 1.7, marginBottom: 32 }}>
-          Reach thousands of buyers and renters across Ethiopia. Create a free account to get started — it only takes 2 minutes.
-        </p>
+  <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+    <Navbar />
+    <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+        
+        {/* Left column — headline */}
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
+            <Building2 size={14} color="#E8431A" />
+            <span style={{ color: '#E8431A', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>PROPERTY OWNERS</span>
+          </div>
+          <h1 style={{ fontSize: 40, fontWeight: 900, color: '#111827', marginBottom: 16, lineHeight: 1.1 }}>
+            List Your Property<br />
+            <span style={{ color: '#E8431A' }}>Reach Ethiopia</span>
+          </h1>
+          <p style={{ fontSize: 16, color: '#6b7280', lineHeight: 1.8, marginBottom: 32 }}>
+            Connect with thousands of verified buyers and renters across Ethiopia. Your listing goes live within 24 hours.
+          </p>
+          <SignInButton mode="modal">
+            <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <PlusCircle size={18} /> Create Free Account & List Property
+            </button>
+          </SignInButton>
+          <SignInButton mode="modal">
+            <button style={{ width: '100%', padding: '16px', borderRadius: 12, background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+              Already have an account? Sign In
+            </button>
+          </SignInButton>
+          <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 16, textAlign: 'center' as const }}>
+            Free to join · Listings reviewed within 24 hours · Cancel anytime
+          </p>
+        </div>
 
-        {/* Benefits */}
-        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px', marginBottom: 32, textAlign: 'left' as const }}>
+        {/* Right column — benefits */}
+        <div style={{ display: 'grid', gap: 16 }}>
           {[
-            { icon: '📸', title: 'Upload photos & details', desc: 'Showcase your property with photos, location, and full details' },
-            { icon: '👥', title: 'Reach real buyers', desc: 'Connect directly with verified buyers and renters across Ethiopia' },
-            { icon: '🛡️', title: 'Verified & trusted', desc: 'One-time ID verification builds trust with potential buyers' },
-            { icon: '💰', title: 'ETB 500 for 3 months', desc: 'Affordable listing fee — renew for ETB 300 after expiry' },
-          ].map(b => (
-            <div key={b.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 16 }}>
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{b.icon}</div>
+            { icon: Camera, title: 'Upload photos & details', desc: 'Showcase your property with photos, location, and full details', color: '#dbeafe', iconColor: '#1d4ed8' },
+            { icon: Users, title: 'Reach real buyers', desc: 'Connect directly with verified buyers and renters across Ethiopia', color: '#d1fae5', iconColor: '#065f46' },
+            { icon: Shield, title: 'Verified & trusted', desc: 'One-time ID verification builds trust with potential buyers', color: '#fef3c7', iconColor: '#92400e' },
+            { icon: TrendingUp, title: 'ETB 500 for 3 months', desc: 'Affordable listing fee — renew for ETB 300 after expiry', color: '#fce7f3', iconColor: '#9d174d' },
+          ].map(({ icon: Icon, title, desc, color, iconColor }) => (
+            <div key={title} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon size={20} color={iconColor} />
+              </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{b.title}</div>
-                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{b.desc}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{title}</div>
+                <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>{desc}</div>
               </div>
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  </div>
+);
 
         {/* CTA Buttons */}
 <SignInButton mode="modal">
