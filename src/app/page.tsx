@@ -390,6 +390,14 @@ export default function HomePage() {
           </div>
         )}
       </div>
+     import { AdCard } from '@/components/ads/AdCard';
+
+// Between property grid closing </div> and the commercial section:
+{!loading && filtered.length > 0 && (
+  <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 40px' }}>
+    <AdCard placement="homepage" maxAds={3} />
+  </div>
+)} 
 {/* Commercial Properties Teaser */}
 <div style={{ background: '#f8faff', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
   <div style={{ maxWidth: 1280, margin: '0 auto' }}>
