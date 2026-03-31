@@ -1,5 +1,4 @@
 'use client';
-import { AdCard } from '@/components/ads/AdCard';
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef } from 'react';
@@ -8,6 +7,7 @@ import Link from 'next/link';
 import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown, Video, FileText, Home, Zap, Lock, Globe, Building2, ShoppingBag, Layers, Megaphone, Scale, Truck, Paintbrush, Landmark, ClipboardList, HardHat, CalendarDays, Hotel, Stethoscope, Warehouse } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
+import { AdCard } from '@/components/ads/AdCard';
 
 type Property = {
   id: string; title: string; type: string; price: number;
@@ -28,8 +28,6 @@ function formatPrice(price: number, currency: string) {
   if (price >= 1000) return `${currency} ${(price / 1000).toFixed(0)}K`;
   return `${currency} ${price.toLocaleString()}`;
 }
-
-const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
 
 const ETHIOPIA_CITIES = [
   { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ', subsEn: ['Bole','Yeka','Kirkos','Lemi Kura','Nifas Silk-Lafto','Arada','Lideta','Gullele','Kolfe Keraniyo','Akaki-Kality','Addis Ketema'], subsAm: ['ቦሌ','የካ','ቂርቆስ','ለሚ ኩራ','ንፋስ ስልክ ላፍቶ','አራዳ','ልደታ','ጉለሌ','ኮልፌ ቀራኒዮ','አቃቂ ቃሊቲ','አዲስ ከተማ'] },
@@ -248,13 +246,11 @@ export default function HomePage() {
                 <div ref={cityRef} style={{ position: 'relative' }}>
                   <label style={labelStyle}>{lang === 'EN' ? 'City' : 'ከተማ'}</label>
                   <div style={{ position: 'relative' }}>
-                    <input
-                      value={citySearch}
+                    <input value={citySearch}
                       onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { setCityFilter(''); setSubcity(''); } }}
                       onFocus={() => setShowCityDropdown(true)}
                       placeholder={lang === 'EN' ? 'Search city...' : 'ከተማ ፈልግ...'}
-                      style={inputStyle}
-                    />
+                      style={inputStyle} />
                     <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
                   </div>
                   {showCityDropdown && (
@@ -391,215 +387,149 @@ export default function HomePage() {
           </div>
         )}
       </div>
-   
-{!loading && filtered.length > 0 && (
-  <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 40px' }}>
-    <AdCard placement="homepage" maxAds={3} />
-  </div>
-  </div>
 
       {/* Homepage Ads */}
       {!loading && filtered.length > 0 && (
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 40px' }}>
           <AdCard placement="homepage" maxAds={3} />
         </div>
-      )} 
-{/* Commercial Properties Teaser */}
-<div style={{ background: '#f8faff', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
-  <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap' as const, gap: 16 }}>
-      <div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
-          <Building2 size={14} color="#006AFF" />
-          <span style={{ color: '#006AFF', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
-            {lang === 'EN' ? 'COMMERCIAL REAL ESTATE' : 'የንግድ ሪል እስቴት'}
-          </span>
-        </div>
-        <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', marginBottom: 10, letterSpacing: '-0.5px' }}>
-          {lang === 'EN' ? 'Find Commercial Space' : 'የንግድ ቦታ ያግኙ'}
-        </h2>
-        <p style={{ color: '#6b7280', fontSize: 17, lineHeight: 1.6 }}>
-          {lang === 'EN'
-            ? 'Office spaces, retail, warehouses, event halls and more across Ethiopia'
-            : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች በኢትዮጵያ'}
-        </p>
-      </div>
-      <Link href="/commercial" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-        {lang === 'EN' ? 'Browse All Commercial' : 'ሁሉንም የንግድ ቤቶች ይሰሱ'} <ArrowRight size={17} />
-      </Link>
-    </div>
+      )}
 
-    {/* Property type cards — Lucide icons only */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-      {[
-        { key: 'office',           Icon: Building2,   en: 'Office Space',     am: 'ቢሮ ቦታ',        color: '#dbeafe', iconColor: '#1d4ed8' },
-        { key: 'retail',           Icon: ShoppingBag, en: 'Retail / Shop',    am: 'መደብር / ሱቅ',    color: '#d1fae5', iconColor: '#065f46' },
-        { key: 'warehouse',        Icon: Warehouse,   en: 'Warehouse',         am: 'መጋዘን',          color: '#fef3c7', iconColor: '#92400e' },
-        { key: 'event_hall',       Icon: CalendarDays,en: 'Event Hall',        am: 'አዳራሽ',          color: '#fce7f3', iconColor: '#9d174d' },
-        { key: 'hotel',            Icon: Hotel,       en: 'Hotel / Guest',     am: 'ሆቴል',           color: '#ede9fe', iconColor: '#5b21b6' },
-        { key: 'commercial_land',  Icon: MapPin,      en: 'Commercial Land',   am: 'የንግድ መሬት',     color: '#d1fae5', iconColor: '#047857' },
-        { key: 'mixed_use',        Icon: Layers,      en: 'Mixed Use',         am: 'ድብልቅ አጠቃቀም',  color: '#fff7ed', iconColor: '#c2410c' },
-        { key: 'medical',          Icon: Stethoscope, en: 'Medical / Clinic',  am: 'የሕክምና ቦታ',     color: '#fef2f2', iconColor: '#dc2626' },
-      ].map(({ key, Icon, en, am, color, iconColor }) => (
-        <Link key={key} href={`/commercial?type=${key}`} style={{ textDecoration: 'none' }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: '24px 16px', border: '1.5px solid #e5e7eb', textAlign: 'center' as const, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#006AFF'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,106,255,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-              <Icon size={26} color={iconColor} />
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
-              {lang === 'EN' ? en : am}
-            </div>
-          </div>
-        </Link>
-      ))}
-    </div>
-
-    {/* List commercial CTA */}
-    <div style={{ marginTop: 32, padding: '24px 32px', background: 'linear-gradient(135deg, #1e293b, #0f3460)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Building2 size={24} color="white" />
-        </div>
-        <div>
-          <div style={{ fontSize: 17, fontWeight: 800, color: 'white', marginBottom: 4 }}>
-            {lang === 'EN' ? 'Own a commercial space? List it on ጎጆ' : 'የንግድ ቦታ አለዎት? በጎጆ ላይ ይዘርዝሩ'}
-          </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
-            {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
-          </div>
-        </div>
-      </div>
-      <Link href="/owner/commercial/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-        {lang === 'EN' ? 'List Commercial Space' : 'የንግድ ቦታ ዘርዝር'} <ArrowRight size={17} />
-      </Link>
-    </div>
-  </div>
-</div>
-
-{/* Advertisement Section */}
-<div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
-  <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-    <div style={{ textAlign: 'center' as const, marginBottom: 40 }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
-        <Megaphone size={14} color="#E8431A" />
-        <span style={{ color: '#E8431A', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
-          {lang === 'EN' ? 'SPONSORED' : 'ማስታወቂያ'}
-        </span>
-      </div>
-      <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', marginBottom: 10 }}>
-        {lang === 'EN' ? 'Services & Businesses' : 'አገልግሎቶችና ንግዶች'}
-      </h2>
-      <p style={{ color: '#6b7280', fontSize: 17 }}>
-        {lang === 'EN' ? 'Trusted businesses and services for property buyers, owners and investors' : 'ለቤት ገዢዎች፣ ባለቤቶችና ባለሀብቶች የታመኑ ንግዶችና አገልግሎቶች'}
-      </p>
-    </div>
-
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-      {[
-        {
-          category: lang === 'EN' ? 'Legal Services' : 'የሕግ አገልግሎቶች',
-          icon: Scale,
-          color: '#dbeafe', iconColor: '#1d4ed8',
-          title: lang === 'EN' ? 'Property Legal Services' : 'የንብረት ሕጋዊ አገልግሎት',
-          desc: lang === 'EN' ? 'Title deed verification, contract drafting, ownership transfer and legal consultation for property transactions.' : 'የርስት ማረጋገጫ፣ ውል ዝግጅት፣ ባለቤትነት ዝውውርና የሕግ ምክር።',
-          cta: lang === 'EN' ? 'Contact a Lawyer' : 'ጠበቃ ያነጋግሩ',
-          badge: lang === 'EN' ? 'Legal' : 'ሕግ',
-        },
-        {
-          category: lang === 'EN' ? 'Moving & Logistics' : 'ማጓጓዝ',
-          icon: Truck,
-          color: '#d1fae5', iconColor: '#065f46',
-          title: lang === 'EN' ? 'Moving & Relocation Services' : 'የቤት ዕቃ ማጓጓዣ',
-          desc: lang === 'EN' ? 'Professional moving services across Addis Ababa and major Ethiopian cities. Safe, fast and affordable.' : 'በአዲስ አበባ እና በዋና ከተሞች የቤት ዕቃ ማጓጓዣ። ፈጣን፣ ደህንነቱ የተጠበቀ።',
-          cta: lang === 'EN' ? 'Get a Quote' : 'ዋጋ ይጠይቁ',
-          badge: lang === 'EN' ? 'Moving' : 'ማጓጓዝ',
-        },
-        {
-          category: lang === 'EN' ? 'Interior Design' : 'የቤት ዲዛይን',
-          icon: Paintbrush,
-          color: '#fce7f3', iconColor: '#9d174d',
-          title: lang === 'EN' ? 'Interior Design & Renovation' : 'የቤት ዲዛይን እና ጥገና',
-          desc: lang === 'EN' ? 'Transform your new property with professional interior design, renovation and furnishing services.' : 'አዲስ ቤትዎን በሙያዊ የቤት ዲዛይን፣ ጥገናና የፈርኒቸር አገልግሎት ይቀይሩ።',
-          cta: lang === 'EN' ? 'View Portfolio' : 'ስራዎቻቸውን ይመልከቱ',
-          badge: lang === 'EN' ? 'Design' : 'ዲዛይን',
-        },
-        {
-          category: lang === 'EN' ? 'Finance & Mortgage' : 'ብድርና ፋይናንስ',
-          icon: Landmark,
-          color: '#fef3c7', iconColor: '#92400e',
-          title: lang === 'EN' ? 'Home Loans & Mortgage' : 'የቤት ብድርና ሞርጌጅ',
-          desc: lang === 'EN' ? 'Get financing for your property purchase. Compare mortgage rates from leading Ethiopian banks.' : 'ለቤት ግዢ ብድር ያግኙ። ከዋና ኢትዮጵያ ባንኮች ሞርጌጅ ያወዳድሩ።',
-          cta: lang === 'EN' ? 'Check Eligibility' : 'ብቁነትዎን ያረጋግጡ',
-          badge: lang === 'EN' ? 'Finance' : 'ፋይናንስ',
-        },
-        {
-          category: lang === 'EN' ? 'Property Management' : 'የንብረት አስተዳደር',
-          icon: ClipboardList,
-          color: '#ede9fe', iconColor: '#5b21b6',
-          title: lang === 'EN' ? 'Property Management Services' : 'የንብረት አስተዳደር',
-          desc: lang === 'EN' ? 'Let us manage your rental property. Tenant screening, rent collection and maintenance handled for you.' : 'ኪራይ ቤትዎን እኛ እናስተዳድር። ተከራይ ምርጫ፣ ኪራይ አሰባሰብና ጥገና።',
-          cta: lang === 'EN' ? 'Learn More' : 'ተጨማሪ ይወቁ',
-          badge: lang === 'EN' ? 'Management' : 'አስተዳደር',
-        },
-        {
-          category: lang === 'EN' ? 'Construction' : 'ግንባታ',
-          icon: HardHat,
-          color: '#fff7ed', iconColor: '#c2410c',
-          title: lang === 'EN' ? 'Construction & Building Services' : 'የግንባታ አገልግሎቶች',
-          desc: lang === 'EN' ? 'Residential and commercial construction, fit-out and building services from certified contractors.' : 'የመኖሪያ እና የንግድ ቤቶች ግንባታ፣ ፊኒሺንግ እና የግንባታ አገልግሎቶች።',
-          cta: lang === 'EN' ? 'Request Quote' : 'ዋጋ ይጠይቁ',
-          badge: lang === 'EN' ? 'Construction' : 'ግንባታ',
-        },
-      ].map(({ category, icon: Icon, color, iconColor, title, desc, cta, badge }) => (
-        <div key={title} style={{ background: 'white', borderRadius: 18, border: '1.5px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.1)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-          {/* Card header */}
-          <div style={{ background: color, padding: '24px', display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-              <Icon size={26} color={iconColor} />
-            </div>
+      {/* Commercial Properties Teaser */}
+      <div style={{ background: '#f8faff', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap' as const, gap: 16 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: iconColor, textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4 }}>{category}</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{title}</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
+                <Building2 size={14} color="#006AFF" />
+                <span style={{ color: '#006AFF', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
+                  {lang === 'EN' ? 'COMMERCIAL REAL ESTATE' : 'የንግድ ሪል እስቴት'}
+                </span>
+              </div>
+              <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', marginBottom: 10, letterSpacing: '-0.5px' }}>
+                {lang === 'EN' ? 'Find Commercial Space' : 'የንግድ ቦታ ያግኙ'}
+              </h2>
+              <p style={{ color: '#6b7280', fontSize: 17, lineHeight: 1.6 }}>
+                {lang === 'EN' ? 'Office spaces, retail, warehouses, event halls and more across Ethiopia' : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች በኢትዮጵያ'}
+              </p>
             </div>
+            <Link href="/commercial" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+              {lang === 'EN' ? 'Browse All Commercial' : 'ሁሉንም የንግድ ቤቶች ይሰሱ'} <ArrowRight size={17} />
+            </Link>
           </div>
-          {/* Card body */}
-          <div style={{ padding: '20px 24px 24px' }}>
-            <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.7, marginBottom: 20 }}>{desc}</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, background: '#f3f4f6', color: '#6b7280', padding: '4px 10px', borderRadius: 20, textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>
-                {lang === 'EN' ? 'Sponsored' : 'ማስታወቂያ'}
-              </span>
-              <button style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: iconColor, color: 'white', borderRadius: 8, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer' }}>
-                {cta} <ArrowRight size={14} />
-              </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
+            {[
+              { key: 'office', Icon: Building2, en: 'Office Space', am: 'ቢሮ ቦታ', color: '#dbeafe', iconColor: '#1d4ed8' },
+              { key: 'retail', Icon: ShoppingBag, en: 'Retail / Shop', am: 'መደብር / ሱቅ', color: '#d1fae5', iconColor: '#065f46' },
+              { key: 'warehouse', Icon: Warehouse, en: 'Warehouse', am: 'መጋዘን', color: '#fef3c7', iconColor: '#92400e' },
+              { key: 'event_hall', Icon: CalendarDays, en: 'Event Hall', am: 'አዳራሽ', color: '#fce7f3', iconColor: '#9d174d' },
+              { key: 'hotel', Icon: Hotel, en: 'Hotel / Guest', am: 'ሆቴል', color: '#ede9fe', iconColor: '#5b21b6' },
+              { key: 'commercial_land', Icon: MapPin, en: 'Commercial Land', am: 'የንግድ መሬት', color: '#d1fae5', iconColor: '#047857' },
+              { key: 'mixed_use', Icon: Layers, en: 'Mixed Use', am: 'ድብልቅ አጠቃቀም', color: '#fff7ed', iconColor: '#c2410c' },
+              { key: 'medical', Icon: Stethoscope, en: 'Medical / Clinic', am: 'የሕክምና ቦታ', color: '#fef2f2', iconColor: '#dc2626' },
+            ].map(({ key, Icon, en, am, color, iconColor }) => (
+              <Link key={key} href={`/commercial?type=${key}`} style={{ textDecoration: 'none' }}>
+                <div style={{ background: 'white', borderRadius: 16, padding: '24px 16px', border: '1.5px solid #e5e7eb', textAlign: 'center' as const, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#006AFF'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,106,255,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                    <Icon size={26} color={iconColor} />
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+                    {lang === 'EN' ? en : am}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div style={{ marginTop: 32, padding: '24px 32px', background: 'linear-gradient(135deg, #1e293b, #0f3460)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Building2 size={24} color="white" />
+              </div>
+              <div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: 'white', marginBottom: 4 }}>
+                  {lang === 'EN' ? 'Own a commercial space? List it on ጎጆ' : 'የንግድ ቦታ አለዎት? በጎጆ ላይ ይዘርዝሩ'}
+                </div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
+                  {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
+                </div>
+              </div>
             </div>
+            <Link href="/owner/commercial/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+              {lang === 'EN' ? 'List Commercial Space' : 'የንግድ ቦታ ዘርዝር'} <ArrowRight size={17} />
+            </Link>
           </div>
         </div>
-      ))}
-    </div>
+      </div>
 
-    {/* Advertise with us CTA */}
-    <div style={{ marginTop: 40, padding: '28px 32px', background: '#f9fafb', borderRadius: 18, border: '1.5px dashed #d1d5db', textAlign: 'center' as const }}>
-      <Megaphone size={32} color="#9ca3af" style={{ marginBottom: 12 }} />
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
-        {lang === 'EN' ? 'Advertise Your Business Here' : 'ንግድዎን እዚህ ያስተዋውቁ'}
+      {/* Advertisement Section */}
+      <div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center' as const, marginBottom: 40 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
+              <Megaphone size={14} color="#E8431A" />
+              <span style={{ color: '#E8431A', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
+                {lang === 'EN' ? 'SPONSORED' : 'ማስታወቂያ'}
+              </span>
+            </div>
+            <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', marginBottom: 10 }}>
+              {lang === 'EN' ? 'Services & Businesses' : 'አገልግሎቶችና ንግዶች'}
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: 17 }}>
+              {lang === 'EN' ? 'Trusted businesses and services for property buyers, owners and investors' : 'ለቤት ገዢዎች፣ ባለቤቶችና ባለሀብቶች የታመኑ ንግዶችና አገልግሎቶች'}
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+            {[
+              { category: lang === 'EN' ? 'Legal Services' : 'የሕግ አገልግሎቶች', icon: Scale, color: '#dbeafe', iconColor: '#1d4ed8', title: lang === 'EN' ? 'Property Legal Services' : 'የንብረት ሕጋዊ አገልግሎት', desc: lang === 'EN' ? 'Title deed verification, contract drafting, ownership transfer and legal consultation for property transactions.' : 'የርስት ማረጋገጫ፣ ውል ዝግጅት፣ ባለቤትነት ዝውውርና የሕግ ምክር።', cta: lang === 'EN' ? 'Contact a Lawyer' : 'ጠበቃ ያነጋግሩ' },
+              { category: lang === 'EN' ? 'Moving & Logistics' : 'ማጓጓዝ', icon: Truck, color: '#d1fae5', iconColor: '#065f46', title: lang === 'EN' ? 'Moving & Relocation Services' : 'የቤት ዕቃ ማጓጓዣ', desc: lang === 'EN' ? 'Professional moving services across Addis Ababa and major Ethiopian cities. Safe, fast and affordable.' : 'በአዲስ አበባ እና በዋና ከተሞች የቤት ዕቃ ማጓጓዣ። ፈጣን፣ ደህንነቱ የተጠበቀ።', cta: lang === 'EN' ? 'Get a Quote' : 'ዋጋ ይጠይቁ' },
+              { category: lang === 'EN' ? 'Interior Design' : 'የቤት ዲዛይን', icon: Paintbrush, color: '#fce7f3', iconColor: '#9d174d', title: lang === 'EN' ? 'Interior Design & Renovation' : 'የቤት ዲዛይን እና ጥገና', desc: lang === 'EN' ? 'Transform your new property with professional interior design, renovation and furnishing services.' : 'አዲስ ቤትዎን በሙያዊ የቤት ዲዛይን፣ ጥገናና የፈርኒቸር አገልግሎት ይቀይሩ።', cta: lang === 'EN' ? 'View Portfolio' : 'ስራዎቻቸውን ይመልከቱ' },
+              { category: lang === 'EN' ? 'Finance & Mortgage' : 'ብድርና ፋይናንስ', icon: Landmark, color: '#fef3c7', iconColor: '#92400e', title: lang === 'EN' ? 'Home Loans & Mortgage' : 'የቤት ብድርና ሞርጌጅ', desc: lang === 'EN' ? 'Get financing for your property purchase. Compare mortgage rates from leading Ethiopian banks.' : 'ለቤት ግዢ ብድር ያግኙ። ከዋና ኢትዮጵያ ባንኮች ሞርጌጅ ያወዳድሩ።', cta: lang === 'EN' ? 'Check Eligibility' : 'ብቁነትዎን ያረጋግጡ' },
+              { category: lang === 'EN' ? 'Property Management' : 'የንብረት አስተዳደር', icon: ClipboardList, color: '#ede9fe', iconColor: '#5b21b6', title: lang === 'EN' ? 'Property Management Services' : 'የንብረት አስተዳደር', desc: lang === 'EN' ? 'Let us manage your rental property. Tenant screening, rent collection and maintenance handled for you.' : 'ኪራይ ቤትዎን እኛ እናስተዳድር። ተከራይ ምርጫ፣ ኪራይ አሰባሰብና ጥገና።', cta: lang === 'EN' ? 'Learn More' : 'ተጨማሪ ይወቁ' },
+              { category: lang === 'EN' ? 'Construction' : 'ግንባታ', icon: HardHat, color: '#fff7ed', iconColor: '#c2410c', title: lang === 'EN' ? 'Construction & Building Services' : 'የግንባታ አገልግሎቶች', desc: lang === 'EN' ? 'Residential and commercial construction, fit-out and building services from certified contractors.' : 'የመኖሪያ እና የንግድ ቤቶች ግንባታ፣ ፊኒሺንግ እና የግንባታ አገልግሎቶች።', cta: lang === 'EN' ? 'Request Quote' : 'ዋጋ ይጠይቁ' },
+            ].map(({ category, icon: Icon, color, iconColor, title, desc, cta }) => (
+              <div key={title} style={{ background: 'white', borderRadius: 18, border: '1.5px solid #e5e7eb', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.1)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+                <div style={{ background: color, padding: '24px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                    <Icon size={26} color={iconColor} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: iconColor, textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: 4 }}>{category}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>{title}</div>
+                  </div>
+                </div>
+                <div style={{ padding: '20px 24px 24px' }}>
+                  <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.7, marginBottom: 20 }}>{desc}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, background: '#f3f4f6', color: '#6b7280', padding: '4px 10px', borderRadius: 20, textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>
+                      {lang === 'EN' ? 'Sponsored' : 'ማስታወቂያ'}
+                    </span>
+                    <button style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: iconColor, color: 'white', borderRadius: 8, fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer' }}>
+                      {cta} <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 40, padding: '28px 32px', background: '#f9fafb', borderRadius: 18, border: '1.5px dashed #d1d5db', textAlign: 'center' as const }}>
+            <Megaphone size={32} color="#9ca3af" style={{ marginBottom: 12 }} />
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
+              {lang === 'EN' ? 'Advertise Your Business Here' : 'ንግድዎን እዚህ ያስተዋውቁ'}
+            </div>
+            <div style={{ fontSize: 15, color: '#6b7280', marginBottom: 20 }}>
+              {lang === 'EN' ? 'Reach thousands of property buyers, sellers, owners and investors across Ethiopia every day.' : 'በየቀኑ ሺዎችን የቤት ገዢዎች፣ ሻጮች፣ ባለቤቶችና ባለሀብቶች ይድረሱ።'}
+            </div>
+            <Link href="/advertise" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+              {lang === 'EN' ? 'Advertise on ጎጆ' : 'በጎጆ ላይ ያስተዋውቁ'} <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
       </div>
-      <div style={{ fontSize: 15, color: '#6b7280', marginBottom: 20 }}>
-        {lang === 'EN'
-          ? 'Reach thousands of property buyers, sellers, owners and investors across Ethiopia every day.'
-          : 'በየቀኑ ሺዎችን የቤት ገዢዎች፣ ሻጮች፣ ባለቤቶችና ባለሀብቶች ይድረሱ።'}
-      </div>
-      <a href="mailto:advertise@gojo-homes.com" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-        {lang === 'EN' ? 'Contact Us to Advertise' : 'ለማስታወቂያ ያነጋግሩን'} <ArrowRight size={16} />
-      </a>
-    </div>
-  </div>
-</div>
-      
+
       {/* Diaspora Section */}
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '72px 24px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
@@ -612,9 +542,7 @@ export default function HomePage() {
               <h2 style={{ fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
                 {t.diasporaTitle1}<br /><span style={{ color: '#FF6B35' }}>{t.diasporaTitle2}</span>
               </h2>
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>
-                {t.diasporaDesc}
-              </p>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, lineHeight: 1.7, marginBottom: 28 }}>{t.diasporaDesc}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 32 }}>
                 {[
                   { icon: Video, title: t.diasporaF1Title, desc: t.diasporaF1Desc },
