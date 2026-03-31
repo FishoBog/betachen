@@ -6,7 +6,7 @@ import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send, Home, Key, Ma
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
-const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg';
+const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg';
 
 export function Navbar() {
   const { isSignedIn, isLoaded } = useUser();
