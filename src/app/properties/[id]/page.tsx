@@ -7,6 +7,7 @@ import { ContactOwnerCard } from '@/components/property/ContactOwnerCard';
 import { PropertyReviews } from '@/components/reviews/PropertyReviews';
 import { ViewTracker } from '@/components/property/ViewTracker';
 import { ListingActions } from '@/components/property/ListingActions';
+import { AdCard } from '@/components/ads/AdCard';
 import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
 import Link from 'next/link';
@@ -18,11 +19,10 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
   const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=600&center=lonlat:${lng},${lat}&zoom=15&apiKey=bca9eb259d3744f38c08c0b0722cadee`;
   return (
     <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-      {/* Header */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 16 }}>📍</span>
+            <MapPin size={16} color="#E8431A" />
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Approximate Location</div>
@@ -31,52 +31,33 @@ function BlurredMap({ lat, lng }: { lat: number; lng: number }) {
         </div>
         <div style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '4px 10px', borderRadius: 20, fontWeight: 600 }}>~500m radius</div>
       </div>
-
-      {/* Map */}
       <div style={{ position: 'relative', height: 420, overflow: 'hidden' }}>
-        {/* Blurred map image */}
-        <img
-          src={mapUrl}
-          alt="Property location map"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(0.5px)', transform: 'scale(1.02)' }}
-        />
-
-        {/* Dark overlay for contrast */}
+        <img src={mapUrl} alt="Property location map"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(0.5px)', transform: 'scale(1.02)' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)' }} />
-
-        {/* Center pin with animated ring */}
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 12 }}>
-            {/* Outer ring */}
             <div style={{ position: 'relative', width: 140, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(232,67,26,0.4)', background: 'rgba(232,67,26,0.08)' }} />
               <div style={{ position: 'absolute', inset: 20, borderRadius: '50%', border: '2px solid rgba(232,67,26,0.6)', background: 'rgba(232,67,26,0.12)' }} />
-              {/* House icon */}
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'white', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, zIndex: 1 }}>
-                🏠
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'white', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                <MapPin size={24} color="#E8431A" />
               </div>
             </div>
-            {/* Privacy badge */}
             <div style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', borderRadius: 20, padding: '6px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 11 }}>🔒</span>
-              <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>Exact location is private</span>
+              <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>🔒 Exact location is private</span>
             </div>
           </div>
         </div>
-
-        {/* Bottom gradient with info */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.6))', padding: '24px 16px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
-            📍 Approximate area only
-          </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
-            Contact owner for exact address
-          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>Approximate area only</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Contact owner for exact address</div>
         </div>
       </div>
     </div>
   );
 }
+
 export default async function PropertyDetailPage({ params: paramsPromise }: Props) {
   const { id } = await paramsPromise;
 
@@ -156,7 +137,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
               {isNegotiable ? (
                 <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '10px 18px' }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#92400e' }}>🤝 Price on Negotiation</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#92400e' }}>Price on Negotiation</div>
                   <div style={{ fontSize: 12, color: '#78350f', marginTop: 2 }}>Contact owner to discuss</div>
                 </div>
               ) : (
@@ -186,7 +167,9 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
               <PropertyGallery images={propertyWithImages.property_images} />
             ) : (
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '32px 24px', textAlign: 'center' as const }}>
-                <div style={{ fontSize: 48, marginBottom: 8 }}>📷</div>
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                  <MapPin size={28} color="#d1d5db" />
+                </div>
                 <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>No photos yet</div>
                 <div style={{ fontSize: 13, color: '#9ca3af' }}>The owner has not uploaded photos for this listing</div>
               </div>
@@ -200,14 +183,6 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             {/* Property info */}
             <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
               <PropertyInfo property={propertyWithImages as unknown as Property} />
-              import { AdCard } from '@/components/ads/AdCard';
-
-// Inside the sidebar div, add:
-<AdCard
-  placement="property_detail"
-  maxAds={2}
-  style={{ marginTop: 24 }}
-/>
             </div>
 
             {/* Reviews */}
@@ -273,6 +248,9 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
                 ) : null}
               </div>
             </div>
+
+            {/* Ad Card in sidebar */}
+            <AdCard placement="property_detail" maxAds={2} />
           </div>
         </div>
 
@@ -283,10 +261,12 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
               {similarProperties.map((p: any) => (
                 <Link key={p.id} href={`/properties/${p.id}`} style={{ textDecoration: 'none', background: 'white', borderRadius: 14, overflow: 'hidden', border: '1px solid #e5e7eb', display: 'block' }}>
-                  <div style={{ height: 160, background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🏠</div>
+                  <div style={{ height: 160, background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <MapPin size={40} color="#93c5fd" />
+                  </div>
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ fontSize: 16, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
-                      {p.price_negotiable ? '🤝 Negotiable' : `${p.price?.toLocaleString()} ${p.currency}`}
+                      {p.price_negotiable ? 'Price on Negotiation' : `${p.price?.toLocaleString()} ${p.currency}`}
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', marginBottom: 4 }}>{p.title}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#6b7280', fontSize: 12 }}>
