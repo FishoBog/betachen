@@ -390,7 +390,71 @@ export default function HomePage() {
           </div>
         )}
       </div>
-
+{/* Commercial Properties Teaser */}
+<div style={{ background: '#f8faff', padding: '64px 24px', borderTop: '1px solid #e5e7eb' }}>
+  <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap' as const, gap: 16 }}>
+      <div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '6px 14px', marginBottom: 10 }}>
+          <Building2 size={13} color="#006AFF" />
+          <span style={{ color: '#006AFF', fontSize: 12, fontWeight: 700, letterSpacing: '0.5px' }}>
+            {lang === 'EN' ? 'COMMERCIAL REAL ESTATE' : 'የንግድ ሪል እስቴት'}
+          </span>
+        </div>
+        <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', marginBottom: 8 }}>
+          {lang === 'EN' ? 'Find Commercial Space' : 'የንግድ ቦታ ያግኙ'}
+        </h2>
+        <p style={{ color: '#6b7280', fontSize: 15 }}>
+          {lang === 'EN'
+            ? 'Office spaces, retail, warehouses, event halls and more across Ethiopia'
+            : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች በኢትዮጵያ ሁሉ'}
+        </p>
+      </div>
+      <Link href="/commercial" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+        {lang === 'EN' ? 'Browse All Commercial' : 'ሁሉንም የንግድ ቤቶች ይሰሱ'} <ArrowRight size={16} />
+      </Link>
+    </div>
+    {/* Property type cards */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 14 }}>
+      {[
+        { key: 'office', icon: '🏢', en: 'Office Space', am: 'ቢሮ ቦታ' },
+        { key: 'retail', icon: '🏪', en: 'Retail / Shop', am: 'መደብር' },
+        { key: 'warehouse', icon: '🏭', en: 'Warehouse', am: 'መጋዘን' },
+        { key: 'event_hall', icon: '🎪', en: 'Event Hall', am: 'አዳራሽ' },
+        { key: 'hotel', icon: '🏨', en: 'Hotel / Guest', am: 'ሆቴል' },
+        { key: 'commercial_land', icon: '🌍', en: 'Commercial Land', am: 'የንግድ መሬት' },
+        { key: 'mixed_use', icon: '🏗️', en: 'Mixed Use', am: 'ድብልቅ' },
+        { key: 'medical', icon: '🏥', en: 'Medical Space', am: 'የሕክምና ቦታ' },
+      ].map(ct => (
+        <Link key={ct.key} href={`/commercial?type=${ct.key}`} style={{ textDecoration: 'none' }}>
+          <div style={{ background: 'white', borderRadius: 14, padding: '20px 12px', border: '1px solid #e5e7eb', textAlign: 'center' as const, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#006AFF'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,106,255,0.1)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>{ct.icon}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+              {lang === 'EN' ? ct.en : ct.am}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+    {/* List commercial CTA */}
+    <div style={{ marginTop: 28, padding: '20px 24px', background: 'linear-gradient(135deg, #1e293b, #0f3460)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
+      <div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 4 }}>
+          {lang === 'EN' ? 'Own a commercial space? List it on ጎጆ' : 'የንግድ ቦታ አለዎት? በጎጆ ላይ ይዘርዝሩ'}
+        </div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+          {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
+        </div>
+      </div>
+      <Link href="/owner/commercial/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+        {lang === 'EN' ? 'List Commercial Space' : 'የንግድ ቦታ ዘርዝር'} <ArrowRight size={16} />
+      </Link>
+    </div>
+  </div>
+</div>
+      
       {/* Diaspora Section */}
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '72px 24px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
