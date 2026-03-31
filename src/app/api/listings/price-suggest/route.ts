@@ -60,7 +60,7 @@ PROPERTY DETAILS:
 - Amenities: ${amenitiesList}
 - Description: ${propertyData.description || 'Not provided'}
 
-COMPARABLE PROPERTIES ON ጎጆ PLATFORM:
+COMPARABLE PROPERTIES ON ቤታችን PLATFORM:
 ${comparablesText}
 
 ${imageUrls && imageUrls.length > 0 ? `PHOTOS: ${imageUrls.length} photo(s) provided for visual assessment.` : ''}

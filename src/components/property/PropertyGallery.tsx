@@ -12,7 +12,7 @@ export function PropertyGallery({ images }: { images: PropertyImage[] }) {
   if (!images.length) return (
     <div style={{ height: 420, borderRadius: 20, overflow: 'hidden', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
       <div style={{ width: 120, height: 100, borderRadius: 12, overflow: 'hidden', opacity: 0.5 }}>
-        <img src={GOJO_IMAGE} alt="ጎጆ" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+        <img src={GOJO_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
       </div>
       <p style={{ color: '#9ca3af', fontSize: 14 }}>No photos yet</p>
     </div>

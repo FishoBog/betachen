@@ -9,12 +9,12 @@ const supabase = createClient(
 async function sendExpiryEmail(property: any, daysLeft: number) {
   const renewalCost = 300;
   const subject = daysLeft === 0
-    ? `Your ጎጆ listing "${property.title}" has expired`
-    : `Your ጎጆ listing expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`;
+    ? `Your ቤታችን listing "${property.title}" has expired`
+    : `Your ቤታችን listing expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`;
 
   const message = daysLeft === 0 ? `
     <h2>Your listing has expired</h2>
-    <p>Your property listing <strong>"${property.title}"</strong> on ጎጆ has expired and is no longer visible to buyers/renters.</p>
+    <p>Your property listing <strong>"${property.title}"</strong> on ቤታችን has expired and is no longer visible to buyers/renters.</p>
     <p>To reactivate it for another 3 months, pay a renewal fee of <strong>ETB ${renewalCost}</strong> (60% of the original listing fee).</p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${property.id}/renew" 
        style="background:#E8431A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;margin-top:16px">
@@ -22,7 +22,7 @@ async function sendExpiryEmail(property: any, daysLeft: number) {
     </a>
   ` : `
     <h2>Your listing expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}</h2>
-    <p>Your property listing <strong>"${property.title}"</strong> on ጎጆ will expire on 
+    <p>Your property listing <strong>"${property.title}"</strong> on ቤታችን will expire on 
     <strong>${new Date(property.expires_at).toLocaleDateString('en-ET', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>.</p>
     <p>To keep your listing active for another 3 months, renew now for just <strong>ETB ${renewalCost}</strong>.</p>
     <p style="color:#6b7280;font-size:13px">This is a ${daysLeft === 30 ? '30-day' : daysLeft === 7 ? '7-day' : '1-day'} advance notice.</p>
@@ -40,10 +40,10 @@ async function sendExpiryEmail(property: any, daysLeft: number) {
 
   // Uncomment when you have Resend configured:
   // await resend.emails.send({
-  //   from: 'ጎጆ <noreply@gojo-et.com>',
+  //   from: 'ቤታችን <noreply@gojo-et.com>',
   //   to: property.owner_email,
   //   subject,
-  //   html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">${message}<hr/><p style="font-size:11px;color:#9ca3af">ጎጆ Real Estate • gojo-et.netlify.app</p></div>`
+  //   html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">${message}<hr/><p style="font-size:11px;color:#9ca3af">ቤታችን Real Estate • gojo-et.netlify.app</p></div>`
   // });
 
   // Log notification

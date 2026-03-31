@@ -9,7 +9,7 @@ const notoEthiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400',
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'ጎጆ — Real Estate in Ethiopia',
+  title: 'ቤታችን — Real Estate in Ethiopia',
   description: 'Find, rent, and sell properties across Ethiopia',
   manifest: '/manifest.json',
 };

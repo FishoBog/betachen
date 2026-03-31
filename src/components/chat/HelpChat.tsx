@@ -24,7 +24,7 @@ const SUGGESTED_AM = [
 export function HelpChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'ሰላም! 👋 I\'m the ጎጆ Assistant. I can help you find properties, understand bookings, payments, and more. How can I help you today?\n\nሰላም! የጎጆ ረዳት ነኝ። ቤቶችን ለማግኘት፣ ክፍያዎችን እና ቦታ ማስያዝን ለማብራራት ዝግጁ ነኝ።' }
+    { role: 'assistant', content: 'ሰላም! 👋 I\'m the ቤታችን Assistant. I can help you find properties, understand bookings, payments, and more. How can I help you today?\n\nሰላም! የቤታችን ረዳት ነኝ። ቤቶችን ለማግኘት፣ ክፍያዎችን እና ቦታ ማስያዝን ለማብራራት ዝግጁ ነኝ።' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -124,7 +124,7 @@ export function HelpChat() {
                 <span style={{ fontSize: 18 }}>ጎ</span>
               </div>
               <div>
-                <div style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>ጎጆ Assistant</div>
+                <div style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>ቤታችን Assistant</div>
                 <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
                   Online • Replies instantly

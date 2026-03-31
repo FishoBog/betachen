@@ -10,8 +10,8 @@ const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display
 
 export const metadata: Metadata = {
   title: {
-    default: 'ጎጆ Homes — Real Estate in Ethiopia | Buy, Rent & Short Stay',
-    template: '%s | ጎጆ Homes Ethiopia',
+    default: 'ቤታችን Homes — Real Estate in Ethiopia | Buy, Rent & Short Stay',
+    template: '%s | ቤታችን Homes Ethiopia',
   },
   description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia. ቤት ለኪራይ፣ ለሽያጭ እና አጭር ቆይታ በኢትዮጵያ። Ethiopia\'s #1 real estate platform — Addis Ababa, Dire Dawa and all major cities.',
   keywords: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     'ቤት ለሽያጭ ኢትዮጵያ',
     'አፓርትመንት ለኪራይ',
     'ቤት ለአጭር ቆይታ',
-    'ጎጆ ሆምስ',
+    'ቤታችን ሆምስ',
     'Ethiopia property',
     'Addis Ababa real estate',
     'Ethiopia housing',
@@ -36,47 +36,47 @@ export const metadata: Metadata = {
     'short stay Addis Ababa',
     'diaspora Ethiopia real estate',
   ],
-  authors: [{ name: 'ጎጆ Homes' }],
-  creator: 'ጎጆ Homes',
-  publisher: 'ጎጆ Homes',
+  authors: [{ name: 'ቤታችን Homes' }],
+  creator: 'ቤታችን Homes',
+  publisher: 'ቤታችን Homes',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ጎጆ Homes',
+    title: 'ቤታችን Homes',
   },
   icons: {
-    icon: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg',
-    apple: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg',
+    icon: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg',
+    apple: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg',
   },
   openGraph: {
     type: 'website',
     locale: 'en_ET',
     alternateLocale: 'am_ET',
-    url: 'https://www.gojo-homes.com',
-    siteName: 'ጎጆ Homes',
-    title: 'ጎጆ Homes — Real Estate in Ethiopia',
+    url: 'https://www.betachen.com',
+    siteName: 'ቤታችን Homes',
+    title: 'ቤታችን Homes — Real Estate in Ethiopia',
     description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia.',
     images: [
       {
         url: 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg',
         width: 1200,
         height: 630,
-        alt: 'ጎጆ Homes — Real Estate in Ethiopia',
+        alt: 'ቤታችን Homes — Real Estate in Ethiopia',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ጎጆ Homes — Real Estate in Ethiopia',
+    title: 'ቤታችን Homes — Real Estate in Ethiopia',
     description: 'Find houses, apartments and properties for sale, rent and short stay across Ethiopia.',
     images: ['https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg'],
   },
   alternates: {
-    canonical: 'https://www.gojo-homes.com',
+    canonical: 'https://www.betachen.com',
     languages: {
-      'en-ET': 'https://www.gojo-homes.com',
-      'am-ET': 'https://www.gojo-homes.com',
+      'en-ET': 'https://www.betachen.com',
+      'am-ET': 'https://www.betachen.com',
     },
   },
   robots: {
@@ -110,17 +110,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <link rel="manifest" href="/manifest.json" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-          <meta name="apple-mobile-web-app-title" content="ጎጆ Homes" />
-          <link rel="apple-touch-icon" href="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg" />
+          <meta name="apple-mobile-web-app-title" content="ቤታችን Homes" />
+          <link rel="apple-touch-icon" href="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg" />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "RealEstateAgent",
-                "name": "ጎጆ Homes",
-                "url": "https://www.gojo-homes.com",
-                "logo": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg",
+                "name": "ቤታችን Homes",
+                "url": "https://www.betachen.com",
+                "logo": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg",
                 "description": "Ethiopia's #1 Real Estate Platform — Buy, Rent and Short Stay properties across Ethiopia.",
                 "address": {
                   "@type": "PostalAddress",
@@ -132,7 +132,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   "name": "Ethiopia"
                 },
                 "sameAs": [
-                  "https://t.me/GojoEthiopiaBot"
+                  "https://t.me/BetachenBot"
                 ]
               })
             }}

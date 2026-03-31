@@ -18,13 +18,13 @@ export default function DiasporaPage() {
             Invest in Ethiopia<br /><span style={{ color: '#FF6B35' }}>From Anywhere in the World</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 18, lineHeight: 1.7, marginBottom: 40, maxWidth: 600, margin: '0 auto 40px' }}>
-            ጎጆ Homes connects the Ethiopian diaspora with verified properties back home — with trusted agents, managed rentals, legal support and video tours so you can invest with confidence from abroad.
+            ቤታችን Homes connects the Ethiopian diaspora with verified properties back home — with trusted agents, managed rentals, legal support and video tours so you can invest with confidence from abroad.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' as const }}>
             <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
               Browse Properties <ArrowRight size={18} />
             </Link>
-            <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <a href="https://t.me/BetachenBot" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)' }}>
               ✈️ Talk to an Agent
             </a>
           </div>
@@ -34,7 +34,7 @@ export default function DiasporaPage() {
       {/* What makes us different */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 900, color: '#111827', marginBottom: 12 }}>Why Diaspora Investors Choose ጎጆ</h2>
+          <h2 style={{ fontSize: 36, fontWeight: 900, color: '#111827', marginBottom: 12 }}>Why Diaspora Investors Choose ቤታችን</h2>
           <p style={{ color: '#6b7280', fontSize: 17, maxWidth: 560, margin: '0 auto' }}>
             We solve the 4 biggest challenges of investing in Ethiopia from abroad
           </p>
@@ -88,7 +88,7 @@ export default function DiasporaPage() {
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ fontSize: 32, fontWeight: 900, color: '#111827', marginBottom: 12 }}>How It Works</h2>
-            <p style={{ color: '#6b7280', fontSize: 16 }}>From browsing to owning — here's how diaspora investment works on ጎጆ</p>
+            <p style={{ color: '#6b7280', fontSize: 16 }}>From browsing to owning — here's how diaspora investment works on ቤታችን</p>
           </div>
           <div style={{ display: 'grid', gap: 20 }}>
             {[
@@ -96,7 +96,7 @@ export default function DiasporaPage() {
               { step: '02', title: 'Request a video tour', desc: 'Contact the agent or owner to schedule a live video walkthrough. Our local agents can attend on your behalf and ask questions for you.' },
               { step: '03', title: 'Legal verification', desc: 'Before paying anything, request a title deed and ownership verification through our legal partners. We confirm the property is clean and transferable.' },
               { step: '04', title: 'Secure the deal', desc: 'Agree on terms via our platform. Contracts are digitally signed. Payment is arranged through secure channels with full documentation.' },
-              { step: '05', title: 'Managed or self-managed', desc: 'Once yours, choose to manage it yourself or let ጎጆ handle tenants, maintenance and monthly rent collection on your behalf.' },
+              { step: '05', title: 'Managed or self-managed', desc: 'Once yours, choose to manage it yourself or let ቤታችን handle tenants, maintenance and monthly rent collection on your behalf.' },
             ].map(({ step, title, desc }) => (
               <div key={step} style={{ display: 'flex', gap: 20, background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: '#E8431A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 15, fontWeight: 900, flexShrink: 0 }}>{step}</div>
@@ -167,7 +167,7 @@ export default function DiasporaPage() {
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
             Browse Properties <ArrowRight size={18} />
           </Link>
-          <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: 'white', color: '#006AFF', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+          <a href="https://t.me/BetachenBot" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: 'white', color: '#006AFF', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
             <Phone size={16} /> Contact an Agent
           </a>
         </div>

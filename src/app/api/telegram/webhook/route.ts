@@ -43,13 +43,13 @@ ${typeLabel}
 📍 ${p.location || p.subcity || 'Ethiopia'}
 ${p.bedrooms ? `🛏 ${p.bedrooms} bed` : ''} ${p.bathrooms ? `🚿 ${p.bathrooms} bath` : ''} ${p.area ? `📐 ${p.area}m²` : ''}
 
-🔗 <a href="${process.env.NEXT_PUBLIC_APP_URL}/property/${p.id}">View on ጎጆ</a>
+🔗 <a href="${process.env.NEXT_PUBLIC_APP_URL}/property/${p.id}">View on ቤታችን</a>
   `.trim();
 }
 
 async function handleStart(chatId: number, firstName: string) {
   const welcome = `
-🏠 <b>Welcome to ጎጆ Bot${firstName ? `, ${firstName}` : ''}!</b>
+🏠 <b>Welcome to ቤታችን Bot${firstName ? `, ${firstName}` : ''}!</b>
 
 Ethiopia's #1 Real Estate Platform — now on Telegram!
 
@@ -63,7 +63,7 @@ Ethiopia's #1 Real Estate Platform — now on Telegram!
 /alert [location] — Set price alerts
 /help — Show all commands
 
-ጎጆ — ቤት ፈልግ፣ ያከራዩ፣ ይሸጡ 🇪🇹
+ቤታችን — ቤት ፈልግ፣ ያከራዩ፣ ይሸጡ 🇪🇹
   `.trim();
 
   await sendMessage(chatId, welcome, {
@@ -121,7 +121,7 @@ async function handleListings(chatId: number, type?: string) {
   }
 
   if (props.length > 3) {
-    await sendMessage(chatId, `📱 <a href="${process.env.NEXT_PUBLIC_APP_URL}">See all ${props.length}+ properties on ጎጆ →</a>`);
+    await sendMessage(chatId, `📱 <a href="${process.env.NEXT_PUBLIC_APP_URL}">See all ${props.length}+ properties on ቤታችን →</a>`);
   }
 }
 
@@ -172,7 +172,7 @@ async function handleStats(chatId: number) {
   const avgRent = rentProps.length > 0 ? rentProps.reduce((s, p) => s + p.price, 0) / rentProps.length : 0;
 
   const stats = `
-📊 <b>ጎጆ Market Statistics</b>
+📊 <b>ቤታችን Market Statistics</b>
 
 🏠 Total Listings: <b>${total}</b>
 ✅ Active Now: <b>${active}</b>
@@ -196,15 +196,15 @@ You'll be notified when new properties are listed in:
 📍 <b>${location}</b>
 
 To manage your alerts, visit:
-<a href="${process.env.NEXT_PUBLIC_APP_URL}/alerts">ጎጆ Alerts Page →</a>
+<a href="${process.env.NEXT_PUBLIC_APP_URL}/alerts">ቤታችን Alerts Page →</a>
 
-<i>Note: Sign in on ጎጆ to save alerts to your account.</i>
+<i>Note: Sign in on ቤታችን to save alerts to your account.</i>
   `.trim());
 }
 
 async function handleHelp(chatId: number) {
   await sendMessage(chatId, `
-🏠 <b>ጎጆ Bot Commands</b>
+🏠 <b>ቤታችን Bot Commands</b>
 
 /start — Welcome message
 /listings — Latest 5 properties

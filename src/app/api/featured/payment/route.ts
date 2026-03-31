@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/featured/payment/verify`,
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}?featured=success`,
         customization: {
-          title: 'ጎጆ Featured Listing',
+          title: 'ቤታችን Featured Listing',
           description: `Feature "${property.title}" for ${plan.label}`,
         }
       })

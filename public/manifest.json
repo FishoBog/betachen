@@ -1,6 +1,6 @@
 {
-  "name": "ጎጆ Homes — Ethiopia Real Estate",
-  "short_name": "ጎጆ Homes",
+  "name": "ቤታችን Homes — Ethiopia Real Estate",
+  "short_name": "ቤታችን Homes",
   "description": "Ethiopia's #1 Real Estate Platform — Buy, Rent, Invest",
   "start_url": "/",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg",
+      "src": "https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

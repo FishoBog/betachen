@@ -166,7 +166,7 @@ export default function MarketPage() {
                 Ethiopia Real Estate<br />Market Trends
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 15 }}>
-                Live data from ጎጆ listings across all Ethiopian cities
+                Live data from ቤታችን listings across all Ethiopian cities
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -365,7 +365,7 @@ export default function MarketPage() {
                   title: '🏆 Most Active Area',
                   color: '#006AFF', bg: '#f0f6ff', border: '#dbeafe',
                   content: summary
-                    ? `${summary.topSubcity} has the highest number of listings, making it the most active real estate market on ጎጆ.`
+                    ? `${summary.topSubcity} has the highest number of listings, making it the most active real estate market on ቤታችን.`
                     : 'Data will appear as listings are added.'
                 },
                 {
@@ -390,7 +390,7 @@ export default function MarketPage() {
                   Want to be part of this market?
                 </div>
                 <div style={{ fontSize: 14, color: '#6b7280' }}>
-                  List your property on ጎጆ and reach thousands of buyers and renters across Ethiopia
+                  List your property on ቤታችን and reach thousands of buyers and renters across Ethiopia
                 </div>
               </div>
               <Link href="/owner/listings/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>

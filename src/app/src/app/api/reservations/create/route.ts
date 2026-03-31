@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/reservations/verify`,
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/reservations/${reservation.id}?status=success`,
         customization: {
-          title: 'ጎጆ Reservation Deposit',
+          title: 'ቤታችን Reservation Deposit',
           description: `25% deposit for ${nights} night(s) — Check-in: ${checkIn}`,
         }
       })

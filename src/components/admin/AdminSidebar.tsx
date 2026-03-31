@@ -19,7 +19,7 @@ export function AdminSidebar() {
         <span style={{fontSize:"1.75rem"}}>🏠</span>
         <div>
           <div style={{fontWeight:"700",color:"#111827",fontSize:"0.95rem"}}>Gojo Admin</div>
-          <div style={{fontSize:"0.7rem",color:"#9ca3af"}}>ጎጆ Dashboard</div>
+          <div style={{fontSize:"0.7rem",color:"#9ca3af"}}>ቤታችን Dashboard</div>
         </div>
       </div>
       <nav style={{flex:1,padding:"1rem"}}>
