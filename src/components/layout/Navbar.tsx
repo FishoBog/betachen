@@ -2,10 +2,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe } from 'lucide-react';
+import { PlusCircle, Heart, Bell, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
-import { ..., Building2 } from 'lucide-react';
 
 const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/gojo-logo-circle.svg';
 
