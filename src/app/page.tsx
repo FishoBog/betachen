@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown, Video, FileText, Home, Zap, Lock, Globe, Building2 } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, Heart, ArrowRight, TrendingUp, Shield, Clock, SlidersHorizontal, X, ChevronDown, Video, FileText, Home, Zap, Lock, Globe, Building2, ShoppingBag, Layers, Megaphone, Scale, Truck, Paintbrush, Landmark, ClipboardList, HardHat, CalendarDays, Hotel, Stethoscope, Warehouse } from 'lucide-react';
 import { useLang } from '@/context/LangContext';
 import { Navbar } from '@/components/layout/Navbar';
 
