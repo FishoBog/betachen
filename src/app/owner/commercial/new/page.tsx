@@ -1,90 +1,101 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { useUser, SignInButton } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@/lib/supabase';
-import { Navbar } from '@/components/layout/Navbar';
-import { useLang } from '@/context/LangContext';
-import { Upload, MapPin, Building2, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, PlusCircle, Zap, Wifi, Car, Layers, Shield } from 'lucide-react';
+export const dynamic = 'force-dynamic';
 
-const ETHIOPIA_CITIES = [
-  { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ', subsEn: ['Bole','Yeka','Kirkos','Lemi Kura','Nifas Silk-Lafto','Arada','Lideta','Gullele','Kolfe Keraniyo','Akaki-Kality','Addis Ketema'], subsAm: ['ቦሌ','የካ','ቂርቆስ','ለሚ ኩራ','ንፋስ ስልክ ላፍቶ','አራዳ','ልደታ','ጉለሌ','ኮልፌ ቀራኒዮ','አቃቂ ቃሊቲ','አዲስ ከተማ'] },
-  { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ', subsEn: ['Kezira','Magala','Melka Jebdu','Sabiyan','Gende Qore','Gende Tesfa'], subsAm: ['ቀዚራ','መጋላ','መልካ ጀብዱ','ሳቢያን','ገንደ ቆሬ','ገንደ ተስፋ'] },
-  { cityEn: 'Adama', cityAm: 'አዳማ', subsEn: ['Bole','Arada','Dabe Soloke','Melka Adama','Boku','Migira','Posta Bet'], subsAm: ['ቦሌ','አራዳ','ዳቤ ሶሎቄ','መልካ አዳማ','ቦቁ','ሚጊራ','ፖስታ ቤት'] },
-  { cityEn: 'Gondar', cityAm: 'ጎንደር', subsEn: ['Maraki','Arada','Azezo','Fasil','Jantekel','Lideta','Gebriel'], subsAm: ['ማራኪ','አራዳ','አዘዞ','ፋሲል','ጃንተከል','ልደታ','ገብርኤል'] },
-  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ', subsEn: ['Hayiq Dar','Misrak','Tabor','Mehal','Bahil Adarash','Tula','Monopol'], subsAm: ['ሐይቅ ዳር','ምሥራቅ','ታቦር','መሀል','ባህል አዳራሽ','ቱላ','ሞኖፖል'] },
-  { cityEn: 'Bahir Dar', cityAm: 'ባሕር ዳር', subsEn: ['Belay Zeleke','Atse Tewodros','Fasilo','Shimbit','Ginbot 20','Tana','Diaspora Sefer'], subsAm: ['በላይ ዘለቀ','አፄ ቴዎድሮስ','ፋሲሎ','ሽምቢት','ግንቦት 20','ጣና','ዲያስፖራ ሰፈር'] },
-  { cityEn: 'Mekelle', cityAm: 'መቐለ', subsEn: ['Hadnet','Ayder','Kedamay Weyane','Qwiha','Semien','Saharti','Adi Haki'], subsAm: ['ሃድነት','አይደር','ቀዳማይ ወያነ','ኩዊሃ','ሰሜን','ሰሐርቲ','ዓዲ ሓቂ'] },
-  { cityEn: 'Jimma', cityAm: 'ጅማ', subsEn: ['Hermata','Jiren','Bosa Bazab','Mendera Kochino','Ginjo','Seto Semero'], subsAm: ['ሀርማታ','ጅሬን','ቦሳ ባዛብ','መንደራ ኮቺኖ','ጊንጆ','ሴቶ ሰመሮ'] },
-  { cityEn: 'Dessie', cityAm: 'ደሴ', subsEn: ['Arada','Piazza','Dawudo','Segno Gebeya','Hotie','Memhir Akale Wold','Kurkur'], subsAm: ['አራዳ','ፒያሳ','ዳውዶ','ሰኞ ገበያ','ሆጤ','መምህር አካለ ወልድ','ኩርኩር'] },
-  { cityEn: 'Harar', cityAm: 'ሐረር', subsEn: ['Jugol','Shenkor','Aboker','JinEala','Duk Ber'], subsAm: ['ጁጎል','ሸንኮር','አቦከር','ጅን ኤላ','ዱክ በር'] },
-];
+import { useState, useEffect, useRef } from 'react';
+import { createBrowserClient } from '@/lib/supabase';
+import Link from 'next/link';
+import { Search, MapPin, Maximize2, Heart, ArrowRight, SlidersHorizontal, X, ChevronDown, Globe, Building2 } from 'lucide-react';
+import { useLang } from '@/context/LangContext';
+import { Navbar } from '@/components/layout/Navbar';
+
+type CommercialProperty = {
+  id: string; title: string; type: string; price: number;
+  area: number; location: string; subcity: string; images: string[];
+  status: string; currency: string; price_negotiable: boolean;
+  commercial_type: string; commercial_details: any;
+};
 
 const COMMERCIAL_TYPES = [
-  { key: 'office', labelEn: 'Office Space', labelAm: 'የቢሮ ቦታ', icon: '🏢' },
-  { key: 'retail', labelEn: 'Retail / Shop', labelAm: 'መደብር / ሱቅ', icon: '🏪' },
-  { key: 'warehouse', labelEn: 'Warehouse / Industrial', labelAm: 'መጋዘን / ኢንዱስትሪ', icon: '🏭' },
-  { key: 'event_hall', labelEn: 'Event Hall / Conference', labelAm: 'የዝግጅት አዳራሽ', icon: '🎪' },
+  { key: 'all', labelEn: 'All Commercial', labelAm: 'ሁሉም የንግድ ቤቶች' },
+  { key: 'office', labelEn: 'Office Space', labelAm: 'ቢሮ ቦታ', icon: '🏢' },
+  { key: 'retail', labelEn: 'Retail / Shop', labelAm: 'መደብር', icon: '🏪' },
+  { key: 'warehouse', labelEn: 'Warehouse', labelAm: 'መጋዘን', icon: '🏭' },
+  { key: 'event_hall', labelEn: 'Event Hall', labelAm: 'አዳራሽ', icon: '🎪' },
   { key: 'commercial_land', labelEn: 'Commercial Land', labelAm: 'የንግድ መሬት', icon: '🌍' },
-  { key: 'mixed_use', labelEn: 'Mixed Use', labelAm: 'ድብልቅ አጠቃቀም', icon: '🏗️' },
-  { key: 'hotel', labelEn: 'Hotel / Guest House', labelAm: 'ሆቴል / እንግዳ ቤት', icon: '🏨' },
-  { key: 'parking', labelEn: 'Parking Facility', labelAm: 'የመኪና ማቆሚያ', icon: '🅿️' },
-  { key: 'medical', labelEn: 'Medical / Clinic Space', labelAm: 'የህክምና / ክሊኒክ ቦታ', icon: '🏥' },
-  { key: 'bank', labelEn: 'Bank / Financial Space', labelAm: 'የባንክ / የፋይናንስ ቦታ', icon: '🏦' },
+  { key: 'mixed_use', labelEn: 'Mixed Use', labelAm: 'ድብልቅ', icon: '🏗️' },
+  { key: 'hotel', labelEn: 'Hotel / Guest House', labelAm: 'ሆቴል', icon: '🏨' },
+  { key: 'parking', labelEn: 'Parking', labelAm: 'ፓርኪንግ', icon: '🅿️' },
+  { key: 'medical', labelEn: 'Medical / Clinic', labelAm: 'ሕክምና', icon: '🏥' },
+  { key: 'bank', labelEn: 'Bank / Finance', labelAm: 'ባንክ', icon: '🏦' },
 ];
 
-const LEASE_TYPES = [
-  { key: 'monthly_rent', labelEn: 'Monthly Rent', labelAm: 'ወርሃዊ ኪራይ' },
-  { key: 'annual_lease', labelEn: 'Annual Lease', labelAm: 'ዓመታዊ ሊዝ' },
-  { key: 'long_term_lease', labelEn: 'Long-term Lease (3yr+)', labelAm: 'የረጅም ጊዜ ሊዝ (3+ ዓመት)' },
-  { key: 'for_sale', labelEn: 'For Sale / Purchase', labelAm: 'ለሽያጭ' },
-  { key: 'lease_to_own', labelEn: 'Lease to Own', labelAm: 'ሊዝ ወደ ባለቤትነት' },
-  { key: 'build_to_suit', labelEn: 'Build to Suit', labelAm: 'እንደ ፍላጎት ግንባታ' },
-  { key: 'revenue_share', labelEn: 'Revenue Share', labelAm: 'የገቢ ክፍፍል' },
-];
-
-const FITOUT_CONDITIONS = [
-  { key: 'shell_core', labelEn: 'Shell & Core', labelAm: 'ቅርፊትና ምሰሶ ብቻ' },
-  { key: 'fitted', labelEn: 'Fitted / Semi-finished', labelAm: 'ከፊል ጨርሶ' },
-  { key: 'fully_furnished', labelEn: 'Fully Furnished', labelAm: 'ሙሉ በሙሉ የታጠቀ' },
-  { key: 'open_plan', labelEn: 'Open Plan', labelAm: 'ክፍት ዕቅድ' },
-];
-
-const LEASE_STRUCTURES = [
-  { key: 'gross', labelEn: 'Gross Lease', labelAm: 'ሙሉ ኪራይ (ሁሉም ወጪ ይካተታል)' },
-  { key: 'nnn', labelEn: 'NNN / Triple Net', labelAm: 'ሶስት ኔት (ተከራይ ሁሉንም ይከፍላል)' },
-  { key: 'modified_gross', labelEn: 'Modified Gross', labelAm: 'ተሻሽሎ ኪራይ' },
-  { key: 'negotiable', labelEn: 'Negotiable', labelAm: 'በድርድር' },
-];
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '12px 16px',
-  border: '1.5px solid #e5e7eb', borderRadius: 10,
-  fontSize: 14, color: '#111827', outline: 'none',
-  fontFamily: 'inherit', boxSizing: 'border-box', background: 'white',
+const LEASE_TYPE_LABELS: Record<string, { en: string; am: string }> = {
+  monthly_rent: { en: 'Monthly Rent', am: 'ወርሃዊ ኪራይ' },
+  annual_lease: { en: 'Annual Lease', am: 'ዓመታዊ ሊዝ' },
+  long_term_lease: { en: 'Long-term Lease', am: 'የረጅም ጊዜ ሊዝ' },
+  for_sale: { en: 'For Sale', am: 'ለሽያጭ' },
+  lease_to_own: { en: 'Lease to Own', am: 'ሊዝ ወደ ባለቤትነት' },
+  build_to_suit: { en: 'Build to Suit', am: 'እንደ ፍላጎት' },
+  revenue_share: { en: 'Revenue Share', am: 'የገቢ ክፍፍል' },
 };
 
-const labelStyle: React.CSSProperties = {
-  fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6,
+const LEASE_TYPE_COLORS: Record<string, { color: string; bg: string }> = {
+  monthly_rent: { color: '#065f46', bg: '#d1fae5' },
+  annual_lease: { color: '#1d4ed8', bg: '#dbeafe' },
+  long_term_lease: { color: '#5b21b6', bg: '#ede9fe' },
+  for_sale: { color: '#92400e', bg: '#fef3c7' },
+  lease_to_own: { color: '#9d174d', bg: '#fce7f3' },
+  build_to_suit: { color: '#374151', bg: '#f3f4f6' },
+  revenue_share: { color: '#0e7490', bg: '#cffafe' },
 };
 
-const sectionStyle: React.CSSProperties = {
-  background: 'white', borderRadius: 16,
-  border: '1px solid #e5e7eb', padding: '28px 32px', marginBottom: 20,
-};
+function formatPrice(price: number, currency: string) {
+  if (!price) return currency === 'ETB' ? 'Negotiable' : 'Negotiable';
+  if (price >= 1000000) return `${currency} ${(price / 1000000).toFixed(1)}M`;
+  if (price >= 1000) return `${currency} ${(price / 1000).toFixed(0)}K`;
+  return `${currency} ${price.toLocaleString()}`;
+}
 
-export default function CommercialListingPage() {
-  const { user, isSignedIn, isLoaded } = useUser();
-  const { t, lang } = useLang();
-  const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
-  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+const ETHIOPIA_CITIES = [
+  { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ' },
+  { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ' },
+  { cityEn: 'Adama', cityAm: 'አዳማ' },
+  { cityEn: 'Gondar', cityAm: 'ጎንደር' },
+  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ' },
+  { cityEn: 'Bahir Dar', cityAm: 'ባሕር ዳር' },
+  { cityEn: 'Mekelle', cityAm: 'መቐለ' },
+  { cityEn: 'Jimma', cityAm: 'ጅማ' },
+  { cityEn: 'Dessie', cityAm: 'ደሴ' },
+  { cityEn: 'Harar', cityAm: 'ሐረር' },
+];
+
+export default function CommercialPage() {
+  const { lang } = useLang();
+  const [properties, setProperties] = useState<CommercialProperty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [leaseFilter, setLeaseFilter] = useState('all');
+  const [cityFilter, setCityFilter] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minArea, setMinArea] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const cityRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const supabase = createBrowserClient();
+    supabase.from('properties')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_commercial', true)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setProperties(data || []); setLoading(false); });
+  }, []);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -94,663 +105,337 @@ export default function CommercialListingPage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const [form, setForm] = useState({
-    title: '', description: '', commercial_type: '',
-    lease_type: 'monthly_rent', lease_structure: 'gross',
-    currency: 'ETB', price: '', price_negotiable: false,
-    floor_area_sqm: '', plot_area_sqm: '', floor_number: '',
-    total_floors: '', parking_spaces: '', ceiling_height_m: '',
-    fitout_condition: 'shell_core', zoning_type: '',
-    has_loading_dock: false, has_3phase_power: false,
-    has_backup_generator: false, has_fiber_internet: false,
-    has_elevator: false, has_cctv: false, has_security: false,
-    has_ac: false, has_reception: false, has_meeting_rooms: false,
-    city: '', subcity: '', woreda: '', specific_location: '',
-    lat: '', lng: '', whatsapp: '', year_built: '',
-    total_units: '', available_from: '',
+  const filtered = properties.filter(p => {
+    if (typeFilter !== 'all' && p.commercial_type !== typeFilter) return false;
+    if (leaseFilter !== 'all' && p.commercial_details?.lease_type !== leaseFilter) return false;
+    if (search && !p.title?.toLowerCase().includes(search.toLowerCase()) && !p.location?.toLowerCase().includes(search.toLowerCase())) return false;
+    if (minPrice && p.price < parseFloat(minPrice)) return false;
+    if (maxPrice && p.price > parseFloat(maxPrice)) return false;
+    if (minArea && p.area < parseFloat(minArea)) return false;
+    if (cityFilter && !p.location?.toLowerCase().includes(cityFilter.toLowerCase())) return false;
+    return true;
+  }).sort((a, b) => {
+    if (sortBy === 'price_asc') return a.price - b.price;
+    if (sortBy === 'price_desc') return b.price - a.price;
+    if (sortBy === 'area_desc') return (b.area || 0) - (a.area || 0);
+    return 0;
   });
 
-  const set = (field: string, value: any) => setForm(p => ({ ...p, [field]: value }));
+  const activeFilterCount = [
+    minPrice, maxPrice, minArea, cityFilter,
+    leaseFilter !== 'all' ? leaseFilter : '',
+    sortBy !== 'newest' ? sortBy : '',
+  ].filter(Boolean).length;
 
-  const selectedCity = ETHIOPIA_CITIES.find(c => c.cityEn === form.city);
+  const clearFilters = () => {
+    setMinPrice(''); setMaxPrice(''); setMinArea('');
+    setCityFilter(''); setCitySearch('');
+    setLeaseFilter('all'); setSortBy('newest');
+    setSearch(''); setTypeFilter('all');
+  };
+
+  const toggleFav = (id: string) => setFavorites(f => f.includes(id) ? f.filter(x => x !== id) : [...f, id]);
+
+  const inputStyle = {
+    width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb',
+    borderRadius: 10, fontSize: 14, color: '#111827', outline: 'none',
+    fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white',
+  };
+
+  const labelStyle = {
+    fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block',
+    marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px',
+  };
+
   const filteredCities = ETHIOPIA_CITIES.filter(c =>
     citySearch === '' ||
     c.cityEn.toLowerCase().includes(citySearch.toLowerCase()) ||
     c.cityAm.includes(citySearch)
   );
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setUploadingPhotos(true);
-    const supabase = createBrowserClient();
-    const urls: string[] = [];
-    for (const file of files.slice(0, 15)) {
-      const fileName = `commercial/${user?.id}/${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-      const { error } = await supabase.storage.from('property-images').upload(fileName, file, { upsert: true });
-      if (!error) {
-        const { data } = supabase.storage.from('property-images').getPublicUrl(fileName);
-        urls.push(data.publicUrl);
-      }
-    }
-    setPhotoUrls(prev => [...prev, ...urls]);
-    setUploadingPhotos(false);
-  };
-
-  const removePhoto = (url: string) => setPhotoUrls(prev => prev.filter(u => u !== url));
-
-  const handleSubmit = async () => {
-    if (!isSignedIn || !user) return;
-    setLoading(true); setError('');
-    try {
-      const supabase = createBrowserClient();
-      const locationParts = [form.specific_location, form.woreda, form.subcity, form.city].filter(Boolean);
-      const selectedType = COMMERCIAL_TYPES.find(ct => ct.key === form.commercial_type);
-      const { data, error: err } = await supabase.from('properties').insert({
-        owner_id: user.id,
-        title: form.title,
-        description: form.description,
-        type: form.lease_type === 'for_sale' ? 'sale' : 'long_rent',
-        currency: form.currency,
-        price: form.price_negotiable ? 0 : parseFloat(form.price),
-        price_negotiable: form.price_negotiable,
-        area: form.floor_area_sqm ? parseFloat(form.floor_area_sqm) : null,
-        area_sqm: form.floor_area_sqm ? parseFloat(form.floor_area_sqm) : null,
-        plot_area_sqm: form.plot_area_sqm ? parseFloat(form.plot_area_sqm) : null,
-        parking_spaces: form.parking_spaces ? parseInt(form.parking_spaces) : null,
-        location: locationParts.join(', '),
-        subcity: form.subcity,
-        latitude: form.lat ? parseFloat(form.lat) : null,
-        longitude: form.lng ? parseFloat(form.lng) : null,
-        images: photoUrls,
-        status: 'pending_review',
-        owner_email: user.primaryEmailAddress?.emailAddress,
-        owner_whatsapp: form.whatsapp,
-        is_commercial: true,
-        commercial_type: form.commercial_type,
-        commercial_details: {
-          lease_type: form.lease_type,
-          lease_structure: form.lease_structure,
-          fitout_condition: form.fitout_condition,
-          ceiling_height_m: form.ceiling_height_m,
-          zoning_type: form.zoning_type,
-          has_loading_dock: form.has_loading_dock,
-          has_3phase_power: form.has_3phase_power,
-          has_backup_generator: form.has_backup_generator,
-          has_fiber_internet: form.has_fiber_internet,
-          has_elevator: form.has_elevator,
-          has_cctv: form.has_cctv,
-          has_security: form.has_security,
-          has_ac: form.has_ac,
-          has_reception: form.has_reception,
-          has_meeting_rooms: form.has_meeting_rooms,
-          floor_number: form.floor_number,
-          total_floors: form.total_floors,
-          total_units: form.total_units,
-          year_built: form.year_built,
-          available_from: form.available_from,
-          type_label_en: selectedType?.labelEn,
-          type_label_am: selectedType?.labelAm,
-        },
-      }).select().single();
-      if (err) throw err;
-      router.push(`/owner/listings/${data.id}/payment`);
-    } catch (err: any) {
-      setError(err.message); setLoading(false);
-    }
-  };
-
-  const steps = [
-    lang === 'EN' ? 'Property Type' : 'የንብረት አይነት',
-    lang === 'EN' ? 'Location' : 'አካባቢ',
-    lang === 'EN' ? 'Commercial Details' : 'የንግድ ዝርዝሮች',
-    lang === 'EN' ? 'Photos' : 'ፎቶዎች',
-    lang === 'EN' ? 'Review & Pay' : 'ይገምግሙ እና ይክፈሉ',
-  ];
-
-  if (!isLoaded) return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar />
-      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>{lang === 'EN' ? 'Loading...' : 'በመጫን ላይ...'}</div>
-    </div>
-  );
-
-  if (!isSignedIn) return (
-    <div style={{ minHeight: '100vh', background: 'white' }}>
-      <Navbar />
-      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f3460 100%)', padding: '64px 24px 72px', textAlign: 'center' as const }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#006AFF', borderRadius: 20, padding: '6px 18px', marginBottom: 20 }}>
-          <Building2 size={13} color="white" />
-          <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.8px' }}>{lang === 'EN' ? 'COMMERCIAL LISTINGS' : 'የንግድ ቤቶች'}</span>
-        </div>
-        <h1 style={{ fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
-          {lang === 'EN' ? 'List Your Commercial' : 'የንግድ ቤትዎን ይዘርዝሩ'}<br />
-          <span style={{ color: '#38bdf8' }}>{lang === 'EN' ? 'Property on ጎጆ' : 'በጎጆ ላይ'}</span>
-        </h1>
-        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, maxWidth: 520, margin: '0 auto 32px' }}>
-          {lang === 'EN'
-            ? 'Reach verified businesses, investors and tenants looking for commercial space across Ethiopia.'
-            : 'በኢትዮጵያ ለንግድ ቦታ እየፈለጉ ያሉ የተረጋገጡ ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ።'}
-        </p>
-        <SignInButton mode="modal">
-          <button style={{ padding: '15px 40px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <PlusCircle size={18} /> {lang === 'EN' ? 'Create Account & List' : 'መለያ ፍጠሩ እና ይዘርዝሩ'}
-          </button>
-        </SignInButton>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 48, marginTop: 48, paddingTop: 40, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          {[['10', lang === 'EN' ? 'Property Types' : 'የንብረት አይነቶች'], ['7', lang === 'EN' ? 'Lease Options' : 'የሊዝ አማራጮች'], ['ETB 500', lang === 'EN' ? 'Listing Fee' : 'የዝርዝር ክፍያ']].map(([num, label]) => (
-            <div key={label} style={{ textAlign: 'center' as const }}>
-              <div style={{ fontSize: 26, fontWeight: 900, color: 'white' }}>{num}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 4, fontWeight: 600 }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 24px' }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 24, textAlign: 'center' as const }}>
-          {lang === 'EN' ? 'Supported Commercial Property Types' : 'የሚደገፉ የንግድ ቤት አይነቶች'}
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
-          {COMMERCIAL_TYPES.map(ct => (
-            <div key={ct.key} style={{ background: 'white', borderRadius: 14, padding: '20px 16px', border: '1px solid #e5e7eb', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>{ct.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{lang === 'EN' ? ct.labelEn : ct.labelAm}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', width: '100%', overflowX: 'hidden' }}>
       <Navbar />
-      <div style={{ maxWidth: 820, margin: '0 auto', padding: '40px 24px' }}>
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '6px 14px', marginBottom: 12 }}>
-            <Building2 size={13} color="#006AFF" />
-            <span style={{ color: '#006AFF', fontSize: 12, fontWeight: 700 }}>{lang === 'EN' ? 'COMMERCIAL LISTING' : 'የንግድ ቤት ማስታወቂያ'}</span>
-          </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 6 }}>
-            {lang === 'EN' ? 'Post a Commercial Listing' : 'የንግድ ቤት ማስታወቂያ ለጥፍ'}
-          </h1>
-          <p style={{ color: '#6b7280', fontSize: 15 }}>
-            {lang === 'EN' ? 'Fill in the details below. Your listing will be reviewed within 24 hours.' : 'ዝርዝሮቹን ይሙሉ። ማስታወቂያዎ በ24 ሰዓት ውስጥ ይገመገማል።'}
-          </p>
-        </div>
 
-        {/* Progress steps */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
-          {steps.map((s, i) => (
-            <div key={s} style={{ flex: 1, minWidth: 80 }}>
-              <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
-              <div style={{ fontSize: 11, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>
-                {i + 1}. {s}
-              </div>
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f3460 100%)', padding: '64px 24px 80px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px)' }} />
+        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#006AFF', borderRadius: 20, padding: '6px 18px', marginBottom: 20 }}>
+            <Building2 size={13} color="white" />
+            <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.8px' }}>
+              {lang === 'EN' ? 'COMMERCIAL REAL ESTATE' : 'የንግድ ሪል እስቴት'}
+            </span>
+          </div>
+          <h1 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
+            {lang === 'EN' ? 'Find Commercial Space' : 'የንግድ ቦታ ያግኙ'}<br />
+            <span style={{ color: '#38bdf8' }}>{lang === 'EN' ? 'Across Ethiopia' : 'በኢትዮጵያ ሁሉ'}</span>
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 16, marginBottom: 36, lineHeight: 1.7 }}>
+            {lang === 'EN'
+              ? 'Office spaces, retail shops, warehouses, event halls and more — find the right commercial space for your business.'
+              : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች — ለንግድዎ ትክክለኛውን ቦታ ያግኙ።'}
+          </p>
+          {/* Search bar */}
+          <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 600, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
+              <Search size={18} color="#9ca3af" />
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder={lang === 'EN' ? 'Search office, warehouse, retail...' : 'ቢሮ፣ መጋዘን፣ መደብር ፈልግ...'}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#111827', background: 'transparent', fontFamily: 'inherit' }} />
             </div>
+            <button style={{ padding: '12px 28px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
+              {lang === 'EN' ? 'Search' : 'ፈልግ'}
+            </button>
+          </div>
+          {/* Stats */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 48, marginTop: 44 }}>
+            {[
+              [lang === 'EN' ? 'Office Spaces' : 'ቢሮዎች', '🏢'],
+              [lang === 'EN' ? 'Retail & Shops' : 'መደብሮች', '🏪'],
+              [lang === 'EN' ? 'Warehouses' : 'መጋዘኖች', '🏭'],
+              [lang === 'EN' ? 'Event Halls' : 'አዳራሾች', '🎪'],
+            ].map(([label, icon]) => (
+              <div key={label} style={{ textAlign: 'center' as const }}>
+                <div style={{ fontSize: 22 }}>{icon}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4, fontWeight: 600 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Property Type tabs */}
+      <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', position: 'sticky', top: 64, zIndex: 40, overflowX: 'auto' as const }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', gap: 2, padding: '12px 0' }}>
+          {COMMERCIAL_TYPES.map(ct => (
+            <button key={ct.key} onClick={() => setTypeFilter(ct.key)}
+              style={{ padding: '8px 16px', borderRadius: 25, border: `2px solid ${typeFilter === ct.key ? '#006AFF' : '#e5e7eb'}`, background: typeFilter === ct.key ? '#006AFF' : 'white', color: typeFilter === ct.key ? 'white' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, display: 'flex', alignItems: 'center', gap: 5 }}>
+              {ct.key !== 'all' && <span style={{ fontSize: 14 }}>{COMMERCIAL_TYPES.find(t => t.key === ct.key && t.key !== 'all') ? (ct as any).icon : ''}</span>}
+              {lang === 'EN' ? ct.labelEn : ct.labelAm}
+            </button>
           ))}
         </div>
+      </div>
 
-        {/* STEP 1 — Property Type & Basic Info */}
-        {step === 1 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Building2 size={18} color="#006AFF" />
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
-                  {lang === 'EN' ? 'Select Commercial Property Type' : 'የንግድ ቤት አይነት ይምረጡ'}
-                </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 24 }}>
-                {COMMERCIAL_TYPES.map(ct => (
-                  <div key={ct.key} onClick={() => set('commercial_type', ct.key)}
-                    style={{ padding: '16px 12px', borderRadius: 12, border: `2px solid ${form.commercial_type === ct.key ? '#006AFF' : '#e5e7eb'}`, background: form.commercial_type === ct.key ? '#eff6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' }}>
-                    <div style={{ fontSize: 26, marginBottom: 6 }}>{ct.icon}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: form.commercial_type === ct.key ? '#006AFF' : '#374151', lineHeight: 1.3 }}>
-                      {lang === 'EN' ? ct.labelEn : ct.labelAm}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'Listing Title *' : 'የዝርዝር ርዕስ *'}</label>
-                  <input style={inputStyle} value={form.title} onChange={e => set('title', e.target.value)}
-                    placeholder={lang === 'EN' ? 'e.g. Prime Office Space in Bole — 250m²' : 'ለምሳሌ፦ ዋና ቢሮ ቦታ በቦሌ — 250 ሜ²'} />
-                </div>
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'Description *' : 'መግለጫ *'}</label>
-                  <textarea style={{ ...inputStyle, height: 110, resize: 'vertical' as const }} value={form.description}
-                    onChange={e => set('description', e.target.value)}
-                    placeholder={lang === 'EN' ? 'Describe the space — layout, access, surroundings, nearby businesses...' : 'ቦታውን ይግለጹ — አቀማመጥ፣ መዳረሻ፣ አካባቢ...'} />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Lease / Transaction Type *' : 'የሊዝ አይነት *'}</label>
-                    <select style={inputStyle} value={form.lease_type} onChange={e => set('lease_type', e.target.value)}>
-                      {LEASE_TYPES.map(lt => (
-                        <option key={lt.key} value={lt.key}>{lang === 'EN' ? lt.labelEn : lt.labelAm}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Lease Structure' : 'የሊዝ መዋቅር'}</label>
-                    <select style={inputStyle} value={form.lease_structure} onChange={e => set('lease_structure', e.target.value)}>
-                      {LEASE_STRUCTURES.map(ls => (
-                        <option key={ls.key} value={ls.key}>{lang === 'EN' ? ls.labelEn : ls.labelAm}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div style={{ background: '#f9fafb', borderRadius: 12, padding: '16px', border: '1px solid #e5e7eb' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <label style={{ ...labelStyle, marginBottom: 0 }}>
-                      {lang === 'EN' ? 'Price / Rate' : 'ዋጋ'} {form.lease_type === 'monthly_rent' ? (lang === 'EN' ? '(per month)' : '(በወር)') : form.lease_type === 'annual_lease' ? (lang === 'EN' ? '(per year)' : '(በዓመት)') : ''}
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 13, color: '#374151', fontWeight: 500 }}>{lang === 'EN' ? 'Price negotiable' : 'ዋጋ በድርድር'}</span>
-                      <div onClick={() => set('price_negotiable', !form.price_negotiable)}
-                        style={{ width: 44, height: 24, borderRadius: 12, background: form.price_negotiable ? '#006AFF' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-                        <div style={{ position: 'absolute', top: 2, left: form.price_negotiable ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                      </div>
-                    </div>
-                  </div>
-                  {form.price_negotiable ? (
-                    <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46', fontWeight: 500 }}>
-                      {lang === 'EN' ? 'Price will be negotiated directly with interested parties.' : 'ዋጋው ከፍላጎት ሰዎች ጋር በቀጥታ ይደራደራል።'}
-                    </div>
-                  ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={labelStyle}>{lang === 'EN' ? 'Currency' : 'ምንዛሬ'}</label>
-                        <select style={inputStyle} value={form.currency} onChange={e => set('currency', e.target.value)}>
-                          <option value="ETB">ETB — Ethiopian Birr</option>
-                          <option value="USD">USD — US Dollar</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={labelStyle}>{lang === 'EN' ? 'Amount *' : 'መጠን *'}</label>
-                        <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)}
-                          placeholder={form.lease_type === 'monthly_rent' ? 'e.g. 50000' : 'e.g. 5000000'} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'WhatsApp Contact' : 'ዋትሳፕ ቁጥር'}</label>
-                  <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+251911234567" />
-                </div>
-              </div>
-            </div>
-            <button onClick={() => { if (!form.commercial_type) { setError(lang === 'EN' ? 'Please select a property type' : 'የንብረት አይነት ይምረጡ'); return; } if (!form.title) { setError(lang === 'EN' ? 'Please enter a title' : 'ርዕስ ያስገቡ'); return; } if (!form.price && !form.price_negotiable) { setError(lang === 'EN' ? 'Please enter a price or mark as negotiable' : 'ዋጋ ያስገቡ ወይም በድርድር ምልክት ያድርጉ'); return; } setError(''); setStep(2); }}
-              style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {lang === 'EN' ? 'Next: Location' : 'ቀጣይ፦ አካባቢ'} <ArrowRight size={18} />
+      {/* Filter bar */}
+      <div style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', padding: '10px 24px' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+          {/* Lease type quick filters */}
+          {[
+            { key: 'all', en: 'All Types', am: 'ሁሉም' },
+            { key: 'monthly_rent', en: 'For Rent', am: 'ለኪራይ' },
+            { key: 'for_sale', en: 'For Sale', am: 'ለሽያጭ' },
+            { key: 'annual_lease', en: 'Annual Lease', am: 'ዓመታዊ' },
+            { key: 'long_term_lease', en: 'Long-term', am: 'የረጅም ጊዜ' },
+          ].map(lt => (
+            <button key={lt.key} onClick={() => setLeaseFilter(lt.key)}
+              style={{ padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${leaseFilter === lt.key ? '#E8431A' : '#e5e7eb'}`, background: leaseFilter === lt.key ? '#fef2ee' : 'white', color: leaseFilter === lt.key ? '#E8431A' : '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              {lang === 'EN' ? lt.en : lt.am}
             </button>
-            {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
-          </div>
-        )}
+          ))}
+          <button onClick={() => setShowFilters(o => !o)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${showFilters || activeFilterCount > 0 ? '#E8431A' : '#e5e7eb'}`, background: showFilters || activeFilterCount > 0 ? '#fef2ee' : 'white', color: showFilters || activeFilterCount > 0 ? '#E8431A' : '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <SlidersHorizontal size={13} />
+            {lang === 'EN' ? 'More Filters' : 'ተጨማሪ ማጣሪያዎች'}
+            {activeFilterCount > 0 && <span style={{ background: '#E8431A', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>{activeFilterCount}</span>}
+          </button>
+          {activeFilterCount > 0 && (
+            <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 20, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 12, cursor: 'pointer' }}>
+              <X size={12} /> {lang === 'EN' ? 'Clear' : 'አጽዳ'}
+            </button>
+          )}
+          <span style={{ marginLeft: 'auto', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
+            {loading ? (lang === 'EN' ? 'Loading...' : 'በመጫን ላይ...') : `${filtered.length} ${lang === 'EN' ? 'listings found' : 'ዝርዝሮች ተገኝተዋል'}`}
+          </span>
+        </div>
 
-        {/* STEP 2 — Location */}
-        {step === 2 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MapPin size={18} color="#E8431A" />
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{lang === 'EN' ? 'Location' : 'አካባቢ'}</div>
-              </div>
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div ref={cityRef} style={{ position: 'relative' }}>
-                  <label style={labelStyle}>{lang === 'EN' ? 'City *' : 'ከተማ *'}</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      value={citySearch || (form.city ? `${form.city} (${ETHIOPIA_CITIES.find(c => c.cityEn === form.city)?.cityAm})` : '')}
-                      onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { set('city', ''); set('subcity', ''); } }}
-                      onFocus={() => setShowCityDropdown(true)}
-                      placeholder={lang === 'EN' ? 'Search city...' : 'ከተማ ፈልግ...'}
-                      style={inputStyle} />
-                    <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
-                  </div>
-                  {showCityDropdown && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 240, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
-                      {filteredCities.map(c => (
-                        <div key={c.cityEn}
-                          onClick={() => { set('city', c.cityEn); set('subcity', ''); setCitySearch(''); setShowCityDropdown(false); }}
-                          style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 14, color: '#111827', borderBottom: '1px solid #f3f4f6', background: form.city === c.cityEn ? '#f0f6ff' : 'white' }}
-                          onMouseEnter={e => { if (form.city !== c.cityEn) (e.currentTarget as HTMLElement).style.background = '#f9fafb'; }}
-                          onMouseLeave={e => { if (form.city !== c.cityEn) (e.currentTarget as HTMLElement).style.background = 'white'; }}>
-                          <span style={{ fontWeight: form.city === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
-                          <span style={{ color: '#9ca3af', marginLeft: 8, fontSize: 13 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>{lang === 'EN' ? 'Subcity / District' : 'ክፍለ ከተማ'}</label>
-                  <select value={form.subcity} onChange={e => set('subcity', e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5 }}>
-                    <option value="">{selectedCity ? (lang === 'EN' ? `All ${selectedCity.cityEn}` : `ሁሉም ${selectedCity.cityAm}`) : (lang === 'EN' ? '— Select city first —' : '— መጀመሪያ ከተማ ይምረጡ —')}</option>
-                    {selectedCity?.subsEn.map((sub, i) => (
-                      <option key={sub} value={sub}>{lang === 'EN' ? `${sub} — ${selectedCity.subsAm[i]}` : `${selectedCity.subsAm[i]} — ${sub}`}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'Woreda / Area' : 'ወረዳ / አካባቢ'}</label>
-                  <input style={inputStyle} value={form.woreda} onChange={e => set('woreda', e.target.value)} placeholder={lang === 'EN' ? 'e.g. Woreda 3' : 'ለምሳሌ፦ ወረዳ 3'} />
-                </div>
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'Specific Location / Landmark' : 'ዝርዝር አካባቢ / ምልክት'}</label>
-                  <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)}
-                    placeholder={lang === 'EN' ? 'e.g. Ground floor of Sunshine Building, opposite CBE Bole branch' : 'ለምሳሌ፦ የሰንሻይን ህንፃ የመጀመሪያ ፎቅ፣ CBE ቦሌ ቅርንጫፍ맞은편'} />
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                    {lang === 'EN' ? 'The more specific, the more enquiries you will receive' : 'ዝርዝሩ ሲበዛ ብዙ ጥያቄዎችን ይቀበላሉ'}
-                  </div>
-                </div>
-                {/* Coordinate picker */}
-                <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>
-                    {lang === 'EN' ? 'Pin Location on Map (optional)' : 'ቦታ በካርታ ላይ ይምቱ (አማራጭ)'}
-                  </div>
-                  <div style={{ fontSize: 13, color: '#374151', marginBottom: 12 }}>
-                    {lang === 'EN' ? 'Open Google Maps, right-click your location, copy the coordinates and paste below.' : 'ጉግል ካርታ ይክፈቱ፣ ቦታዎን በቀኝ ጠቅ ያድርጉ፣ መጋጠሚያዎቹን ወደዚህ ያለጥፉ።'}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'end' }}>
-                    <div>
-                      <input type="text" value={form.lat && form.lng ? `${form.lat}, ${form.lng}` : ''}
-                        onChange={e => {
-                          const parts = e.target.value.split(',').map(s => s.trim());
-                          if (parts.length === 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]))) {
-                            set('lat', parseFloat(parts[0]).toFixed(6));
-                            set('lng', parseFloat(parts[1]).toFixed(6));
-                          }
-                        }}
-                        placeholder="e.g. 9.0234, 38.7612" style={inputStyle} />
-                    </div>
-                    <button onClick={() => window.open('https://maps.google.com', '_blank')}
-                      style={{ padding: '12px 16px', background: '#006AFF', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                      {lang === 'EN' ? 'Open Maps' : 'ካርታ ክፈት'}
-                    </button>
-                  </div>
-                  {form.lat && form.lng && (
-                    <div style={{ marginTop: 10, padding: '8px 12px', background: '#ecfdf5', borderRadius: 8, fontSize: 12, color: '#065f46', fontWeight: 600 }}>
-                      ✓ {lang === 'EN' ? 'Location pinned' : 'አካባቢ ተቀናብሯል'}: {parseFloat(form.lat).toFixed(4)}, {parseFloat(form.lng).toFixed(4)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <ArrowLeft size={18} /> {lang === 'EN' ? 'Back' : 'ተመለስ'}
-              </button>
-              <button onClick={() => { if (!form.city) { setError(lang === 'EN' ? 'Please select a city' : 'ከተማ ይምረጡ'); return; } setError(''); setStep(3); }}
-                style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {lang === 'EN' ? 'Next: Commercial Details' : 'ቀጣይ፦ የንግድ ዝርዝሮች'} <ArrowRight size={18} />
-              </button>
-            </div>
-            {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
-          </div>
-        )}
-
-        {/* STEP 3 — Commercial Details */}
-        {step === 3 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 6 }}>
-                {lang === 'EN' ? 'Commercial Property Details' : 'የንግድ ቤት ዝርዝሮች'}
-              </div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>
-                {lang === 'EN' ? 'Provide technical specifications for the space' : 'ለቦታው ቴክኒካዊ ዝርዝሮችን ያቅርቡ'}
-              </div>
-
-              {/* Space measurements */}
-              <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
-                  {lang === 'EN' ? 'Space Measurements' : 'የቦታ መለኪያዎች'}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Floor Area (m²) *' : 'የወለል ስፋት (ሜ²) *'}</label>
-                    <input style={inputStyle} type="number" value={form.floor_area_sqm} onChange={e => set('floor_area_sqm', e.target.value)} placeholder="e.g. 250" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Plot Area (m²)' : 'የቦታ ስፋት (ሜ²)'}</label>
-                    <input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 500" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Ceiling Height (m)' : 'የጣሪያ ከፍታ (ሜ)'}</label>
-                    <input style={inputStyle} type="number" step="0.1" value={form.ceiling_height_m} onChange={e => set('ceiling_height_m', e.target.value)} placeholder="e.g. 3.5" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Parking Spaces' : 'የመኪና ማቆሚያ'}</label>
-                    <input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 10" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Floor Number' : 'የፎቅ ቁጥር'}</label>
-                    <input style={inputStyle} type="number" value={form.floor_number} onChange={e => set('floor_number', e.target.value)} placeholder="e.g. 3" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Total Floors in Building' : 'ጠቅላላ ፎቆች'}</label>
-                    <input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 10" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Fit-out & Condition */}
-              <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
-                  {lang === 'EN' ? 'Fit-out Condition' : 'የፊኒሺንግ ሁኔታ'}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
-                  {FITOUT_CONDITIONS.map(fc => (
-                    <div key={fc.key} onClick={() => set('fitout_condition', fc.key)}
-                      style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.fitout_condition === fc.key ? '#006AFF' : '#e5e7eb'}`, background: form.fitout_condition === fc.key ? '#eff6ff' : 'white', cursor: 'pointer' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: form.fitout_condition === fc.key ? '#006AFF' : '#374151' }}>
-                        {form.fitout_condition === fc.key ? '✓ ' : ''}{lang === 'EN' ? fc.labelEn : fc.labelAm}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Additional info */}
-              <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Zoning Type' : 'የዞን አይነት'}</label>
-                    <select style={inputStyle} value={form.zoning_type} onChange={e => set('zoning_type', e.target.value)}>
-                      <option value="">{lang === 'EN' ? 'Select zoning...' : 'ዞን ይምረጡ...'}</option>
-                      <option value="commercial">{lang === 'EN' ? 'Commercial Zone' : 'የንግድ ዞን'}</option>
-                      <option value="industrial">{lang === 'EN' ? 'Industrial Zone' : 'የኢንዱስትሪ ዞን'}</option>
-                      <option value="mixed">{lang === 'EN' ? 'Mixed Use Zone' : 'ድብልቅ ዞን'}</option>
-                      <option value="special">{lang === 'EN' ? 'Special Economic Zone' : 'ልዩ ኢኮኖሚ ዞን'}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Available From' : 'የሚገኝበት ቀን'}</label>
-                    <input style={inputStyle} type="date" value={form.available_from} onChange={e => set('available_from', e.target.value)} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Year Built' : 'የተሠራበት ዓመት'}</label>
-                    <input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2018" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{lang === 'EN' ? 'Total Units Available' : 'ጠቅላላ ክፍሎች'}</label>
-                    <input style={inputStyle} type="number" value={form.total_units} onChange={e => set('total_units', e.target.value)} placeholder="e.g. 5" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Facilities & Features */}
+        {showFilters && (
+          <div style={{ maxWidth: 1280, margin: '12px auto 0', padding: '20px 24px', background: 'white', borderRadius: 16, border: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
-                  {lang === 'EN' ? 'Facilities & Features' : 'አገልግሎቶችና ባህሪያት'}
+                <label style={labelStyle}>{lang === 'EN' ? 'Min Price (ETB)' : 'ዝቅተኛ ዋጋ'}</label>
+                <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} placeholder="e.g. 10000" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>{lang === 'EN' ? 'Max Price (ETB)' : 'ከፍተኛ ዋጋ'}</label>
+                <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} placeholder="e.g. 500000" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>{lang === 'EN' ? 'Min Area (m²)' : 'ዝቅተኛ ስፋት (ሜ²)'}</label>
+                <input type="number" value={minArea} onChange={e => setMinArea(e.target.value)} placeholder="e.g. 50" style={inputStyle} />
+              </div>
+              <div ref={cityRef} style={{ position: 'relative' }}>
+                <label style={labelStyle}>{lang === 'EN' ? 'City' : 'ከተማ'}</label>
+                <div style={{ position: 'relative' }}>
+                  <input value={citySearch} onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) setCityFilter(''); }}
+                    onFocus={() => setShowCityDropdown(true)}
+                    placeholder={lang === 'EN' ? 'Search city...' : 'ከተማ ፈልግ...'}
+                    style={inputStyle} />
+                  <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
-                  {[
-                    { key: 'has_backup_generator', icon: Zap, labelEn: 'Backup Generator', labelAm: 'ሪዘርቭ ጀነሬተር' },
-                    { key: 'has_fiber_internet', icon: Wifi, labelEn: 'Fiber Internet', labelAm: 'ፋይበር ኢንተርኔት' },
-                    { key: 'has_elevator', icon: Layers, labelEn: 'Elevator / Lift', labelAm: 'አሳንሶር' },
-                    { key: 'has_3phase_power', icon: Zap, labelEn: '3-Phase Power', labelAm: '3-ፌዝ ኤሌክትሪክ' },
-                    { key: 'has_loading_dock', icon: Car, labelEn: 'Loading Dock', labelAm: 'የጭነት መድረክ' },
-                    { key: 'has_ac', icon: Shield, labelEn: 'Air Conditioning', labelAm: 'ኤ.ሲ' },
-                    { key: 'has_cctv', icon: Shield, labelEn: 'CCTV / Surveillance', labelAm: 'ሲሲቲቪ' },
-                    { key: 'has_security', icon: Shield, labelEn: 'Security Guard', labelAm: 'ጠባቂ' },
-                    { key: 'has_reception', icon: Building2, labelEn: 'Reception Area', labelAm: 'ሪሴፕሽን አካባቢ' },
-                    { key: 'has_meeting_rooms', icon: Building2, labelEn: 'Meeting Rooms', labelAm: 'የስብሰባ ክፍሎች' },
-                  ].map(({ key, icon: Icon, labelEn, labelAm }) => (
-                    <div key={key} onClick={() => set(key, !(form as any)[key])}
-                      style={{ padding: '12px 14px', borderRadius: 10, border: `2px solid ${(form as any)[key] ? '#006AFF' : '#e5e7eb'}`, background: (form as any)[key] ? '#eff6ff' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Icon size={14} color={(form as any)[key] ? '#006AFF' : '#6b7280'} />
-                      <div style={{ fontSize: 12, fontWeight: 600, color: (form as any)[key] ? '#006AFF' : '#374151' }}>
-                        {(form as any)[key] ? '✓ ' : ''}{lang === 'EN' ? labelEn : labelAm}
-                      </div>
+                {showCityDropdown && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 200, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
+                    <div onClick={() => { setCityFilter(''); setCitySearch(''); setShowCityDropdown(false); }}
+                      style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#6b7280', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Globe size={13} /> {lang === 'EN' ? 'All Ethiopia' : 'ሁሉም ኢትዮጵያ'}
                     </div>
-                  ))}
-                </div>
+                    {filteredCities.map(c => (
+                      <div key={c.cityEn} onClick={() => { setCityFilter(c.cityEn); setCitySearch(lang === 'EN' ? c.cityEn : c.cityAm); setShowCityDropdown(false); }}
+                        style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#111827', borderBottom: '1px solid #f3f4f6', background: cityFilter === c.cityEn ? '#f0f6ff' : 'white' }}
+                        onMouseEnter={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = '#f9fafb'; }}
+                        onMouseLeave={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = 'white'; }}>
+                        <span style={{ fontWeight: cityFilter === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
+                        <span style={{ color: '#9ca3af', marginLeft: 6, fontSize: 12 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label style={labelStyle}>{lang === 'EN' ? 'Sort By' : 'ደርድር'}</label>
+                <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={inputStyle}>
+                  <option value="newest">{lang === 'EN' ? 'Newest First' : 'አዲሱ ቀደም'}</option>
+                  <option value="price_asc">{lang === 'EN' ? 'Price: Low to High' : 'ዋጋ: ዝቅ ወደ ከፍ'}</option>
+                  <option value="price_desc">{lang === 'EN' ? 'Price: High to Low' : 'ዋጋ: ከፍ ወደ ዝቅ'}</option>
+                  <option value="area_desc">{lang === 'EN' ? 'Largest Area First' : 'ትልቁ ቦታ ቀደም'}</option>
+                </select>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(2)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <ArrowLeft size={18} /> {lang === 'EN' ? 'Back' : 'ተመለስ'}
-              </button>
-              <button onClick={() => { if (!form.floor_area_sqm && form.commercial_type !== 'commercial_land' && form.commercial_type !== 'parking') { setError(lang === 'EN' ? 'Please enter the floor area' : 'የወለል ስፋት ያስገቡ'); return; } setError(''); setStep(4); }}
-                style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {lang === 'EN' ? 'Next: Photos' : 'ቀጣይ፦ ፎቶዎች'} <ArrowRight size={18} />
-              </button>
-            </div>
-            {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
           </div>
         )}
+      </div>
 
-        {/* STEP 4 — Photos */}
-        {step === 4 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Upload size={18} color="#E8431A" />
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
-                  {lang === 'EN' ? 'Property Photos' : 'የንብረት ፎቶዎች'}
-                </div>
-              </div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>
-                {lang === 'EN' ? 'Upload up to 15 photos. Include exterior, interior, floor plan if available.' : 'እስከ 15 ፎቶዎች ይጫኑ። ውጭ፣ ውስጥ እና የፎቅ ዕቅድ ካለ ያካትቱ።'}
-              </div>
-              <div style={{ background: '#eff6ff', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontSize: 12, color: '#1d4ed8' }}>
-                💡 {lang === 'EN' ? 'Pro tip: High quality photos get 3x more enquiries. Include photos of the entrance, main space, facilities and street view.' : 'ጥሩ ፎቶዎች 3 እጥፍ ጥያቄ ያመጣሉ። የመግቢያ፣ ዋና ቦታ፣ አገልግሎቶችና መንገድ ፎቶ ያካትቱ።'}
-              </div>
-              <label style={{ display: 'block', cursor: 'pointer' }}>
-                <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '40px 24px', textAlign: 'center', background: '#f9fafb' }}>
-                  {uploadingPhotos ? (
-                    <div style={{ color: '#006AFF', fontWeight: 600 }}>{lang === 'EN' ? 'Uploading photos...' : 'ፎቶዎችን በመጫን ላይ...'}</div>
-                  ) : (
-                    <>
-                      <Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
-                      <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{lang === 'EN' ? 'Click to upload photos' : 'ፎቶዎችን ለመጫን ጠቅ ያድርጉ'}</div>
-                      <div style={{ fontSize: 13, color: '#9ca3af' }}>JPG, PNG {lang === 'EN' ? 'up to 10MB each' : 'እስከ 10MB'}</div>
-                    </>
-                  )}
-                </div>
-                <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-              </label>
-              {photoUrls.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginTop: 20 }}>
-                  {photoUrls.map((url, i) => (
-                    <div key={url} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}>
-                      <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      {i === 0 && <div style={{ position: 'absolute', top: 6, left: 6, background: '#006AFF', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>COVER</div>}
-                      <button onClick={() => removePhoto(url)} style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <X size={12} color="white" />
+      {/* Property Grid */}
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
+            <div style={{ width: 48, height: 48, border: '4px solid #e5e7eb', borderTop: '4px solid #006AFF', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>{lang === 'EN' ? 'Loading listings...' : 'ዝርዝሮችን በመጫን ላይ...'}</div>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <Building2 size={40} color="#d1d5db" />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+              {lang === 'EN' ? 'No commercial listings yet' : 'እስካሁን የንግድ ቤቶች የሉም'}
+            </div>
+            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>
+              {lang === 'EN' ? 'Be the first to list a commercial property on ጎጆ' : 'በጎጆ ላይ የንግድ ቤት የሚዘረዝር የመጀመሪያው ሁን'}
+            </div>
+            <Link href="/owner/commercial/new" style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {lang === 'EN' ? 'List Commercial Property' : 'የንግድ ቤት ዘርዝር'} <ArrowRight size={18} />
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
+            {filtered.map(p => {
+              const isFav = favorites.includes(p.id);
+              const leaseType = p.commercial_details?.lease_type || 'monthly_rent';
+              const leaseLabel = LEASE_TYPE_LABELS[leaseType] || { en: leaseType, am: leaseType };
+              const leaseColor = LEASE_TYPE_COLORS[leaseType] || { color: '#374151', bg: '#f3f4f6' };
+              const commType = COMMERCIAL_TYPES.find(ct => ct.key === p.commercial_type);
+              return (
+                <div key={p.id}
+                  style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+                  <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none' }}>
+                    <div style={{ height: 210, background: 'linear-gradient(135deg, #1e293b, #0f3460)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                      {p.images?.[0] ? (
+                        <img src={p.images[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8 }}>
+                          <div style={{ fontSize: 40 }}>{(commType as any)?.icon || '🏢'}</div>
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>
+                            {lang === 'EN' ? commType?.labelEn : commType?.labelAm}
+                          </div>
+                        </div>
+                      )}
+                      {/* Lease type badge */}
+                      <div style={{ position: 'absolute', top: 12, left: 12, background: leaseColor.bg, color: leaseColor.color, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20 }}>
+                        {lang === 'EN' ? leaseLabel.en : leaseLabel.am}
+                      </div>
+                      {/* Property type badge */}
+                      <div style={{ position: 'absolute', top: 12, right: 44, background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, backdropFilter: 'blur(4px)' }}>
+                        {(commType as any)?.icon} {lang === 'EN' ? commType?.labelEn : commType?.labelAm}
+                      </div>
+                      <button onClick={e => { e.preventDefault(); toggleFav(p.id); }}
+                        style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
+                        <Heart size={16} fill={isFav ? '#E8431A' : 'none'} color={isFav ? '#E8431A' : '#6b7280'} />
                       </button>
                     </div>
-                  ))}
+                  </Link>
+                  <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 6 }}>
+                      {p.price_negotiable ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: 20 }}>
+                          {lang === 'EN' ? 'Price on Negotiation' : 'ዋጋ በድርድር'}
+                        </span>
+                      ) : (
+                        <>
+                          {formatPrice(p.price, p.currency)}
+                          {leaseType === 'monthly_rent' && <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>{lang === 'EN' ? '/mo' : '/ወር'}</span>}
+                          {leaseType === 'annual_lease' && <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>{lang === 'EN' ? '/yr' : '/ዓ'}</span>}
+                        </>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 13, marginBottom: 14 }}>
+                      <MapPin size={13} />{p.location || p.subcity || 'Ethiopia'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 16, paddingTop: 14, borderTop: '1px solid #f3f4f6', fontSize: 13, color: '#6b7280', flexWrap: 'wrap' as const }}>
+                      {p.area > 0 && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Maximize2 size={14} />{p.area} m²
+                        </span>
+                      )}
+                      {p.commercial_details?.ceiling_height_m && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          ↕ {p.commercial_details.ceiling_height_m}m {lang === 'EN' ? 'ceiling' : 'ጣሪያ'}
+                        </span>
+                      )}
+                      {p.commercial_details?.parking_spaces > 0 && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          🅿 {p.commercial_details.parking_spaces} {lang === 'EN' ? 'parking' : 'ፓርኪንግ'}
+                        </span>
+                      )}
+                      {p.commercial_details?.has_fiber_internet && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#059669' }}>
+                          ✓ {lang === 'EN' ? 'Fiber' : 'ፋይበር'}
+                        </span>
+                      )}
+                      {p.commercial_details?.has_backup_generator && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#d97706' }}>
+                          ✓ {lang === 'EN' ? 'Generator' : 'ጀነሬተር'}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
                 </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(3)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <ArrowLeft size={18} /> {lang === 'EN' ? 'Back' : 'ተመለስ'}
-              </button>
-              <button onClick={() => setStep(5)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {lang === 'EN' ? 'Next: Review & Pay' : 'ቀጣይ፦ ይገምግሙ እና ይክፈሉ'} <ArrowRight size={18} />
-              </button>
-            </div>
+              );
+            })}
           </div>
         )}
+      </div>
 
-        {/* STEP 5 — Review & Pay */}
-        {step === 5 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CheckCircle size={18} color="#059669" />
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
-                  {lang === 'EN' ? 'Review Your Commercial Listing' : 'የንግድ ቤት ማስታወቂያዎን ይገምግሙ'}
-                </div>
-              </div>
-              <div style={{ display: 'grid', gap: 2 }}>
-                {[
-                  [lang === 'EN' ? 'Property Type' : 'የንብረት አይነት', COMMERCIAL_TYPES.find(ct => ct.key === form.commercial_type)?.[lang === 'EN' ? 'labelEn' : 'labelAm'] || '—'],
-                  [lang === 'EN' ? 'Title' : 'ርዕስ', form.title],
-                  [lang === 'EN' ? 'Lease Type' : 'የሊዝ አይነት', LEASE_TYPES.find(lt => lt.key === form.lease_type)?.[lang === 'EN' ? 'labelEn' : 'labelAm'] || '—'],
-                  [lang === 'EN' ? 'Lease Structure' : 'የሊዝ መዋቅር', LEASE_STRUCTURES.find(ls => ls.key === form.lease_structure)?.[lang === 'EN' ? 'labelEn' : 'labelAm'] || '—'],
-                  [lang === 'EN' ? 'Price' : 'ዋጋ', form.price_negotiable ? (lang === 'EN' ? 'Negotiable' : 'በድርድር') : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`],
-                  [lang === 'EN' ? 'City' : 'ከተማ', form.city || '—'],
-                  [lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ', form.subcity || '—'],
-                  [lang === 'EN' ? 'Location' : 'አካባቢ', form.specific_location || '—'],
-                  [lang === 'EN' ? 'Floor Area' : 'የወለል ስፋት', form.floor_area_sqm ? `${form.floor_area_sqm} m²` : '—'],
-                  [lang === 'EN' ? 'Ceiling Height' : 'የጣሪያ ከፍታ', form.ceiling_height_m ? `${form.ceiling_height_m}m` : '—'],
-                  [lang === 'EN' ? 'Parking' : 'ፓርኪንግ', form.parking_spaces || '—'],
-                  [lang === 'EN' ? 'Fit-out' : 'ፊኒሺንግ', FITOUT_CONDITIONS.find(fc => fc.key === form.fitout_condition)?.[lang === 'EN' ? 'labelEn' : 'labelAm'] || '—'],
-                  [lang === 'EN' ? 'Zoning' : 'ዞን', form.zoning_type || '—'],
-                  [lang === 'EN' ? 'Available From' : 'ከ', form.available_from || '—'],
-                  [lang === 'EN' ? 'Generator' : 'ጀነሬተር', form.has_backup_generator ? (lang === 'EN' ? 'Yes' : 'አዎ') : (lang === 'EN' ? 'No' : 'አይ')],
-                  [lang === 'EN' ? 'Fiber Internet' : 'ፋይበር', form.has_fiber_internet ? (lang === 'EN' ? 'Yes' : 'አዎ') : (lang === 'EN' ? 'No' : 'አይ')],
-                  [lang === 'EN' ? '3-Phase Power' : '3-ፌዝ', form.has_3phase_power ? (lang === 'EN' ? 'Yes' : 'አዎ') : (lang === 'EN' ? 'No' : 'አይ')],
-                  [lang === 'EN' ? 'Loading Dock' : 'የጭነት መድረክ', form.has_loading_dock ? (lang === 'EN' ? 'Yes' : 'አዎ') : (lang === 'EN' ? 'No' : 'አይ')],
-                  [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`],
-                ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>{label}</span>
-                    <span style={{ fontSize: 13, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
-                {lang === 'EN' ? 'Commercial Listing Fee — ETB 500' : 'የንግድ ቤት ዝርዝር ክፍያ — ETB 500'}
-              </div>
-              <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
-                • {lang === 'EN' ? '3 months active listing' : 'ለ3 ወራት ንቁ ዝርዝር'}<br />
-                • {lang === 'EN' ? 'Reviewed by admin within 24 hours' : 'በ24 ሰዓት ውስጥ ይገመገማል'}<br />
-                • {lang === 'EN' ? 'Renewable after expiry for ETB 300' : 'ከሚያልፍ በኋላ ለ ETB 300 ያድሱ'}<br />
-                • {lang === 'EN' ? 'Listed under Commercial section' : 'ስር የንግድ ቦታ ክፍል ይዘረዘራል'}
-              </div>
-            </div>
-            {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <ArrowLeft size={18} /> {lang === 'EN' ? 'Back' : 'ተመለስ'}
-              </button>
-              <button onClick={handleSubmit} disabled={loading}
-                style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? (lang === 'EN' ? 'Submitting...' : 'በማስገባት ላይ...') : (lang === 'EN' ? 'Submit & Pay ETB 500' : 'ያስገቡ እና ETB 500 ይክፈሉ')}
-              </button>
-            </div>
-          </div>
-        )}
+      {/* CTA to list */}
+      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '64px 24px', textAlign: 'center' as const }}>
+        <Building2 size={40} color="rgba(255,255,255,0.2)" style={{ marginBottom: 16 }} />
+        <h2 style={{ fontSize: 30, fontWeight: 800, color: 'white', marginBottom: 12 }}>
+          {lang === 'EN' ? 'Have a Commercial Space?' : 'የንግድ ቦታ አለዎት?'}
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
+          {lang === 'EN'
+            ? 'List your office, retail space, warehouse or any commercial property on ጎጆ and reach thousands of verified businesses.'
+            : 'ቢሮዎን፣ መደብርዎን፣ መጋዘንዎን ወይም ሌላ የንግድ ቤትዎን በጎጆ ላይ ዘርዝሩ።'}
+        </p>
+        <Link href="/owner/commercial/new"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
+          {lang === 'EN' ? 'List Commercial Property' : 'የንግድ ቤት ዘርዝር'} <ArrowRight size={18} />
+        </Link>
       </div>
     </div>
   );
