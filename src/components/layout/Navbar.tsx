@@ -22,18 +22,18 @@ export function Navbar() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const links = [
-    { href: '/',                label: lang === 'EN' ? 'Buy'      : 'ግዛ',      icon: Home,       authOnly: false, external: false },
-    { href: '/?type=long_rent', label: lang === 'EN' ? 'Rent'     : 'ተከራይ',   icon: Key,        authOnly: false, external: false },
-    { href: '/map',             label: lang === 'EN' ? 'Map'       : 'ካርታ',    icon: Map,        authOnly: false, external: false },
-    { href: '/market',          label: lang === 'EN' ? 'Market'   : 'ገበያ',     icon: TrendingUp, authOnly: false, external: false },
-    { href: '/diaspora',        label: lang === 'EN' ? 'Diaspora' : 'ዲያስፖራ', icon: Globe,      authOnly: false, external: false },
-    { href: '/owner/commercial/new', label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false },
-    { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',     icon: Send,       authOnly: false, external: true  },
-    { href: '/contracts',       label: lang === 'EN' ? 'Contracts': 'ውሎች',    icon: FileText,   authOnly: true,  external: false },
-    { href: '/owner/dashboard', label: lang === 'EN' ? 'Listings' : 'ዝርዝሮች', icon: Home,       authOnly: true,  external: false },
-    { href: '/messages',        label: lang === 'EN' ? 'Messages' : 'መልዕክቶች', icon: Send,       authOnly: true,  external: false },
-  ];
+ const links = [
+  { href: '/',                        label: lang === 'EN' ? 'Buy'        : 'ግዛ',          icon: Home,       authOnly: false, external: false },
+  { href: '/?type=long_rent',         label: lang === 'EN' ? 'Rent'       : 'ተከራይ',       icon: Key,        authOnly: false, external: false },
+  { href: '/commercial',              label: lang === 'EN' ? 'Commercial'  : 'የንግድ ቤቶች',  icon: Building2,  authOnly: false, external: false },
+  { href: '/map',                     label: lang === 'EN' ? 'Map'         : 'ካርታ',        icon: Map,        authOnly: false, external: false },
+  { href: '/market',                  label: lang === 'EN' ? 'Market'      : 'ገበያ',         icon: TrendingUp, authOnly: false, external: false },
+  { href: '/diaspora',                label: lang === 'EN' ? 'Diaspora'    : 'ዲያስፖራ',     icon: Globe,      authOnly: false, external: false },
+  { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',               icon: Send,       authOnly: false, external: true  },
+  { href: '/contracts',               label: lang === 'EN' ? 'Contracts'   : 'ውሎች',        icon: FileText,   authOnly: true,  external: false },
+  { href: '/owner/dashboard',         label: lang === 'EN' ? 'Listings'    : 'ዝርዝሮች',     icon: Home,       authOnly: true,  external: false },
+  { href: '/messages',                label: lang === 'EN' ? 'Messages'    : 'መልዕክቶች',    icon: Send,       authOnly: true,  external: false },
+];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
     padding: '9px 14px',
