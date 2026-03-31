@@ -200,6 +200,14 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             {/* Property info */}
             <div style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb' }}>
               <PropertyInfo property={propertyWithImages as unknown as Property} />
+              import { AdCard } from '@/components/ads/AdCard';
+
+// Inside the sidebar div, add:
+<AdCard
+  placement="property_detail"
+  maxAds={2}
+  style={{ marginTop: 24 }}
+/>
             </div>
 
             {/* Reviews */}
