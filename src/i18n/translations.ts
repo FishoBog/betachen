@@ -12,11 +12,11 @@ export const translations = {
     // Filters
     allProps: "All Properties", forSale: "For Sale", forRent: "For Rent", shortStay: "Short Stay",
     propsFound: "properties found", loading: "Loading...",
-    noProps: "No properties yet", noPropsDesc: "Be the first to post a property on ጎጆ",
+    noProps: "No properties yet", noPropsDesc: "Be the first to post a property on ቤታችን",
     postListing: "Post a Listing", perMonth: "/mo", perNight: "/night", noPhoto: "No photo yet",
 
     // Why section
-    whyTitle: "Why ጎጆ?", whySub: "Ethiopia's most trusted real estate platform",
+    whyTitle: "Why ቤታችን?", whySub: "Ethiopia's most trusted real estate platform",
     f1Title: "Verified Listings", f1Desc: "All properties are reviewed before going live",
     f2Title: "Market Insights", f2Desc: "Track prices and trends across all cities",
     f3Title: "Fast & Easy", f3Desc: "Post your property in under 5 minutes",
@@ -158,11 +158,11 @@ export const translations = {
     // Filters
     allProps: "ሁሉም ንብረቶች", forSale: "ለሽያጭ", forRent: "ለኪራይ", shortStay: "አጭር ቆይታ",
     propsFound: "ንብረቶች ተገኝተዋል", loading: "በመጫን ላይ...",
-    noProps: "እስካሁን ንብረቶች የሉም", noPropsDesc: "በጎጆ ላይ ንብረት የሚለጥፍ የመጀመሪያው ሁን",
+    noProps: "እስካሁን ንብረቶች የሉም", noPropsDesc: "በቤታችን ላይ ንብረት የሚለጥፍ የመጀመሪያው ሁን",
     postListing: "ማስታወቂያ ለጥፍ", perMonth: "/ወር", perNight: "/ማታ", noPhoto: "ፎቶ የለም",
 
     // Why section
-    whyTitle: "ለምን ጎጆ?", whySub: "የኢትዮጵያ ታማኝ የሪል እስቴት መድረክ",
+    whyTitle: "ለምን ቤታችን?", whySub: "የኢትዮጵያ ታማኝ የሪል እስቴት መድረክ",
     f1Title: "የተረጋገጡ ማስታወቂያዎች", f1Desc: "ሁሉም ንብረቶች ከመለጠፋቸው በፊት ይገመገማሉ",
     f2Title: "የገበያ መረጃ", f2Desc: "በሁሉም ከተሞች ዋጋና አዝማሚያ ይከታተሉ",
     f3Title: "ፈጣን እና ቀላል", f3Desc: "ንብረትዎን በ5 ደቂቃ ውስጥ ይለጥፉ",
