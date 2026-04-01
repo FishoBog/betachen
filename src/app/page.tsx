@@ -194,7 +194,7 @@ export default function HomePage() {
               <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
           </div>
-          <svg width="120" height="120" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+          <svg width="90" height="90" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
             <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
             <g clipPath="url(#bc)">
@@ -229,11 +229,11 @@ export default function HomePage() {
             </g>
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           </svg>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 5 }}>
-            <span style={{ fontSize: 34, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
-            <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>Find, Rent & Sell — Across all Ethiopian cities</span>
-            <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
+          <div style={{ flex: 1, minWidth: 120, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+            <span style={{ fontSize: 'clamp(18px, 3vw, 34px)', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
+            <span style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontSize: 'clamp(9px, 1.2vw, 13px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>Find, Rent & Sell</span>
+            <div style={{ display: 'flex', width: 60, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
               <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
           </div>
