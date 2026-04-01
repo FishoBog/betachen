@@ -177,7 +177,7 @@ export default function HomePage() {
         minHeight: 540,
         backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center top',
+        backgroundPosition: 'center 40%',
       }}>
 
         {/* Original blue overlay — unchanged */}
@@ -187,7 +187,7 @@ export default function HomePage() {
         <div style={{
           position: 'absolute',
           top: 20,
-          right: 24,
+          left: 24,
           zIndex: 20,
           display: 'flex',
           flexDirection: 'column',
@@ -197,10 +197,10 @@ export default function HomePage() {
           border: '1px solid rgba(255,255,255,0.13)',
           borderRadius: 14,
           padding: '16px 14px 12px',
-          width: 138,
+          width: 160,
         }}>
           {/* Tukul Badge */}
-          <svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+          <svg width="120" height="120" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <clipPath id="bc">
                 <circle cx="48" cy="48" r="42" />
@@ -251,7 +251,7 @@ export default function HomePage() {
           {/* ቤታችን Ethiopic */}
           <span style={{
             fontFamily: "'Noto Serif Ethiopic', serif",
-            fontSize: 22,
+            fontSize: 26,
             fontWeight: 700,
             color: '#ffffff',
             lineHeight: 1,
@@ -432,7 +432,7 @@ export default function HomePage() {
             <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <Building2 size={40} color="#d1d5db" />
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
             <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : t.noPropsDesc}</div>
             {activeFilterCount > 0 ? (
               <button onClick={clearFilters} style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>{lang === 'EN' ? 'Clear Filters' : 'ማጣሪያዎችን አጽዳ'}</button>
@@ -472,7 +472,7 @@ export default function HomePage() {
                     </div>
                   </Link>
                   <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
                       {p.price_negotiable ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: 20 }}>
                           {t.negotiablePrice}
@@ -563,7 +563,7 @@ export default function HomePage() {
               </div>
               <div>
                 <div style={{ fontSize: 17, fontWeight: 800, color: 'white', marginBottom: 4 }}>
-                  {lang === 'EN' ? 'Own a commercial space? List it on ቤታችን' : 'የንግድ ቦታ አለዎት? በቤታችን ላይ ይዘርዝሩ'}
+                  {lang === 'EN' ? 'Own a commercial space? List it on ጎጆ' : 'የንግድ ቦታ አለዎት? በጎጆ ላይ ይዘርዝሩ'}
                 </div>
                 <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
                   {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
@@ -638,7 +638,7 @@ export default function HomePage() {
               {lang === 'EN' ? 'Reach thousands of property buyers, sellers, owners and investors across Ethiopia every day.' : 'በየቀኑ ሺዎችን የቤት ገዢዎች፣ ሻጮች፣ ባለቤቶችና ባለሀብቶች ይድረሱ።'}
             </div>
             <Link href="/advertise" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-              {lang === 'EN' ? 'Advertise on ቤታችን' : 'በቤታችን ላይ ያስተዋውቁ'} <ArrowRight size={16} />
+              {lang === 'EN' ? 'Advertise on ጎጆ' : 'በጎጆ ላይ ያስተዋውቁ'} <ArrowRight size={16} />
             </Link>
           </div>
         </div>
