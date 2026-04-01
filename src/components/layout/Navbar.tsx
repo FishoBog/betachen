@@ -29,7 +29,7 @@ export function Navbar() {
   { href: '/map',                     label: lang === 'EN' ? 'Map'         : 'ካርታ',        icon: Map,        authOnly: false, external: false },
   { href: '/market',                  label: lang === 'EN' ? 'Market'      : 'ገበያ',         icon: TrendingUp, authOnly: false, external: false },
   { href: '/diaspora',                label: lang === 'EN' ? 'Diaspora'    : 'ዲያስፖራ',     icon: Globe,      authOnly: false, external: false },
-  { href: '/advertise',               label: lang === 'EN' ? 'Advertise'   : 'ያስተዋውቁ',    icon: Megaphone,  authOnly: false, external: false },  // ✅ ADD THIS LINE
+  { href: '/advertise',               label: lang === 'EN' ? 'Advertise'   : 'ያስተዋውቁ',    icon: Megaphone,  authOnly: false, external: false },
   { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',               icon: Send,       authOnly: false, external: true  },
   { href: '/contracts',               label: lang === 'EN' ? 'Contracts'   : 'ውሎች',        icon: FileText,   authOnly: true,  external: false },
   { href: '/owner/dashboard',         label: lang === 'EN' ? 'Listings'    : 'ዝርዝሮች',     icon: Home,       authOnly: true,  external: false },
@@ -58,7 +58,7 @@ export function Navbar() {
 
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
-          <img src={LOGO_URL} alt="ጎጆ Homes" style={{ height: 46, width: 'auto' }} />
+          <img src={LOGO_URL} alt="ቤታችን" style={{ height: 46, width: 'auto' }} />
         </Link>
 
         {/* Desktop Nav */}
