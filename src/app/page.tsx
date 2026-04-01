@@ -183,33 +183,18 @@ export default function HomePage() {
         {/* Original blue overlay — unchanged */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
-        {/* ── BETACHEN BRANDING OVERLAY (top-right corner) ── */}
-        <div style={{
-          position: 'absolute',
-          top: 20,
-          left: 24,
-          zIndex: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 8,
-          background: 'rgba(8, 18, 40, 0.50)',
-          border: '1px solid rgba(255,255,255,0.13)',
-          borderRadius: 14,
-          padding: '16px 14px 12px',
-          width: 160,
-        }}>
-          {/* Tukul Badge */}
-          <svg width="120" height="120" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <clipPath id="bc">
-                <circle cx="48" cy="48" r="42" />
-              </clipPath>
-            </defs>
+        {/* ── BETACHEN BRANDING OVERLAY — centered top ── */}
+        <div style={{ position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20, background: 'rgba(8, 18, 40, 0.52)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 16, padding: '16px 28px', maxWidth: 680, width: 'calc(100% - 48px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flex: 1 }}>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 22, fontWeight: 700, color: '#fff', lineHeight: 1.2, textAlign: 'right' }}>ቤታችን</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'right', lineHeight: 1.4 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textAlign: 'right', lineHeight: 1.4 }}>ቤት ይግዙ፣ ያከራዩ፣ ይሸጡ</span>
+          </div>
+          <svg width="100" height="100" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+            <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
             <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="#8b1a1a" strokeWidth="3" />
             <g clipPath="url(#bc)">
               <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
-              {/* Light rays */}
               <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
               <line x1="48" y1="17" x2="18" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
               <line x1="48" y1="17" x2="24" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
@@ -221,65 +206,31 @@ export default function HomePage() {
               <line x1="48" y1="17" x2="72" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
               <line x1="48" y1="17" x2="78" y2="60" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
               <line x1="48" y1="17" x2="82" y2="57" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              {/* Roof */}
               <polygon points="48,15 82,61 14,61" fill="#7a5810" />
-              {/* Walls */}
               <rect x="22" y="61" width="52" height="24" fill="#c8941e" rx="1" />
-              {/* Door posts */}
               <rect x="31" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
               <rect x="59" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
-              {/* Trees */}
               <ellipse cx="16" cy="69" rx="5" ry="7" fill="#1a5c2a" />
               <rect x="14" y="74" width="4" height="11" fill="#5a3010" />
               <ellipse cx="80" cy="69" rx="5" ry="7" fill="#1a5c2a" />
               <rect x="78" y="74" width="4" height="11" fill="#5a3010" />
-              {/* Door */}
               <rect x="40" y="67" width="16" height="18" fill="#2d1206" rx="2" />
               <rect x="43" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
               <rect x="48" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
-              {/* Beacon */}
               <circle cx="48" cy="15" r="3" fill="#8b1a1a" />
               <circle cx="48" cy="15" r="1.4" fill="#fff" opacity="0.9" />
-              {/* Ethiopian flag stripe */}
               <rect x="6" y="80" width="28" height="7" fill="#078930" />
               <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
               <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
             </g>
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
           </svg>
-
-          {/* ቤታችን Ethiopic */}
-          <span style={{
-            fontFamily: "'Noto Serif Ethiopic', serif",
-            fontSize: 26,
-            fontWeight: 700,
-            color: '#ffffff',
-            lineHeight: 1,
-            textAlign: 'center',
-          }}>
-            ቤታችን
-          </span>
-
-          {/* Latin */}
-          <span style={{
-            fontSize: 9,
-            fontWeight: 600,
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.4)',
-            textAlign: 'center',
-          }}>
-            Betachen
-          </span>
-
-          {/* Ethiopian flag stripe */}
-          <div style={{ display: 'flex', width: 64, height: 3, borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ flex: 1, background: '#078930' }} />
-            <div style={{ flex: 1, background: '#FCDD09' }} />
-            <div style={{ flex: 1, background: '#DA121A' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, flex: 1 }}>
+            <span style={{ fontSize: 22, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Betachen</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Buy, Rent & Sell Properties</span>
           </div>
         </div>
-        {/* ── END BRANDING OVERLAY ── */}
 
         {/* Original hero content — unchanged except heroTitle2 color darkened */}
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
