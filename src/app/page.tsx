@@ -183,14 +183,9 @@ export default function HomePage() {
         {/* Original blue overlay — unchanged */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
-        {/* ── BETACHEN BRANDING OVERLAY — centered top ── */}
-        <div style={{ position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20, background: 'rgba(8, 18, 40, 0.52)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 16, padding: '16px 28px', maxWidth: 680, width: 'calc(100% - 48px)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flex: 1 }}>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 22, fontWeight: 700, color: '#fff', lineHeight: 1.2, textAlign: 'right' }}>ቤታችን</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'right', lineHeight: 1.4 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textAlign: 'right', lineHeight: 1.4 }}>ቤት ይግዙ፣ ያከራዩ፣ ይሸጡ</span>
-          </div>
-          <svg width="100" height="100" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+       {/* ── BETACHEN BRANDING OVERLAY ── */}
+        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 20, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, background: 'rgba(8,18,40,0.60)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 12, padding: '10px 16px 10px 10px' }}>
+          <svg width="56" height="56" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
             <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="#8b1a1a" strokeWidth="3" />
             <g clipPath="url(#bc)">
@@ -225,12 +220,21 @@ export default function HomePage() {
             </g>
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
           </svg>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, flex: 1 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Betachen</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Buy, Rent & Sell Properties</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 16, fontWeight: 700, color: '#fff', lineHeight: 1 }}>ቤታችን</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', lineHeight: 1 }}>Betachen</span>
+            </div>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.3 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
+            <div style={{ display: 'flex', width: 80, height: 2, borderRadius: 2, overflow: 'hidden', marginTop: 4 }}>
+              <div style={{ flex: 1, background: '#078930' }} />
+              <div style={{ flex: 1, background: '#FCDD09' }} />
+              <div style={{ flex: 1, background: '#DA121A' }} />
+            </div>
           </div>
         </div>
+        {/* ── END BRANDING OVERLAY ── */}
 
         {/* Original hero content — unchanged except heroTitle2 color darkened */}
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
