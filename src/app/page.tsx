@@ -180,14 +180,22 @@ export default function HomePage() {
         backgroundPosition: 'center 40%',
       }}>
 
-        {/* Original blue overlay — unchanged */}
+       {/* Original blue overlay — unchanged */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
-       {/* ── BETACHEN BRANDING OVERLAY ── */}
-        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 20, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, background: 'rgba(8,18,40,0.60)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 12, padding: '10px 16px 10px 10px' }}>
-          <svg width="56" height="56" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+        {/* ── BETACHEN BRAND BADGE ── */}
+        <div style={{ position: 'relative', zIndex: 20, maxWidth: 860, margin: '0 auto 44px', background: 'rgba(90,10,10,0.85)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 20, padding: '20px 28px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.1, textAlign: 'right' }}>ቤታችን</span>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'right', lineHeight: 1.5 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'right', lineHeight: 1.5 }}>ቤት ይፈልጉ፣ ያከራዩ፣ ይሸጡ — በሁሉም የኢትዮጵያ ከተሞች</span>
+            <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
+              <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
+            </div>
+          </div>
+          <svg width="120" height="120" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
-            <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="#8b1a1a" strokeWidth="3" />
+            <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
             <g clipPath="url(#bc)">
               <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
               <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
@@ -218,24 +226,25 @@ export default function HomePage() {
               <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
               <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
             </g>
-            <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           </svg>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 16, fontWeight: 700, color: '#fff', lineHeight: 1 }}>ቤታችን</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', lineHeight: 1 }}>Betachen</span>
-            </div>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.3 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
-            <div style={{ display: 'flex', width: 80, height: 2, borderRadius: 2, overflow: 'hidden', marginTop: 4 }}>
-              <div style={{ flex: 1, background: '#078930' }} />
-              <div style={{ flex: 1, background: '#FCDD09' }} />
-              <div style={{ flex: 1, background: '#DA121A' }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 5 }}>
+            <span style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>Find, Rent & Sell — Across all Ethiopian cities</span>
+            <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
+              <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
           </div>
         </div>
-        {/* ── END BRANDING OVERLAY ── */}
+        {/* ── END BRAND BADGE ── */}
+```
 
+Then on **line 221** you will see:
+```
+        {/* Original hero content — unchanged except heroTitle2 color darkened */}
+        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)',
         {/* Original hero content — unchanged except heroTitle2 color darkened */}
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28 }}>
