@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // If you have Resend configured:
     // await resend.emails.send({
-    //   from: 'ቤታችን <noreply@gojo-et.com>',
+    //   from: 'ቤታችን <noreply@Betachen-et.com>',
     //   to: tenantEmail,
     //   subject: `Contract Invitation from ${ownerName} — ${TYPE_NAMES[contractType]}`,
     //   html: `<p>You have been invited to review and sign a contract.</p><a href="${inviteLink}">Click here to view and fill your details</a>`

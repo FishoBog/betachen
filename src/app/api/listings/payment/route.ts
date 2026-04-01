@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     const isRenewal = type === 'renewal';
     const amount = isRenewal ? 300 : 500;
-    const txRef = `GOJO-LIST-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    const txRef = `Betachen-LIST-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
     const { data: property, error: propErr } = await supabase
       .from('properties').select('*').eq('id', propertyId).single();
@@ -43,14 +43,14 @@ export async function POST(req: NextRequest) {
     const chapaPayload = {
       amount: amount.toFixed(2),
       currency: 'ETB',
-      email: ownerEmail || 'noreply@gojo-homes.com',
+      email: ownerEmail || 'noreply@Betachen-homes.com',
       first_name: ownerName?.split(' ')[0] || 'Owner',
       last_name: ownerName?.split(' ')[1] || 'User',
       tx_ref: txRef,
       callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/payment/verify`,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}/payment/success`,
       customization: {
-        title: isRenewal ? 'Gojo Listing Renewal' : 'Gojo Listing Fee',
+        title: isRenewal ? 'Betachen Listing Renewal' : 'Betachen Listing Fee',
         description: isRenewal
           ? `Renewal 3 months - ${cleanTitle}`
           : `New listing - ${cleanTitle}`,

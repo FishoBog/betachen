@@ -8,7 +8,7 @@ import { createBrowserClient } from '@/lib/supabase';
 import { PlusCircle, Eye, MessageSquare, RefreshCw, Trash2, CheckCircle, Clock, XCircle, AlertTriangle, Shield, TrendingUp, DollarSign, Home, ChevronRight } from 'lucide-react';
 import type { Property } from '@/types';
 
-const GOJO_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Gojo-bete.jpg';
+const BETACHEN_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Betachen-bete.jpg';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
   active:         { label: 'Active',         color: '#065f46', bg: '#d1fae5', icon: CheckCircle },
@@ -233,7 +233,7 @@ export default function OwnerDashboard() {
           {filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 24px' }}>
               <div style={{ width: 100, height: 85, borderRadius: 12, overflow: 'hidden', margin: '0 auto 16px', opacity: 0.5 }}>
-                <img src={GOJO_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
+                <img src={BETACHEN_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
               </div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 8 }}>No listings yet</div>
               <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 24 }}>Post your first property and start getting inquiries</div>
@@ -256,7 +256,7 @@ export default function OwnerDashboard() {
                       {mainImage ? (
                         <img src={mainImage} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <img src={GOJO_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top', opacity: 0.5 }} />
+                        <img src={BETACHEN_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top', opacity: 0.5 }} />
                       )}
                     </div>
 

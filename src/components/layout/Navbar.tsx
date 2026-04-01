@@ -30,7 +30,7 @@ export function Navbar() {
   { href: '/market',                  label: lang === 'EN' ? 'Market'      : 'ገበያ',         icon: TrendingUp, authOnly: false, external: false },
   { href: '/diaspora',                label: lang === 'EN' ? 'Diaspora'    : 'ዲያስፖራ',     icon: Globe,      authOnly: false, external: false },
   { href: '/advertise',               label: lang === 'EN' ? 'Advertise'   : 'ያስተዋውቁ',    icon: Megaphone,  authOnly: false, external: false },  // ✅ ADD THIS LINE
-  { href: 'https://t.me/GojoEthiopiaBot', label: 'Telegram',               icon: Send,       authOnly: false, external: true  },
+  { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',               icon: Send,       authOnly: false, external: true  },
   { href: '/contracts',               label: lang === 'EN' ? 'Contracts'   : 'ውሎች',        icon: FileText,   authOnly: true,  external: false },
   { href: '/owner/dashboard',         label: lang === 'EN' ? 'Listings'    : 'ዝርዝሮች',     icon: Home,       authOnly: true,  external: false },
   { href: '/messages',                label: lang === 'EN' ? 'Messages'    : 'መልዕክቶች',    icon: Send,       authOnly: true,  external: false },
@@ -127,7 +127,7 @@ export function Navbar() {
               <Link href="/alerts" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Alerts"><Bell size={20} /></Link>
               <Link href="/contracts/new" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="New Contract"><FileText size={20} /></Link>
               <Link href="/owner/verify" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }} title="Get Verified"><Shield size={20} /></Link>
-              <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer" style={{ padding: 8, borderRadius: 8, color: '#0088cc', display: 'flex', textDecoration: 'none' }} title="Telegram"><Send size={20} /></a>
+              <a href="https://t.me/BETACHENEthiopiaBot" target="_blank" rel="noopener noreferrer" style={{ padding: 8, borderRadius: 8, color: '#0088cc', display: 'flex', textDecoration: 'none' }} title="Telegram"><Send size={20} /></a>
               <UserButton afterSignOutUrl="/" />
             </>
           )}
@@ -215,7 +215,7 @@ export function Navbar() {
               <Link href="/contracts/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <FileText size={16} />{lang === 'EN' ? 'New Contract' : 'አዲስ ውል'}
               </Link>
-              <a href="https://t.me/GojoEthiopiaBot" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
+              <a href="https://t.me/BETACHENEthiopiaBot" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Send size={16} />{lang === 'EN' ? 'Telegram Bot' : 'ቴሌግራም ቦት'}
               </a>
               <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>

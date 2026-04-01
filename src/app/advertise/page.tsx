@@ -503,7 +503,7 @@ export default function AdvertisePage() {
               {
                 qEn: 'Can I renew or upgrade my package?',
                 qAm: 'ፓኬጄን ማደስ ወይም ማሻሻል እችላለሁ?',
-                aEn: 'Yes. You can renew at any time before expiry or upgrade to a higher package. Contact us at advertise@gojo-homes.com.',
+                aEn: 'Yes. You can renew at any time before expiry or upgrade to a higher package. Contact us at advertise@Betachen-homes.com.',
                 aAm: 'አዎ። ከማለቁ በፊት በማንኛውም ጊዜ ማደስ ወይም ወደ ከፍተኛ ፓኬጅ ማሸጋገር ይችላሉ።',
               },
             ].map(({ qEn, qAm, aEn, aAm }) => (

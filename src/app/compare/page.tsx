@@ -10,7 +10,7 @@ export default function ComparePage() {
   const [properties, setProperties] = useState<Property[]>([]);
   useEffect(() => {
     try {
-      const ids: string[] = JSON.parse(localStorage.getItem('gojo_compare') ?? '[]');
+      const ids: string[] = JSON.parse(localStorage.getItem('BETACHEN_compare') ?? '[]');
       if (!ids.length) return;
       createBrowserClient().from('properties').select('*, property_images(*)').in('id', ids)
         .then(({ data }) => setProperties((data as Property[]) ?? []));

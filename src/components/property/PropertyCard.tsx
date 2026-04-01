@@ -10,10 +10,10 @@ import type { Property } from '@/types';
 
 function addToCompare(id: string) {
   try {
-    const saved: string[] = JSON.parse(localStorage.getItem('gojo_compare') ?? '[]');
+    const saved: string[] = JSON.parse(localStorage.getItem('BETACHEN_compare') ?? '[]');
     if (!saved.includes(id)) {
       const next = [...saved, id].slice(0, 3);
-      localStorage.setItem('gojo_compare', JSON.stringify(next));
+      localStorage.setItem('BETACHEN_compare', JSON.stringify(next));
     }
     window.location.href = '/compare';
   } catch {}

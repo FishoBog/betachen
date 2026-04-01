@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const totalAmount = nights * pricePerNight;
     const depositAmount = totalAmount * 0.25;
     const remainingAmount = totalAmount * 0.75;
-    const txRef = `GOJO-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const txRef = `Betachen-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
     // Create reservation record
     const { data: reservation, error } = await supabase

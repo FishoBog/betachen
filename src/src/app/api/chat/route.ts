@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SYSTEM_PROMPT = `You are ቤታችን Assistant, the helpful AI for ቤታችን (Gojo) — Ethiopia's #1 real estate platform. You help users find properties, understand bookings, payments, and listings.
+const SYSTEM_PROMPT = `You are ቤታችን Assistant, the helpful AI for ቤታችን (Betachen) — Ethiopia's #1 real estate platform. You help users find properties, understand bookings, payments, and listings.
 
 ABOUT ቤታችን:
 - Ethiopia's leading property platform for buying, renting, and short stays
@@ -44,7 +44,7 @@ LANGUAGE:
 - Be warm, helpful, and professional
 
 ESCALATION:
-- If the user asks to speak to a human, says they have a complaint, or has an issue you cannot resolve, tell them to email support@gojo-et.com or that a team member will follow up
+- If the user asks to speak to a human, says they have a complaint, or has an issue you cannot resolve, tell them to email support@Betachen-et.com or that a team member will follow up
 - Do NOT make up property listings, prices, or availability — you don't have real-time data
 
 Keep responses concise, friendly, and helpful. Use bullet points for clarity when listing multiple items.`;
@@ -73,6 +73,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ reply });
   } catch (err: any) {
-    return NextResponse.json({ reply: 'Sorry, something went wrong. Please try again or email support@gojo-et.com' }, { status: 500 });
+    return NextResponse.json({ reply: 'Sorry, something went wrong. Please try again or email support@Betachen-et.com' }, { status: 500 });
   }
 }

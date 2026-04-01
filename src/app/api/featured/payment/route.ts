@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       .from('properties').select('title').eq('id', propertyId).single();
     if (!property) throw new Error('Property not found');
 
-    const txRef = `GOJO-FEAT-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    const txRef = `Betachen-FEAT-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const featuredUntil = new Date();
     featuredUntil.setDate(featuredUntil.getDate() + plan.days);
 

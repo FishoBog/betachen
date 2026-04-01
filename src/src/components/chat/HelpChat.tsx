@@ -59,7 +59,7 @@ export function HelpChat() {
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please email support@gojo-et.com' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please email support@Betachen-et.com' }]);
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ export function HelpChat() {
   const escalate = () => {
     setMessages(prev => [...prev, {
       role: 'assistant',
-      content: '👤 I\'ll connect you with our team!\n\n📧 Email: support@gojo-et.com\n📱 We typically respond within a few hours during business hours.\n\nYou can also describe your issue here and we\'ll make sure it gets to the right person.'
+      content: '👤 I\'ll connect you with our team!\n\n📧 Email: support@Betachen-et.com\n📱 We typically respond within a few hours during business hours.\n\nYou can also describe your issue here and we\'ll make sure it gets to the right person.'
     }]);
   };
 

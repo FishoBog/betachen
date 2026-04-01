@@ -18,7 +18,7 @@ export function AdminSidebar() {
       <div style={{padding:"1.25rem 1.5rem",borderBottom:"1px solid #f3f4f6",display:"flex",alignItems:"center",gap:"0.75rem"}}>
         <span style={{fontSize:"1.75rem"}}>🏠</span>
         <div>
-          <div style={{fontWeight:"700",color:"#111827",fontSize:"0.95rem"}}>Gojo Admin</div>
+          <div style={{fontWeight:"700",color:"#111827",fontSize:"0.95rem"}}>Betachen Admin</div>
           <div style={{fontSize:"0.7rem",color:"#9ca3af"}}>ቤታችን Dashboard</div>
         </div>
       </div>

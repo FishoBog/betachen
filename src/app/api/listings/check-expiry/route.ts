@@ -40,10 +40,10 @@ async function sendExpiryEmail(property: any, daysLeft: number) {
 
   // Uncomment when you have Resend configured:
   // await resend.emails.send({
-  //   from: 'ቤታችን <noreply@gojo-et.com>',
+  //   from: 'ቤታችን <noreply@Betachen-et.com>',
   //   to: property.owner_email,
   //   subject,
-  //   html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">${message}<hr/><p style="font-size:11px;color:#9ca3af">ቤታችን Real Estate • gojo-et.netlify.app</p></div>`
+  //   html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px">${message}<hr/><p style="font-size:11px;color:#9ca3af">ቤታችን Real Estate • Betachen-et.netlify.app</p></div>`
   // });
 
   // Log notification

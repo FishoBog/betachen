@@ -133,7 +133,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
   const [shared, setShared] = useState(false);
   const isNegotiable = (property as any).price_negotiable;
   const whatsappNumber = (property as any).owner_whatsapp;
-  const whatsappMsg = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Gojo Homes.`);
+  const whatsappMsg = encodeURIComponent(`Hi, I am interested in your property "${property.title}" listed on Betachen.`);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -189,7 +189,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>Listed on Gojo Homes</div>
+            <div style={{ fontSize: 12, color: '#9ca3af' }}>Listed on Betachen</div>
           </div>
         </div>
       )}
