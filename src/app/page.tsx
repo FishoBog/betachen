@@ -563,7 +563,7 @@ export default function HomePage() {
               </div>
               <div>
                 <div style={{ fontSize: 17, fontWeight: 800, color: 'white', marginBottom: 4 }}>
-                  {lang === 'EN' ? 'Own a commercial space? List it on ጎጆ' : 'የንግድ ቦታ አለዎት? በጎጆ ላይ ይዘርዝሩ'}
+                  {lang === 'EN' ? 'Own a commercial space? List it on ቤታችን' : 'የንግድ ቦታ አለዎት? በቤታችን ላይ ይዘርዝሩ'}
                 </div>
                 <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
                   {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
@@ -638,7 +638,7 @@ export default function HomePage() {
               {lang === 'EN' ? 'Reach thousands of property buyers, sellers, owners and investors across Ethiopia every day.' : 'በየቀኑ ሺዎችን የቤት ገዢዎች፣ ሻጮች፣ ባለቤቶችና ባለሀብቶች ይድረሱ።'}
             </div>
             <Link href="/advertise" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-              {lang === 'EN' ? 'Advertise on ጎጆ' : 'በጎጆ ላይ ያስተዋውቁ'} <ArrowRight size={16} />
+              {lang === 'EN' ? 'Advertise on ቤታችን' : 'በቤታችን ላይ ያስተዋውቁ'} <ArrowRight size={16} />
             </Link>
           </div>
         </div>
