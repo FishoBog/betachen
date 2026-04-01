@@ -180,7 +180,8 @@ export default function HomePage() {
         backgroundPosition: 'center 40%',
       }}>
 
-       {/* Original blue overlay — unchanged */}
+
+        {/* Original blue overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
         {/* ── BETACHEN BRAND BADGE ── */}
@@ -238,24 +239,9 @@ export default function HomePage() {
           </div>
         </div>
         {/* ── END BRAND BADGE ── */}
-```
 
-Then on **line 221** you will see:
-```
-        {/* Original hero content — unchanged except heroTitle2 color darkened */}
-        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)',
-        {/* Original hero content — unchanged except heroTitle2 color darkened */}
-        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28 }}>
-            <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
-          </div>
-          <h1 style={{ fontSize: 'clamp(32px, 6vw, 58px)', fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px' }}>
-            {t.heroTitle1}<br />
-            {/* CHANGED: was #FF6B35, now #8b1a1a for better contrast */}
-            <span style={{ color: '#8b1a1a' }}>{t.heroTitle2}</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>{t.heroSub}</p>
+        {/* Search + Stats */}
+        <div style={{ position: 'relative', zIndex: 10, maxWidth: 760, margin: '0 auto' }}>
           <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
               <Search size={18} color="#9ca3af" />
