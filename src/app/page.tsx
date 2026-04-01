@@ -185,11 +185,11 @@ export default function HomePage() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
         {/* ── BETACHEN BRAND BADGE ── */}
-        <div style={{ position: 'relative', zIndex: 20, maxWidth: 860, margin: '0 auto 44px', background: 'rgba(90,10,10,0.85)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 20, padding: '20px 28px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+        <div style={{ position: 'relative', zIndex: 20, maxWidth: 1100, margin: '-60px auto 44px', background: 'rgba(8,18,45,0.88)', border: '2px solid rgba(139,26,26,0.8)', borderRadius: 20, padding: '24px 40px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.1, textAlign: 'right' }}>ቤታችን</span>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'right', lineHeight: 1.5 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'right', lineHeight: 1.5 }}>ቤት ይፈልጉ፣ ያከራዩ፣ ይሸጡ — በሁሉም የኢትዮጵያ ከተሞች</span>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 34, fontWeight: 700, color: '#fff', lineHeight: 1.1, textAlign: 'right' }}>ቤታችን</span>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 15, color: 'rgba(255,255,255,0.85)', textAlign: 'right', lineHeight: 1.5 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
+            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'right', lineHeight: 1.5 }}>ቤት ይፈልጉ፣ ያከራዩ፣ ይሸጡ — በሁሉም የኢትዮጵያ ከተሞች</span>
             <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
               <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
@@ -230,9 +230,9 @@ export default function HomePage() {
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           </svg>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 5 }}>
-            <span style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>Find, Rent & Sell — Across all Ethiopian cities</span>
+            <span style={{ fontSize: 34, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
+            <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>Find, Rent & Sell — Across all Ethiopian cities</span>
             <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
               <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
