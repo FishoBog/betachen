@@ -168,15 +168,128 @@ export default function HomePage() {
     <div style={{ minHeight: '100vh', background: '#ffffff', width: '100%', overflowX: 'hidden' }}>
       <Navbar />
 
-      {/* Hero */}
-      <div style={{ padding: '100px 24px 110px', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: 540, backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)', backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+      {/* ── HERO ── */}
+      <div style={{
+        padding: '100px 24px 110px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        minHeight: 540,
+        backgroundImage: 'url(https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/hero-addis.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+      }}>
+
+        {/* Original blue overlay — unchanged */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
+
+        {/* ── BETACHEN BRANDING OVERLAY (top-right corner) ── */}
+        <div style={{
+          position: 'absolute',
+          top: 20,
+          right: 24,
+          zIndex: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+          background: 'rgba(8, 18, 40, 0.50)',
+          border: '1px solid rgba(255,255,255,0.13)',
+          borderRadius: 14,
+          padding: '16px 14px 12px',
+          width: 138,
+        }}>
+          {/* Tukul Badge */}
+          <svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="bc">
+                <circle cx="48" cy="48" r="42" />
+              </clipPath>
+            </defs>
+            <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="#8b1a1a" strokeWidth="3" />
+            <g clipPath="url(#bc)">
+              <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
+              {/* Light rays */}
+              <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
+              <line x1="48" y1="17" x2="18" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="24" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="31" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="39" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="48" y2="61" stroke="#c8941e" strokeWidth="0.7" opacity="0.55" />
+              <line x1="48" y1="17" x2="57" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="65" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="72" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="78" y2="60" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              <line x1="48" y1="17" x2="82" y2="57" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+              {/* Roof */}
+              <polygon points="48,15 82,61 14,61" fill="#7a5810" />
+              {/* Walls */}
+              <rect x="22" y="61" width="52" height="24" fill="#c8941e" rx="1" />
+              {/* Door posts */}
+              <rect x="31" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
+              <rect x="59" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
+              {/* Trees */}
+              <ellipse cx="16" cy="69" rx="5" ry="7" fill="#1a5c2a" />
+              <rect x="14" y="74" width="4" height="11" fill="#5a3010" />
+              <ellipse cx="80" cy="69" rx="5" ry="7" fill="#1a5c2a" />
+              <rect x="78" y="74" width="4" height="11" fill="#5a3010" />
+              {/* Door */}
+              <rect x="40" y="67" width="16" height="18" fill="#2d1206" rx="2" />
+              <rect x="43" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
+              <rect x="48" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
+              {/* Beacon */}
+              <circle cx="48" cy="15" r="3" fill="#8b1a1a" />
+              <circle cx="48" cy="15" r="1.4" fill="#fff" opacity="0.9" />
+              {/* Ethiopian flag stripe */}
+              <rect x="6" y="80" width="28" height="7" fill="#078930" />
+              <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
+              <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
+            </g>
+            <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          </svg>
+
+          {/* ቤታችን Ethiopic */}
+          <span style={{
+            fontFamily: "'Noto Serif Ethiopic', serif",
+            fontSize: 22,
+            fontWeight: 700,
+            color: '#ffffff',
+            lineHeight: 1,
+            textAlign: 'center',
+          }}>
+            ቤታችን
+          </span>
+
+          {/* Latin */}
+          <span style={{
+            fontSize: 9,
+            fontWeight: 600,
+            letterSpacing: '3px',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.4)',
+            textAlign: 'center',
+          }}>
+            Betachen
+          </span>
+
+          {/* Ethiopian flag stripe */}
+          <div style={{ display: 'flex', width: 64, height: 3, borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ flex: 1, background: '#078930' }} />
+            <div style={{ flex: 1, background: '#FCDD09' }} />
+            <div style={{ flex: 1, background: '#DA121A' }} />
+          </div>
+        </div>
+        {/* ── END BRANDING OVERLAY ── */}
+
+        {/* Original hero content — unchanged except heroTitle2 color darkened */}
         <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(232,67,26,0.92)', borderRadius: 20, padding: '8px 22px', marginBottom: 28 }}>
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '1px' }}>🇪🇹 {t.badge}</span>
           </div>
           <h1 style={{ fontSize: 'clamp(32px, 6vw, 58px)', fontWeight: 900, color: 'white', lineHeight: 1.08, marginBottom: 18, letterSpacing: '-2px' }}>
-            {t.heroTitle1}<br /><span style={{ color: '#FF6B35' }}>{t.heroTitle2}</span>
+            {t.heroTitle1}<br />
+            {/* CHANGED: was #FF6B35, now #8b1a1a for better contrast */}
+            <span style={{ color: '#8b1a1a' }}>{t.heroTitle2}</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 18, marginBottom: 44, lineHeight: 1.7 }}>{t.heroSub}</p>
           <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
@@ -199,6 +312,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      {/* ── END HERO ── */}
 
       {/* Filter bar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '12px 24px', position: 'sticky', top: 64, zIndex: 40 }}>
