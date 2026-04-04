@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
@@ -347,7 +347,7 @@ export default function AdvertisePage() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '7px 18px', marginBottom: 24 }}>
             <Megaphone size={14} color="white" />
             <span style={{ color: 'white', fontSize: 13, fontWeight: 700, letterSpacing: '0.8px' }}>
-              {lang === 'EN' ? 'ADVERTISE ON ጎጆ' : 'በጎጆ ላይ ያስተዋውቁ'}
+              {lang === 'EN' ? 'ADVERTISE ON ቤታችን' : 'በቤታችን ላይ ያስተዋውቁ'}
             </span>
           </div>
           <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 18 }}>
@@ -381,17 +381,17 @@ export default function AdvertisePage() {
       <div style={{ background: '#f9fafb', padding: '64px 24px', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <h2 style={{ fontSize: 32, fontWeight: 900, color: '#111827', textAlign: 'center' as const, marginBottom: 12 }}>
-            {lang === 'EN' ? 'Why Advertise on ጎጆ?' : 'ለምን በጎጆ ላይ ያስተዋውቁ?'}
+            {lang === 'EN' ? 'Why Advertise on ቤታችን?' : 'ለምን በቤታችን ላይ ያስተዋውቁ?'}
           </h2>
           <p style={{ color: '#6b7280', fontSize: 16, textAlign: 'center' as const, marginBottom: 48 }}>
             {lang === 'EN' ? 'Highly targeted audience actively looking for property-related services' : 'ለቤት ነክ አገልግሎቶች ንቁ የሆነ ዒላማ ተደራሲ'}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
             {[
-              { icon: Eye, color: '#dbeafe', iconColor: '#1d4ed8', en: 'High Intent Audience', am: 'ዒላማ ተደራሲ', descEn: 'People on ጎጆ are actively buying, renting or investing in property — they need your services now.', descAm: 'በጎጆ ላይ ያሉ ሰዎች ቤት እየገዙ፣ እየተከራዩ ወይም ኢንቨስት እያደረጉ ናቸው።' },
+              { icon: Eye, color: '#dbeafe', iconColor: '#1d4ed8', en: 'High Intent Audience', am: 'ዒላማ ተደራሲ', descEn: 'People on ቤታችን are actively buying, renting or investing in property — they need your services now.', descAm: 'በቤታችን ላይ ያሉ ሰዎች ቤት እየገዙ፣ እየተከራዩ ወይም ኢንቨስት እያደረጉ ናቸው።' },
               { icon: MousePointer, color: '#d1fae5', iconColor: '#065f46', en: 'High Click Rates', am: 'ከፍተኛ ጠቅ ምጣኔ', descEn: 'Property seekers are 3x more likely to engage with relevant service ads compared to general platforms.', descAm: 'ቤት ፈላጊዎች ከሌሎች መድረኮች 3 እጥፍ ለሚመለከታቸው ማስታወቂያዎች ምላሽ ይሰጣሉ።' },
-              { icon: TrendingUp, color: '#fef3c7', iconColor: '#92400e', en: 'Growing Platform', am: 'እያደገ ያለ መድረክ', descEn: 'ጎጆ is Ethiopia\'s fastest growing real estate platform with thousands of new users every month.', descAm: 'ጎጆ በኢትዮጵያ በፍጥነት እያደገ ያለ የሪል እስቴት መድረክ ነው።' },
-              { icon: Shield, color: '#ede9fe', iconColor: '#5b21b6', en: 'Brand Trust', am: 'የብራንድ እምነት', descEn: 'Being featured on ጎጆ signals credibility and professionalism to property buyers and owners.', descAm: 'በጎጆ ላይ መካተት ለቤት ገዢዎችና ባለቤቶች ታማኝነትዎን ያሳያል።' },
+              { icon: TrendingUp, color: '#fef3c7', iconColor: '#92400e', en: 'Growing Platform', am: 'እያደገ ያለ መድረክ', descEn: 'ቤታችን is Ethiopia\'s fastest growing real estate platform with thousands of new users every month.', descAm: 'ቤታችን በኢትዮጵያ በፍጥነት እያደገ ያለ የሪል እስቴት መድረክ ነው።' },
+              { icon: Shield, color: '#ede9fe', iconColor: '#5b21b6', en: 'Brand Trust', am: 'የብራንድ እምነት', descEn: 'Being featured on ቤታችን signals credibility and professionalism to property buyers and owners.', descAm: 'በቤታችን ላይ መካተት ለቤት ገዢዎችና ባለቤቶች ታማኝነትዎን ያሳያል።' },
             ].map(({ icon: Icon, color, iconColor, en, am, descEn, descAm }) => (
               <div key={en} style={{ background: 'white', borderRadius: 16, padding: '28px 24px', border: '1px solid #e5e7eb' }}>
                 <div style={{ width: 52, height: 52, borderRadius: 14, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
@@ -522,7 +522,7 @@ export default function AdvertisePage() {
           {lang === 'EN' ? 'Ready to Grow Your Business?' : 'ንግድዎን ለማሳደግ ዝግጁ ነዎት?'}
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 17, marginBottom: 32 }}>
-          {lang === 'EN' ? 'Join businesses already advertising on ጎጆ and reach your target customers.' : 'አስቀድሞ በጎጆ ላይ ከሚያስተዋውቁ ንግዶች ጋር ይቀላቀሉ።'}
+          {lang === 'EN' ? 'Join businesses already advertising on ቤታችን and reach your target customers.' : 'አስቀድሞ በቤታችን ላይ ከሚያስተዋውቁ ንግዶች ጋር ይቀላቀሉ።'}
         </p>
         <button onClick={() => setStep('form')}
           style={{ padding: '15px 40px', background: '#E8431A', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>

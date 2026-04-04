@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -314,7 +314,7 @@ export default function NewListingPage() {
             {lang === 'EN' ? 'Everything you need to list successfully' : 'በስኬት ለመዘርዘር የሚያስፈልግዎ ሁሉ'}
           </h2>
           <p style={{ color: '#6b7280', fontSize: 15 }}>
-            {lang === 'EN' ? 'Join hundreds of owners already listing on ጎጆ' : 'አስቀድሞ በጎጆ ላይ ከሚዘረዝሩ በርካታ ባለቤቶች ጋር ይቀላቀሉ'}
+            {lang === 'EN' ? 'Join hundreds of owners already listing on ቤታችን' : 'አስቀድሞ በቤታችን ላይ ከሚዘረዝሩ በርካታ ባለቤቶች ጋር ይቀላቀሉ'}
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 20 }}>

@@ -51,7 +51,7 @@ export default function PaymentSuccessPage() {
                 One Last Step — Verify Your Identity
               </div>
               <div style={{ fontSize: 14, color: '#78350f', lineHeight: 1.7 }}>
-                To protect buyers and maintain trust on ጎጆ Homes, all property owners must verify their identity before their listing goes live. This is a one-time process.
+                To protect buyers and maintain trust on ቤታችን Homes, all property owners must verify their identity before their listing goes live. This is a one-time process.
               </div>
             </div>
             <div style={{ display: 'grid', gap: 10, marginBottom: 24, textAlign: 'left' as const, background: 'white', borderRadius: 12, border: '1px solid #e5e7eb', padding: '16px 20px' }}>

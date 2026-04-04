@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef } from 'react';
@@ -323,7 +323,7 @@ export default function CommercialPage() {
               {lang === 'EN' ? 'No commercial listings yet' : 'እስካሁን የንግድ ቤቶች የሉም'}
             </div>
             <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>
-              {lang === 'EN' ? 'Be the first to list a commercial property on ጎጆ' : 'በጎጆ ላይ የንግድ ቤት የሚዘረዝር የመጀመሪያው ሁን'}
+              {lang === 'EN' ? 'Be the first to list a commercial property on ቤታችን' : 'በቤታችን ላይ የንግድ ቤት የሚዘረዝር የመጀመሪያው ሁን'}
             </div>
             <Link href="/owner/commercial/new" style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               {lang === 'EN' ? 'List Commercial Property' : 'የንግድ ቤት ዘርዝር'} <ArrowRight size={18} />
@@ -429,8 +429,8 @@ export default function CommercialPage() {
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
           {lang === 'EN'
-            ? 'List your office, retail space, warehouse or any commercial property on ጎጆ and reach thousands of verified businesses.'
-            : 'ቢሮዎን፣ መደብርዎን፣ መጋዘንዎን ወይም ሌላ የንግድ ቤትዎን በጎጆ ላይ ዘርዝሩ።'}
+            ? 'List your office, retail space, warehouse or any commercial property on ቤታችን and reach thousands of verified businesses.'
+            : 'ቢሮዎን፣ መደብርዎን፣ መጋዘንዎን ወይም ሌላ የንግድ ቤትዎን በቤታችን ላይ ዘርዝሩ።'}
         </p>
         <Link href="/owner/commercial/new"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#006AFF', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>

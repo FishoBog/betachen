@@ -65,7 +65,7 @@ export default function ListingPaymentPage() {
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>💳</div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Complete Your Listing</h1>
-          <p style={{ fontSize: 15, color: '#6b7280' }}>One payment to publish your property on ጎጆ Homes</p>
+          <p style={{ fontSize: 15, color: '#6b7280' }}>One payment to publish your property on ቤታችን Homes</p>
         </div>
 
         {/* Property summary */}
@@ -85,7 +85,7 @@ export default function ListingPaymentPage() {
             {[
               '✓ 3 months active listing',
               '✓ Reviewed by admin within 24 hours',
-              '✓ Visible to all buyers on ጎጆ Homes',
+              '✓ Visible to all buyers on ቤታችን Homes',
               '✓ Renewable after expiry for ETB 300',
             ].map(item => (
               <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -112,8 +112,8 @@ export default function ListingPaymentPage() {
             {[
               { n: '1', t: 'Pay listing fee via Chapa' },
               { n: '2', t: verificationStatus === 'verified' ? 'Admin reviews your listing within 24hrs' : 'Verify your identity (one-time)' },
-              { n: '3', t: verificationStatus === 'verified' ? 'Listing goes LIVE on ጎጆ Homes ✅' : 'Admin reviews your listing within 24hrs' },
-              { n: '4', t: verificationStatus === 'verified' ? '' : 'Listing goes LIVE on ጎጆ Homes ✅' },
+              { n: '3', t: verificationStatus === 'verified' ? 'Listing goes LIVE on ቤታችን Homes ✅' : 'Admin reviews your listing within 24hrs' },
+              { n: '4', t: verificationStatus === 'verified' ? '' : 'Listing goes LIVE on ቤታችን Homes ✅' },
             ].filter(s => s.t).map(({ n, t }) => (
               <div key={n} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
