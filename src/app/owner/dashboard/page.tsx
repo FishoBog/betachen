@@ -5,8 +5,7 @@ import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
-import { PlusCircle, Eye, MessageSquare, RefreshCw, Trash2, CheckCircle, Clock, XCircle, AlertTriangle, Shield, TrendingUp, DollarSign, Home, ChevronRight } from 'lucide-react';
-import type { Property } from '@/types';
+import { PlusCircle, Eye, MessageSquare, RefreshCw, Trash2, CheckCircle, Clock, XCircle, AlertTriangle, Shield } from 'lucide-react';
 
 const BETACHEN_IMAGE = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/Betachen-bete.jpg';
 
@@ -40,6 +39,7 @@ export default function OwnerDashboard() {
   const [properties, setProperties] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>('user');
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [msgCounts, setMsgCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -58,15 +58,15 @@ export default function OwnerDashboard() {
       setProperties(props ?? []);
       setPayments(pays ?? []);
       setProfile(prof);
+      // ── Set role from profile ──
+      setUserRole(prof?.role ?? 'user');
 
       if (props && props.length > 0) {
         const ids = props.map((p: any) => p.id);
-
         const [{ data: views }, { data: chats }] = await Promise.all([
           supabase.from('property_views').select('property_id').in('property_id', ids),
           supabase.from('chats').select('property_id').in('property_id', ids),
         ]);
-
         const vc: Record<string, number> = {};
         const mc: Record<string, number> = {};
         ids.forEach((id: string) => {
@@ -80,7 +80,12 @@ export default function OwnerDashboard() {
     });
   }, [user]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, ownerId: string) => {
+    // ── Only owner or admin can delete ──
+    if (user?.id !== ownerId && userRole !== 'admin') {
+      alert('You do not have permission to delete this listing.');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
     setDeleting(id);
     const supabase = createBrowserClient();
@@ -126,7 +131,7 @@ export default function OwnerDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 4 }}>
-              My Dashboard
+              My Dashboard {userRole === 'admin' && <span style={{ fontSize: 13, background: '#fef3c7', color: '#92400e', padding: '2px 10px', borderRadius: 20, fontWeight: 700, marginLeft: 8 }}>ADMIN</span>}
             </h1>
             <p style={{ fontSize: 14, color: '#6b7280' }}>Welcome back, {user?.firstName ?? 'Owner'} 👋</p>
           </div>
@@ -178,7 +183,7 @@ export default function OwnerDashboard() {
         {/* Stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16, marginBottom: 28 }}>
           {[
-            { label: 'Total Listings', value: stats.total, icon: Home, color: '#006AFF', bg: '#eff6ff' },
+            { label: 'Total Listings', value: stats.total, icon: Eye, color: '#006AFF', bg: '#eff6ff' },
             { label: 'Active', value: stats.active, icon: CheckCircle, color: '#059669', bg: '#ecfdf5' },
             { label: 'Pending Review', value: stats.pending, icon: Clock, color: '#d97706', bg: '#fffbeb' },
             { label: 'Expired', value: stats.expired, icon: XCircle, color: '#dc2626', bg: '#fef2f2' },
@@ -232,9 +237,6 @@ export default function OwnerDashboard() {
 
           {filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 24px' }}>
-              <div style={{ width: 100, height: 85, borderRadius: 12, overflow: 'hidden', margin: '0 auto 16px', opacity: 0.5 }}>
-                <img src={BETACHEN_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top' }} />
-              </div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 8 }}>No listings yet</div>
               <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 24 }}>Post your first property and start getting inquiries</div>
               <Link href="/owner/listings/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
@@ -248,10 +250,10 @@ export default function OwnerDashboard() {
                 const StatusIcon = sc.icon;
                 const days = daysLeft(p.expires_at);
                 const mainImage = p.property_images?.[0]?.image_url ?? p.images?.[0];
+                // ── Only show delete if owner or admin ──
+                const canDelete = user?.id === p.owner_id || userRole === 'admin';
                 return (
                   <div key={p.id} style={{ display: 'flex', gap: 16, padding: '20px 24px', borderBottom: i < filtered.length - 1 ? '1px solid #f3f4f6' : 'none', alignItems: 'flex-start', flexWrap: 'wrap' as const }}>
-
-                    {/* Image */}
                     <div style={{ width: 100, height: 80, borderRadius: 10, overflow: 'hidden', background: '#f3f4f6', flexShrink: 0 }}>
                       {mainImage ? (
                         <img src={mainImage} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -259,8 +261,6 @@ export default function OwnerDashboard() {
                         <img src={BETACHEN_IMAGE} alt="ቤታችን" style={{ width: '100%', height: '130%', objectFit: 'cover', objectPosition: 'top', opacity: 0.5 }} />
                       )}
                     </div>
-
-                    {/* Info */}
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' as const }}>
                         <span style={{ background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -270,50 +270,37 @@ export default function OwnerDashboard() {
                           {TYPE_LABELS[p.type] ?? p.type}
                         </span>
                         {days !== null && days <= 7 && days > 0 && (
-                          <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
-                            ⚠️ {days}d left
-                          </span>
-                        )}
-                        {days !== null && days <= 0 && p.status === 'active' && (
-                          <span style={{ background: '#fee2e2', color: '#991b1b', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
-                            Expired
-                          </span>
+                          <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>⚠️ {days}d left</span>
                         )}
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{p.title}</div>
                       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>
-                        📍 {p.location || p.subcity || 'Ethiopia'} •{' '}
-                        {p.price_negotiable ? 'Price negotiable' : formatPrice(p.price, p.currency)}
+                        📍 {p.location || p.subcity || 'Ethiopia'} • {p.price_negotiable ? 'Price negotiable' : formatPrice(p.price, p.currency)}
                         {p.type === 'long_rent' ? '/mo' : p.type === 'short_rent' ? '/night' : ''}
                       </div>
                       <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#9ca3af' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Eye size={13} /> {viewCounts[p.id] ?? 0} views
-                        </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <MessageSquare size={13} /> {msgCounts[p.id] ?? 0} inquiries
-                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={13} /> {viewCounts[p.id] ?? 0} views</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MessageSquare size={13} /> {msgCounts[p.id] ?? 0} inquiries</span>
                         {p.expires_at && days !== null && days > 0 && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Clock size={13} /> Expires {new Date(p.expires_at).toLocaleDateString('en-ET', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={13} /> Expires {new Date(p.expires_at).toLocaleDateString('en-ET', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         )}
                       </div>
                     </div>
-
-                    {/* Actions */}
                     <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' as const }}>
                       <Link href={`/properties/${p.id}`} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 8, background: '#f3f4f6', color: '#374151', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
                         <Eye size={13} /> View
                       </Link>
-                      {(p.status === 'active' || p.status === 'expired') && (
+                      {canDelete && (p.status === 'active' || p.status === 'expired') && (
                         <Link href={`/owner/listings/${p.id}/renew`} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
                           <RefreshCw size={13} /> Renew
                         </Link>
                       )}
-                      <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 8, background: deleting === p.id ? '#f3f4f6' : '#fef2f2', color: '#dc2626', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                        <Trash2 size={13} /> {deleting === p.id ? '...' : 'Delete'}
-                      </button>
+                      {/* ── Delete only shown to owner or admin ── */}
+                      {canDelete && (
+                        <button onClick={() => handleDelete(p.id, p.owner_id)} disabled={deleting === p.id} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 8, background: deleting === p.id ? '#f3f4f6' : '#fef2f2', color: '#dc2626', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+                          <Trash2 size={13} /> {deleting === p.id ? '...' : 'Delete'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -322,7 +309,7 @@ export default function OwnerDashboard() {
           )}
         </div>
 
-        {/* Tips section */}
+        {/* Tips */}
         <div style={{ marginTop: 24, background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px' }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 16 }}>💡 Tips to get more inquiries</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
