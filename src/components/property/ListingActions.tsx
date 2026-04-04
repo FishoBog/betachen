@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { Trash2, RefreshCw } from 'lucide-react';
@@ -14,8 +14,7 @@ export function ListingActions({ propertyId, status, ownerId }: Props) {
   const [role, setRole] = useState<string | null>(null);
   const supabase = createBrowserClient();
 
-  // Check role on mount
-  useState(() => {
+  useEffect(() => {
     if (!user) return;
     supabase
       .from('profiles')
@@ -23,7 +22,7 @@ export function ListingActions({ propertyId, status, ownerId }: Props) {
       .eq('clerk_id', user.id)
       .single()
       .then(({ data }) => setRole(data?.role ?? 'user'));
-  });
+  }, [user]);
 
   const deleteListing = async () => {
     if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
@@ -32,10 +31,8 @@ export function ListingActions({ propertyId, status, ownerId }: Props) {
     router.push('/owner/dashboard');
   };
 
-  // Only show if logged in
   if (!user) return null;
 
-  // Only show owner actions if this user owns it OR is admin
   const isOwner = user.id === ownerId;
   const isAdmin = role === 'admin';
   if (!isOwner && !isAdmin) return null;
@@ -46,16 +43,12 @@ export function ListingActions({ propertyId, status, ownerId }: Props) {
         Owner Actions
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        {(isOwner || isAdmin) && (
-          <a href={`/owner/listings/${propertyId}/renew`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-            <RefreshCw size={14} /> Renew
-          </a>
-        )}
-        {(isOwner || isAdmin) && (
-          <button onClick={deleteListing} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer' }}>
-            <Trash2 size={14} /> {loading ? '...' : 'Delete'}
-          </button>
-        )}
+        <a href={`/owner/listings/${propertyId}/renew`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+          <RefreshCw size={14} /> Renew
+        </a>
+        <button onClick={deleteListing} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 9, background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', cursor: 'pointer' }}>
+          <Trash2 size={14} /> {loading ? '...' : 'Delete'}
+        </button>
       </div>
     </div>
   );
