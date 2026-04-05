@@ -157,7 +157,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
         </div>
 
         {/* Main layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 20, alignItems: 'start' }} className="property-grid">
+       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: 20, alignItems: 'start', width: '100%' }} className="property-grid">
 
           {/* Left column */}
           <div style={{ display: 'grid', gap: 20 }}>
