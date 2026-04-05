@@ -185,56 +185,63 @@ export default function HomePage() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
         {/* ── BETACHEN BRAND BADGE ── */}
-        <div style={{ position: 'relative', zIndex: 20, maxWidth: 1100, margin: '-60px auto 44px', background: 'rgba(8,18,45,0.88)', border: '2px solid rgba(139,26,26,0.8)', borderRadius: 20, padding: '24px 40px', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 20 }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 34, fontWeight: 700, color: '#fff', lineHeight: 1.1, textAlign: 'right' }}>ቤታችን</span>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 15, color: 'rgba(255,255,255,0.85)', textAlign: 'right', lineHeight: 1.5 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
-            <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'right', lineHeight: 1.5 }}>ቤት ይፈልጉ፣ ያከራዩ፣ ይሸጡ — በሁሉም የኢትዮጵያ ከተሞች</span>
-            <div style={{ display: 'flex', width: 72, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
-              <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
+        <div style={{ position: 'relative', zIndex: 20, maxWidth: 860, margin: '-60px auto 44px', background: 'rgba(8,18,45,0.88)', border: '2px solid rgba(139,26,26,0.8)', borderRadius: 20, padding: '20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          {/* Top row: Amharic | Badge | English */}
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 16, width: '100%', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+            {/* Amharic */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1, minWidth: 100 }}>
+              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 22, fontWeight: 700, color: '#fff', lineHeight: 1.2, textAlign: 'center' }}>ቤታችን</span>
+              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', lineHeight: 1.4 }}>የኢትዮጵያ ቁጥር 1</span>
+              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', lineHeight: 1.4 }}>የሪል እስቴት መድረክ</span>
+              <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 11, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 1.4 }}>ቤት ይፈልጉ፣ ያከራዩ፣ ይሸጡ</span>
+              <div style={{ display: 'flex', width: 60, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 4 }}>
+                <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
+              </div>
             </div>
-          </div>
-          <svg width="90" height="90" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-            <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
-            <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-            <g clipPath="url(#bc)">
-              <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
-              <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
-              <line x1="48" y1="17" x2="18" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="24" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="31" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="39" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="48" y2="61" stroke="#c8941e" strokeWidth="0.7" opacity="0.55" />
-              <line x1="48" y1="17" x2="57" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="65" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="72" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="78" y2="60" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="82" y2="57" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <polygon points="48,15 82,61 14,61" fill="#7a5810" />
-              <rect x="22" y="61" width="52" height="24" fill="#c8941e" rx="1" />
-              <rect x="31" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
-              <rect x="59" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
-              <ellipse cx="16" cy="69" rx="5" ry="7" fill="#1a5c2a" />
-              <rect x="14" y="74" width="4" height="11" fill="#5a3010" />
-              <ellipse cx="80" cy="69" rx="5" ry="7" fill="#1a5c2a" />
-              <rect x="78" y="74" width="4" height="11" fill="#5a3010" />
-              <rect x="40" y="67" width="16" height="18" fill="#2d1206" rx="2" />
-              <rect x="43" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
-              <rect x="48" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
-              <circle cx="48" cy="15" r="3" fill="#8b1a1a" />
-              <circle cx="48" cy="15" r="1.4" fill="#fff" opacity="0.9" />
-              <rect x="6" y="80" width="28" height="7" fill="#078930" />
-              <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
-              <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
-            </g>
-            <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          </svg>
-          <div style={{ flex: 1, minWidth: 120, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-            <span style={{ fontSize: 'clamp(18px, 3vw, 34px)', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>Betachen</span>
-            <span style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontSize: 'clamp(9px, 1.2vw, 13px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>Find, Rent & Sell</span>
-            <div style={{ display: 'flex', width: 60, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
-              <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
+            {/* Badge */}
+            <svg width="90" height="90" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+              <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
+              <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+              <g clipPath="url(#bc)">
+                <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
+                <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
+                <line x1="48" y1="17" x2="18" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="24" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="31" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="39" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="48" y2="61" stroke="#c8941e" strokeWidth="0.7" opacity="0.55" />
+                <line x1="48" y1="17" x2="57" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="65" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="72" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="78" y2="60" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <line x1="48" y1="17" x2="82" y2="57" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
+                <polygon points="48,15 82,61 14,61" fill="#7a5810" />
+                <rect x="22" y="61" width="52" height="24" fill="#c8941e" rx="1" />
+                <rect x="31" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
+                <rect x="59" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
+                <ellipse cx="16" cy="69" rx="5" ry="7" fill="#1a5c2a" />
+                <rect x="14" y="74" width="4" height="11" fill="#5a3010" />
+                <ellipse cx="80" cy="69" rx="5" ry="7" fill="#1a5c2a" />
+                <rect x="78" y="74" width="4" height="11" fill="#5a3010" />
+                <rect x="40" y="67" width="16" height="18" fill="#2d1206" rx="2" />
+                <rect x="43" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
+                <rect x="48" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
+                <circle cx="48" cy="15" r="3" fill="#8b1a1a" />
+                <circle cx="48" cy="15" r="1.4" fill="#fff" opacity="0.9" />
+                <rect x="6" y="80" width="28" height="7" fill="#078930" />
+                <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
+                <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
+              </g>
+              <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+            </svg>
+            {/* English */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1, minWidth: 100 }}>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.2, textAlign: 'center' }}>Betachen</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', textAlign: 'center', lineHeight: 1.4 }}>Ethiopia's #1 Real Estate Platform</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 1.4 }}>Find, Rent & Sell</span>
+              <div style={{ display: 'flex', width: 60, height: 2.5, borderRadius: 2, overflow: 'hidden', marginTop: 4 }}>
+                <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
+              </div>
             </div>
           </div>
         </div>
