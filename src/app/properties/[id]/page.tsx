@@ -194,8 +194,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           {/* Right column */}
           <div className="property-sidebar" style={{ display: 'grid', gap: 16 }}>
             <ContactOwnerCard property={propertyWithImages as unknown as Property} />
-            <ListingActions propertyId={id} status={property.status} />
-
+           <ListingActions propertyId={id} status={property.status} ownerId={property.owner_id} />
             {/* Location privacy note */}
             <div style={{ background: '#f0f6ff', borderRadius: 14, padding: '14px 16px', border: '1px solid #dbeafe' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1d4ed8', marginBottom: 4 }}>📍 Location Privacy</div>
