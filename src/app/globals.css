@@ -29,3 +29,11 @@ body {
     top: 80px;
   }
 }
+@media (max-width: 768px) {
+  .property-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .property-sidebar {
+    order: -1;
+  }
+}
