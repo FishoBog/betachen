@@ -81,28 +81,34 @@ function AuthedMessageButton({ property }: { property: Property }) {
   const isNegotiable = (property as any).price_negotiable;
 
   const handleClick = async () => {
-    if (!isLoaded) return;
-    if (!isSignedIn) {
-      setShowForm(true);
-      return;
+  if (!isLoaded) return;
+  if (!isSignedIn) {
+    setShowForm(true);
+    return;
+  }
+  setLoading(true);
+  try {
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        property_id: property.id,
+        sender_clerk_id: user!.id,
+        receiver_clerk_id: property.owner_id,
+        content: `Hi, I am interested in your property "${property.title}" listed on Betachen.`,
+        is_read: false,
+      });
+    if (!error) {
+      router.push('/messages');
+    } else {
+      console.error('Message error:', error);
+      setLoading(false);
     }
-    setLoading(true);
-    try {
-      const supabase = createBrowserClient();
-      const { data: existing } = await supabase
-        .from('chats').select('id')
-        .eq('property_id', property.id)
-        .eq('buyer_id', user!.id)
-        .single();
-      if (existing) { router.push(`/messages/${existing.id}`); return; }
-      const { data } = await supabase
-        .from('chats')
-        .insert({ property_id: property.id, buyer_id: user!.id, owner_id: property.owner_id })
-        .select('id').single();
-      if (data) router.push(`/messages/${data.id}`);
-    } catch (e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
     setLoading(false);
-  };
+  }
+};
 
   if (sent) return (
     <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '14px', textAlign: 'center' as const }}>
