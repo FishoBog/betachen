@@ -237,8 +237,8 @@ export default function HomePage() {
           {/* RIGHT — English */}
           <div style={{ flex: 1, minWidth: 140, maxWidth: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, textAlign: 'center' }}>
             <span style={{ fontFamily: 'inherit', fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Betachen</span>
-            <span style={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
-            <span style={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 400, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Find, Rent & Sell</span>
+            <span style={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
+            <span style={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Find, Rent & Sell</span>
             <div style={{ display: 'flex', width: 56, height: 2.5, borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ flex: 1, background: '#078930' }} /><div style={{ flex: 1, background: '#FCDD09' }} /><div style={{ flex: 1, background: '#DA121A' }} />
             </div>
