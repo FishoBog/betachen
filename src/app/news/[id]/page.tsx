@@ -169,9 +169,14 @@ export default function NewsArticlePage() {
                   {aiLoading && <div style={{ marginTop: 12, fontSize: 13, color: '#6b7280' }}>🤖 Claude is analyzing this article...</div>}
                 </div>
               ) : (
-                <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' as const, background: '#f9fafb', borderRadius: 12, padding: '20px' }}>
-                  {aiSummary}
-                </div>
+                <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.8, background: '#f9fafb', borderRadius: 12, padding: '20px' }}>
+  {aiSummary.split('\n').map((line, i) => {
+    if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 8, marginTop: 16 }}>{line.replace('## ', '')}</h3>;
+    if (line.startsWith('# ')) return <h2 key={i} style={{ fontSize: 17, fontWeight: 900, color: '#111827', marginBottom: 10, marginTop: 4 }}>{line.replace('# ', '')}</h2>;
+    if (line.trim() === '') return <div key={i} style={{ height: 8 }} />;
+    return <p key={i} style={{ margin: '0 0 8px', color: '#374151' }}>{line}</p>;
+  })}
+</div>
               )}
             </div>
           </div>
