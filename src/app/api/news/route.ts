@@ -33,7 +33,7 @@ async function fetchRSS(url: string): Promise<any[]> {
     if (!res.ok) return [];
     const xml = await res.text();
     const items: any[] = [];
-    const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
+    const itemMatches = Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/g));
 
     for (const match of itemMatches) {
       const item = match[1];
