@@ -49,7 +49,7 @@ async function fetchRSS(url: string): Promise<any[]> {
         ?? item.match(/<media:thumbnail[^>]+url="([^"]+)"/)?.[1]
         ?? null;
       const sourceName = new URL(url).hostname.replace('www.', '');
-      const cleanDesc = description.replace(/<[^>]*>/g, '').trim().slice(0, 300);
+      const cleanDesc = description.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#160;/g, ' ').replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#8220;/g, '"').replace(/&#8221;/g, '"').trim().slice(0, 300);
       const cleanTitle = title.replace(/<[^>]*>/g, '').trim();
 
       if (cleanTitle) {
