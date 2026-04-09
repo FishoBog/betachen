@@ -442,7 +442,7 @@ export default function MarketPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 40 }}>
                 {news.map((article, i) => (
-                  <a key={i} href={`/news/${encodeURIComponent(btoa(JSON.stringify(article)))}`}
+                  <a key={i} href={`/news/${encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(article)))))}`}
                     style={{ textDecoration: 'none', background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', cursor: article.url === '#' ? 'default' : 'pointer' }}
                     onMouseEnter={e => { if (article.url !== '#') { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
