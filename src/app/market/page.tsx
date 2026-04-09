@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
+import { useLang } from '@/context/LangContext';
 import Link from 'next/link';
-import { TrendingUp, BarChart2, Home, ArrowRight, MapPin, RefreshCw, Newspaper, Brain, ExternalLink, Clock, AlertCircle } from 'lucide-react';
+import { BarChart2, ArrowRight, MapPin, RefreshCw, Newspaper, Brain, ExternalLink, Clock } from 'lucide-react';
 
 type SubcityStats = {
   subcity: string;
@@ -72,24 +73,24 @@ function BarChart({ data, maxValue, color }: { data: { label: string; value: num
 }
 
 export default function MarketPage() {
+  const { lang } = useLang();
   const [stats, setStats] = useState<SubcityStats[]>([]);
   const [summary, setSummary] = useState<SummaryStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'sale' | 'long_rent' | 'short_rent'>('sale');
   const [lastUpdated, setLastUpdated] = useState<string>('');
-
-  // News state
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(false);
   const [activeNewsTab, setActiveNewsTab] = useState<'housing' | 'economy' | 'ethiopia'>('housing');
-
-  // AI report state
   const [aiReport, setAiReport] = useState<string>('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
 
   useEffect(() => { loadData(); loadNews('housing'); }, []);
+
+  // Reload news when language changes
+  useEffect(() => { loadNews(activeNewsTab); }, [lang]);
 
   const loadData = async () => {
     setLoading(true);
@@ -139,70 +140,23 @@ export default function MarketPage() {
     setNewsLoading(true);
     setNewsError(false);
     setActiveNewsTab(tab);
-
-    const queries: Record<string, string> = {
-      housing: 'Ethiopia real estate housing property construction',
-      economy: 'Ethiopia economy inflation GDP investment finance',
-      ethiopia: 'Ethiopia Addis Ababa development urban infrastructure',
-    };
-
-    const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-    if (!apiKey) {
-      // Use mock news if no API key
-      setNews(getMockNews(tab));
-      setNewsLoading(false);
-      return;
-    }
-
     try {
-      const res = await fetch(
-        `https://newsapi.org/v2/everything?q=${encodeURIComponent(queries[tab])}&language=en&sortBy=publishedAt&pageSize=9&apiKey=${apiKey}`
-      );
+      const res = await fetch(`/api/news?tab=${tab}&lang=${lang}`);
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
-        setNews(data.articles.filter((a: NewsArticle) => a.title && a.description));
+        setNews(data.articles);
       } else {
-        setNews(getMockNews(tab));
+        setNewsError(true);
       }
     } catch {
       setNewsError(true);
-      setNews(getMockNews(tab));
     }
     setNewsLoading(false);
-  };
-
-  const getMockNews = (tab: string): NewsArticle[] => {
-    const housing = [
-      { title: 'Addis Ababa Real Estate Prices Rise 15% in Q1 2025', description: 'Property prices in Bole and Kazanchis subcities have seen significant appreciation driven by demand from diaspora investors and local buyers.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'Capital Ethiopia' }, author: 'Market Desk' },
-      { title: 'New Condominium Projects Announced in Addis Ababa', description: 'The Ethiopian government has announced new affordable housing condominium projects targeting middle-income families across major cities.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Ethiopian Reporter' }, author: 'Staff Reporter' },
-      { title: 'Rental Market Sees Surge in Demand Across Ethiopian Cities', description: 'Long-term rental demand has increased by 22% year-over-year as more Ethiopians move to urban centers for employment opportunities.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'Addis Standard' }, author: 'Business Editor' },
-      { title: 'Foreign Investment Drives Premium Property Development', description: 'International investors are increasingly targeting Ethiopia\'s real estate sector, particularly in Bole, Kazanchis, and CMC areas of Addis Ababa.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'The Reporter' }, author: 'Finance Desk' },
-      { title: 'Housing Finance Gap Remains Challenge for Middle-Income Buyers', description: 'Despite growing demand, access to mortgage financing remains limited for most Ethiopians, with banks offering limited home loan products.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'EBC Business' }, author: 'Economic Analyst' },
-      { title: 'Hawassa and Adama Emerge as Real Estate Hotspots', description: 'Secondary cities are seeing increased real estate activity as industrial parks attract workers and investment outside of Addis Ababa.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 518400000).toISOString(), source: { name: 'Fortune Ethiopia' }, author: 'Property Desk' },
-    ];
-    const economy = [
-      { title: 'Ethiopia GDP Growth Projected at 7.2% for 2025', description: 'The IMF projects Ethiopia will maintain strong GDP growth driven by services, construction, and manufacturing sectors.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'Reuters Africa' }, author: 'Economic Desk' },
-      { title: 'Inflation Rate Eases to 18% as Monetary Policy Tightens', description: 'Ethiopia\'s National Bank has implemented tighter monetary policy measures to combat inflation, which has implications for real estate financing.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Bloomberg Africa' }, author: 'Finance Reporter' },
-      { title: 'Ethiopia Birr Stabilizes Against Major Currencies', description: 'The Ethiopian Birr has shown relative stability following exchange rate reforms, creating more predictable conditions for foreign property investors.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'Capital Ethiopia' }, author: 'Markets Editor' },
-      { title: 'Construction Sector Employs Over 2 Million Ethiopians', description: 'The booming construction sector has become one of Ethiopia\'s largest employers, with real estate development driving significant job creation.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'Ethiopian Monitor' }, author: 'Labour Desk' },
-      { title: 'Commercial Real Estate Demand Rises with Business Expansion', description: 'Growing number of local and international businesses are seeking commercial spaces in Addis Ababa, driving demand for office and retail properties.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'The Reporter' }, author: 'Business Desk' },
-      { title: 'Diaspora Remittances Hit Record $6 Billion, Fueling Property Investment', description: 'Record remittance flows from the Ethiopian diaspora are increasingly being channeled into real estate investments back home.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 518400000).toISOString(), source: { name: 'Addis Standard' }, author: 'Finance Editor' },
-    ];
-    const ethiopia = [
-      { title: 'Addis Ababa Master Plan Targets 5 Million New Housing Units', description: 'The Addis Ababa City Administration has unveiled an ambitious master plan to address the city\'s housing shortage over the next decade.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'EBC News' }, author: 'Urban Affairs' },
-      { title: 'New Rail Extension to Open Up Suburban Real Estate Markets', description: 'The planned extension of Addis Ababa\'s light rail system is expected to boost property values in previously under-served suburban areas.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Ethiopian Reporter' }, author: 'Infrastructure Desk' },
-      { title: 'Urban Population Growth Drives Housing Demand', description: 'Ethiopia\'s rapidly growing urban population, expected to double by 2040, is creating sustained long-term demand for both residential and commercial properties.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'World Bank Report' }, author: 'Research Team' },
-      { title: 'Smart City Initiative Planned for Hawassa Industrial Corridor', description: 'A new smart city development project near Hawassa Industrial Park aims to provide modern housing and amenities for workers and investors.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'Fortune Ethiopia' }, author: 'Tech Desk' },
-      { title: 'Property Registration Reform Simplifies Ownership Transfer', description: 'New reforms to Ethiopia\'s land and property registration system are making it easier and faster to transfer property ownership legally.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'Capital Ethiopia' }, author: 'Legal Affairs' },
-      { title: 'Green Building Standards Introduced for New Developments', description: 'Ethiopia has introduced new green building standards for commercial and residential developments to improve energy efficiency and sustainability.', url: '#', urlToImage: null, publishedAt: new Date(Date.now() - 518400000).toISOString(), source: { name: 'Addis Standard' }, author: 'Environment Desk' },
-    ];
-    return tab === 'housing' ? housing : tab === 'economy' ? economy : ethiopia;
   };
 
   const generateAIReport = async () => {
     if (!summary) return;
     setAiLoading(true);
-
     try {
       const response = await fetch('/api/market/report', {
         method: 'POST',
@@ -217,7 +171,7 @@ export default function MarketPage() {
       setAiReport(data.report || 'Unable to generate report at this time.');
       setAiGenerated(true);
     } catch {
-      setAiReport(`## Ethiopian Real Estate Market Report\n**${new Date().toLocaleDateString('en-ET', { month: 'long', day: 'numeric', year: 'numeric' })}**\n\n### Market Overview\nThe Ethiopian real estate market currently shows ${summary.active} active listings across major cities. The average sale price stands at ${formatETB(summary.avgSalePrice)}, while rental properties average ${formatETB(summary.avgRentPrice)} per month.\n\n### Key Findings\n- **Total market inventory:** ${summary.total} properties\n- **Most active area:** ${summary.topSubcity}\n- **Total market value:** ${formatETB(summary.totalValue)}\n\n### Market Outlook\nWith ${summary.active} active listings and growing diaspora investment, the Ethiopian property market continues to show resilience. Bole and surrounding areas remain premium destinations while secondary cities like Adama and Hawassa offer emerging opportunities.\n\n### Investment Recommendation\nBuyers should focus on areas with strong infrastructure development. Rental yields remain attractive in urban centers with high occupancy rates.`);
+      setAiReport(`Ethiopian Real Estate Market Report\n${new Date().toLocaleDateString('en-ET', { month: 'long', day: 'numeric', year: 'numeric' })}\n\nMarket Overview\nThe Ethiopian real estate market currently shows ${summary.active} active listings. Average sale price: ${formatETB(summary.avgSalePrice)}. Average rent: ${formatETB(summary.avgRentPrice)}/month.\n\nTop Area: ${summary.topSubcity}\nTotal Market Value: ${formatETB(summary.totalValue)}`);
       setAiGenerated(true);
     }
     setAiLoading(false);
@@ -274,7 +228,6 @@ export default function MarketPage() {
               </div>
             </div>
 
-            {/* Summary cards */}
             {summary && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 28 }}>
                 {[
@@ -297,7 +250,6 @@ export default function MarketPage() {
               </div>
             )}
 
-            {/* Charts */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 28 }}>
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -359,7 +311,6 @@ export default function MarketPage() {
               </div>
             </div>
 
-            {/* Price ranges table */}
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px', marginBottom: 40 }}>
               <div style={{ fontSize: 17, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Price Ranges by Area</div>
               <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>Min, average, and max prices for {activeTab === 'sale' ? 'sale' : activeTab === 'long_rent' ? 'rental' : 'short stay'} properties</div>
@@ -411,18 +362,14 @@ export default function MarketPage() {
                     <Brain size={32} color="#7c3aed" />
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 8 }}>Generate Weekly Market Report</div>
-                  <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
+                  <div style={{ fontSize: 14, color: '#6b7280', maxWidth: 480, margin: '0 auto 24px' }}>
                     Claude AI will analyze current market data and generate a comprehensive market intelligence report with trends, insights, and investment recommendations.
                   </div>
                   <button onClick={generateAIReport} disabled={aiLoading} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: aiLoading ? '#9ca3af' : '#7c3aed', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: aiLoading ? 'not-allowed' : 'pointer' }}>
                     <Brain size={18} />
                     {aiLoading ? 'Generating Report...' : 'Generate AI Market Report'}
                   </button>
-                  {aiLoading && (
-                    <div style={{ marginTop: 16, fontSize: 13, color: '#6b7280' }}>
-                      🤖 Claude is analyzing market data... this takes 10-15 seconds
-                    </div>
-                  )}
+                  {aiLoading && <div style={{ marginTop: 16, fontSize: 13, color: '#6b7280' }}>🤖 Claude is analyzing market data... this takes 10-15 seconds</div>}
                 </div>
               ) : (
                 <div>
@@ -448,19 +395,23 @@ export default function MarketPage() {
                 <Newspaper size={18} color="#E8431A" />
               </div>
               <div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>Market News & Analysis</div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>Latest news from Ethiopian and international media</div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>
+                  {lang === 'AM' ? 'የገበያ ዜናዎች እና ትንታኔ' : 'Market News & Analysis'}
+                </div>
+                <div style={{ fontSize: 13, color: '#6b7280' }}>
+                  {lang === 'AM' ? 'ከኢትዮጵያ ሚዲያ የቅርብ ጊዜ ዜናዎች' : 'Latest news from Ethiopian media • Real-time RSS feeds'}
+                </div>
               </div>
             </div>
 
             {/* News tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' as const }}>
               {([
-                ['housing', '🏠 Housing & Property', '#E8431A', '#fef2ee'],
-                ['economy', '📈 Economy & Finance', '#006AFF', '#dbeafe'],
-                ['ethiopia', '🇪🇹 Ethiopia Development', '#059669', '#d1fae5'],
+                ['housing', lang === 'AM' ? '🏠 ቤት እና ንብረት' : '🏠 Housing & Property', '#E8431A', '#fef2ee'],
+                ['economy', lang === 'AM' ? '📈 ኢኮኖሚ እና ፋይናንስ' : '📈 Economy & Finance', '#006AFF', '#dbeafe'],
+                ['ethiopia', lang === 'AM' ? '🇪🇹 የኢትዮጵያ ልማት' : '🇪🇹 Ethiopia Development', '#059669', '#d1fae5'],
               ] as const).map(([tab, label, color, bg]) => (
-                <button key={tab} onClick={() => loadNews(tab)} style={{ padding: '8px 18px', borderRadius: 20, border: `2px solid ${activeNewsTab === tab ? color : '#e5e7eb'}`, background: activeNewsTab === tab ? bg : 'white', color: activeNewsTab === tab ? color : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                <button key={tab} onClick={() => loadNews(tab as any)} style={{ padding: '8px 18px', borderRadius: 20, border: `2px solid ${activeNewsTab === tab ? color : '#e5e7eb'}`, background: activeNewsTab === tab ? bg : 'white', color: activeNewsTab === tab ? color : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                   {label}
                 </button>
               ))}
@@ -469,33 +420,51 @@ export default function MarketPage() {
             {newsLoading ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 40 }}>
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', padding: '20px', height: 160 }}>
-                    <div style={{ background: '#f3f4f6', borderRadius: 8, height: 16, marginBottom: 12, width: '80%' }} />
-                    <div style={{ background: '#f3f4f6', borderRadius: 8, height: 12, marginBottom: 8, width: '100%' }} />
-                    <div style={{ background: '#f3f4f6', borderRadius: 8, height: 12, width: '60%' }} />
+                  <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+                    <div style={{ height: 140, background: '#f3f4f6' }} />
+                    <div style={{ padding: '16px' }}>
+                      <div style={{ background: '#e5e7eb', borderRadius: 8, height: 14, marginBottom: 10, width: '80%' }} />
+                      <div style={{ background: '#e5e7eb', borderRadius: 8, height: 12, marginBottom: 6, width: '100%' }} />
+                      <div style={{ background: '#e5e7eb', borderRadius: 8, height: 12, width: '60%' }} />
+                    </div>
                   </div>
                 ))}
+              </div>
+            ) : newsError || news.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280', marginBottom: 40 }}>
+                <Newspaper size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
+                <div style={{ fontSize: 15, fontWeight: 600 }}>Could not load news at this time</div>
+                <div style={{ fontSize: 13, marginTop: 4 }}>RSS feeds may be temporarily unavailable</div>
+                <button onClick={() => loadNews(activeNewsTab)} style={{ marginTop: 16, padding: '8px 18px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  Try Again
+                </button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 40 }}>
                 {news.map((article, i) => (
-                  <a key={i} href={article.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-                    {article.urlToImage && (
-                      <div style={{ height: 140, overflow: 'hidden', background: '#f3f4f6' }}>
-                        <img src={article.urlToImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <a key={i} href={article.url} target="_blank" rel="noopener noreferrer"
+                    style={{ textDecoration: 'none', background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', cursor: article.url === '#' ? 'default' : 'pointer' }}
+                    onMouseEnter={e => { if (article.url !== '#') { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+                    onClick={e => { if (article.url === '#') e.preventDefault(); }}>
+                    {article.urlToImage ? (
+                      <div style={{ height: 160, overflow: 'hidden', background: '#f3f4f6' }}>
+                        <img src={article.urlToImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }} />
+                      </div>
+                    ) : (
+                      <div style={{ height: 100, background: 'linear-gradient(135deg, #1e3a5f, #2d5a8e)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                        <Newspaper size={28} color="rgba(255,255,255,0.6)" />
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{article.source.name}</span>
                       </div>
                     )}
-                    {!article.urlToImage && (
-                      <div style={{ height: 80, background: 'linear-gradient(135deg, #f0f6ff, #dbeafe)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Newspaper size={32} color="#93c5fd" />
-                      </div>
-                    )}
-                    <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', background: '#dbeafe', padding: '3px 8px', borderRadius: 10, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>{article.source.name}</span>
-                        <span style={{ fontSize: 11, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}><Clock size={10} />{timeAgo(article.publishedAt)}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', background: '#dbeafe', padding: '3px 8px', borderRadius: 10, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 150 }}>
+                          {article.source.name}
+                        </span>
+                        <span style={{ fontSize: 11, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                          <Clock size={10} />{timeAgo(article.publishedAt)}
+                        </span>
                       </div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as any}>
                         {article.title}
@@ -503,9 +472,11 @@ export default function MarketPage() {
                       <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 } as any}>
                         {article.description}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#E8431A', fontWeight: 600, marginTop: 4 }}>
-                        Read full article <ExternalLink size={11} />
-                      </div>
+                      {article.url !== '#' && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#E8431A', fontWeight: 600, marginTop: 4 }}>
+                          {lang === 'AM' ? 'ሙሉ ዜናውን ያንብቡ' : 'Read full article'} <ExternalLink size={11} />
+                        </div>
+                      )}
                     </div>
                   </a>
                 ))}
