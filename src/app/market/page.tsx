@@ -143,7 +143,7 @@ export default function MarketPage() {
     setActiveNewsTab(tab);
     const activeLang = explicitLang ?? lang;
     try {
-      const res = await fetch(`/api/news?tab=${tab}&lang=${activeLang}`);
+      const res = await fetch(`/api/news?tab=${tab}&lang=${activeLang}&t=${Date.now()}`);
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
