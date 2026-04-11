@@ -87,10 +87,10 @@ export default function MarketPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
 
-  useEffect(() => { loadData(); loadNews('housing'); }, []);
+  useEffect(() => { loadData(); loadNews('housing', 'EN'); }, []);
 
-  // Reload news when language changes
-  useEffect(() => { loadNews(activeNewsTab); }, [lang]);
+  // Reload news when language changes — pass lang explicitly to avoid stale closure
+  useEffect(() => { loadNews(activeNewsTab, lang); }, [lang]);
 
   const loadData = async () => {
     setLoading(true);
@@ -136,12 +136,14 @@ export default function MarketPage() {
     setLoading(false);
   };
 
-  const loadNews = async (tab: 'housing' | 'economy' | 'ethiopia') => {
+  // Accept explicit lang param to avoid stale closure bug
+  const loadNews = async (tab: 'housing' | 'economy' | 'ethiopia', explicitLang?: string) => {
     setNewsLoading(true);
     setNewsError(false);
     setActiveNewsTab(tab);
+    const activeLang = explicitLang ?? lang;
     try {
-      const res = await fetch(`/api/news?tab=${tab}&lang=${lang}`);
+      const res = await fetch(`/api/news?tab=${tab}&lang=${activeLang}`);
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
@@ -382,8 +384,14 @@ export default function MarketPage() {
                       <RefreshCw size={12} /> Regenerate
                     </button>
                   </div>
-                  <div style={{ background: '#f9fafb', borderRadius: 12, padding: '24px', lineHeight: 1.8, fontSize: 14, color: '#374151', whiteSpace: 'pre-wrap' as const, fontFamily: 'inherit' }}>
-                    {aiReport}
+                  <div style={{ background: '#f9fafb', borderRadius: 12, padding: '24px', lineHeight: 1.8, fontSize: 14, color: '#374151', fontFamily: 'inherit' }}>
+                    {aiReport.split('\n').map((line, i) => {
+                      if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 8, marginTop: 16 }}>{line.replace('## ', '')}</h3>;
+                      if (line.startsWith('# ')) return <h2 key={i} style={{ fontSize: 17, fontWeight: 900, color: '#111827', marginBottom: 10, marginTop: 4 }}>{line.replace('# ', '')}</h2>;
+                      if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ margin: '0 0 8px', fontWeight: 700, color: '#111827' }}>{line.replace(/\*\*/g, '')}</p>;
+                      if (line.trim() === '') return <div key={i} style={{ height: 8 }} />;
+                      return <p key={i} style={{ margin: '0 0 8px', color: '#374151' }}>{line}</p>;
+                    })}
                   </div>
                 </div>
               )}
@@ -411,7 +419,7 @@ export default function MarketPage() {
                 ['economy', lang === 'AM' ? '📈 ኢኮኖሚ እና ፋይናንስ' : '📈 Economy & Finance', '#006AFF', '#dbeafe'],
                 ['ethiopia', lang === 'AM' ? '🇪🇹 የኢትዮጵያ ልማት' : '🇪🇹 Ethiopia Development', '#059669', '#d1fae5'],
               ] as const).map(([tab, label, color, bg]) => (
-                <button key={tab} onClick={() => loadNews(tab as any)} style={{ padding: '8px 18px', borderRadius: 20, border: `2px solid ${activeNewsTab === tab ? color : '#e5e7eb'}`, background: activeNewsTab === tab ? bg : 'white', color: activeNewsTab === tab ? color : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                <button key={tab} onClick={() => loadNews(tab as any, lang)} style={{ padding: '8px 18px', borderRadius: 20, border: `2px solid ${activeNewsTab === tab ? color : '#e5e7eb'}`, background: activeNewsTab === tab ? bg : 'white', color: activeNewsTab === tab ? color : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                   {label}
                 </button>
               ))}
@@ -435,7 +443,7 @@ export default function MarketPage() {
                 <Newspaper size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
                 <div style={{ fontSize: 15, fontWeight: 600 }}>Could not load news at this time</div>
                 <div style={{ fontSize: 13, marginTop: 4 }}>RSS feeds may be temporarily unavailable</div>
-                <button onClick={() => loadNews(activeNewsTab)} style={{ marginTop: 16, padding: '8px 18px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                <button onClick={() => loadNews(activeNewsTab, lang)} style={{ marginTop: 16, padding: '8px 18px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                   Try Again
                 </button>
               </div>
@@ -443,10 +451,9 @@ export default function MarketPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 40 }}>
                 {news.map((article, i) => (
                   <a key={i} href={`/news/${encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(article)))))}`}
-                    style={{ textDecoration: 'none', background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', cursor: article.url === '#' ? 'default' : 'pointer' }}
-                    onMouseEnter={e => { if (article.url !== '#') { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-                    onClick={e => { if (article.url === '#') e.preventDefault(); }}>
+                    style={{ textDecoration: 'none', background: 'white', borderRadius: 14, border: '1px solid #e5e7eb', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                     {article.urlToImage ? (
                       <div style={{ height: 160, overflow: 'hidden', background: '#f3f4f6' }}>
                         <img src={article.urlToImage} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }} />
@@ -472,11 +479,9 @@ export default function MarketPage() {
                       <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 } as any}>
                         {article.description}
                       </div>
-                      {article.url !== '#' && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#E8431A', fontWeight: 600, marginTop: 4 }}>
-                          {lang === 'AM' ? 'ሙሉ ዜናውን ያንብቡ' : 'Read full article'} <ExternalLink size={11} />
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#E8431A', fontWeight: 600, marginTop: 4 }}>
+                        {lang === 'AM' ? 'ሙሉ ዜናውን ያንብቡ' : 'Read full article'} <ExternalLink size={11} />
+                      </div>
                     </div>
                   </a>
                 ))}
