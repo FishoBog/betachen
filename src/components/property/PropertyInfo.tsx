@@ -173,7 +173,7 @@ export function PropertyInfo({ property }: { property: Property }) {
           {am ? 'ስለ ንብረቱ' : 'About This Property'}
         </div>
         <p style={{ fontSize: 15, color: '#374151', lineHeight: 1.8, margin: 0 }}>
-          {am && property.description ? property.description : buildSummary()}
+          {property.description || buildSummary()}
         </p>
       </div>
 
