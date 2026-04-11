@@ -203,23 +203,25 @@ export function PropertyInfo({ property }: { property: Property }) {
 
       {/* ── BANK LOAN ── */}
       {p.bank_loan_eligible && (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 18px' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46', marginBottom: 8 }}>
-            {am ? 'ለባንክ ብድር ብቁ ነው' : 'Bank Financing Available'}
+        <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '16px 18px' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#c2410c', marginBottom: 8 }}>
+            ⚠️ {am ? 'ይህ ንብረት የባንክ ዕዳ አለበት' : 'This Property Has an Existing Bank Debt'}
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
             {p.bank_loan_bank && (
-              <div style={{ fontSize: 13, color: '#047857' }}>
-                <span style={{ fontWeight: 600 }}>{am ? 'ባንክ:' : 'Bank:'}</span> {p.bank_loan_bank}
+              <div style={{ fontSize: 13, color: '#9a3412' }}>
+                <span style={{ fontWeight: 600 }}>{am ? 'ባንክ:' : 'Lender Bank:'}</span> {p.bank_loan_bank}
               </div>
             )}
             {p.bank_loan_amount && (
-              <div style={{ fontSize: 13, color: '#047857' }}>
-                <span style={{ fontWeight: 600 }}>{am ? 'የብድር መጠን:' : 'Loan Amount:'}</span> ETB {parseFloat(p.bank_loan_amount).toLocaleString()}
+              <div style={{ fontSize: 13, color: '#9a3412' }}>
+                <span style={{ fontWeight: 600 }}>{am ? 'የቀረ ዕዳ:' : 'Outstanding Debt:'}</span> ETB {parseFloat(p.bank_loan_amount).toLocaleString()}
               </div>
             )}
-            <div style={{ fontSize: 13, color: '#047857', lineHeight: 1.6 }}>
-              {am ? 'ባለቤቱ ለባንክ ብድር ያስፈልጉ ሰነዶችን ማቅረብ ይችላሉ።' : 'Owner can provide required documentation for financing. Contact owner for details.'}
+            <div style={{ fontSize: 13, color: '#9a3412', lineHeight: 1.6 }}>
+              {am
+                ? 'ይህ ዕዳ ወደ አዲሱ ባለቤት ይተላለፋል። ዝርዝሩን ከባለቤቱ ያረጋግጡ።'
+                : 'This outstanding debt will be transferred to the new owner upon purchase. Verify full details with the owner and your lawyer before proceeding.'}
             </div>
           </div>
         </div>
