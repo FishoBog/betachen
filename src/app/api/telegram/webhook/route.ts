@@ -2,39 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
-const SYSTEM_PROMPT = `You are ቤታችን Bot (BetachenBot), the official Telegram assistant for ቤታችን — Ethiopia's #1 real estate platform at betachen.com.
+const SYSTEM_PROMPT = `You are Betachen Bot, the official Telegram assistant for Betachen — Ethiopia's #1 real estate platform at betachen.com.
 
 You help users with:
 - Finding properties for sale, rent, or short stay across Ethiopia
 - Understanding how to post a listing on betachen.com
 - Ethiopian property market insights, pricing, and neighborhoods
-- Ethiopian property terms (leasehold/ሊዝ, freehold/ወረቀት, condominium, etc.)
+- Ethiopian property terms (leasehold, freehold, condominium)
 - The buying/renting process in Ethiopia
 - Diaspora investment guidance
-- Platform features (how to message owners, post listings, market data)
 
-KEY FACTS ABOUT ቤታችን:
+KEY FACTS:
 - Website: betachen.com
 - Listing fee: ETB 500 for 3 months
-- Payment via Chapa (Ethiopian payment gateway)
-- Properties reviewed within 24 hours before going live
-- Supports For Sale, Long-term Rent, and Short Stay listings
-- Available in English and Amharic
+- Payment via Chapa
+- Properties reviewed within 24 hours
 - Covers all major Ethiopian cities
 
-ETHIOPIAN PROPERTY KNOWLEDGE:
-- Leasehold (ሊዝ): Government owns land, you own the building. Most common in Addis Ababa.
-- Freehold (ወረቀት): Full ownership documents. Older properties.
-- Condominium: Government-built affordable housing.
-- Construction stages: Land only → Foundation → Columns → Shell (Guwada) → Plastering → Finishing → Completed
-- Always advise title deed verification with a lawyer before purchase.
-
-ADDIS ABABA NEIGHBORHOODS:
-- Premium: Bole, Kazanchis, Old Airport, CMC Summit
-- Mid-range: Gerji, Ayat, Yeka, Sarbet, Megenagna
-- Affordable: Akaki-Kality, Kolfe, Lideta, Kera
-
-PRICING GUIDE (2024-2025 Addis Ababa):
+PRICING GUIDE (Addis Ababa):
 - Apartment rent: ETB 15,000 - 80,000/month
 - Villa for sale: ETB 5M - 50M+
 - Condominium: ETB 800K - 3M
@@ -42,20 +27,9 @@ PRICING GUIDE (2024-2025 Addis Ababa):
 
 RULES:
 - Respond in the same language the user writes in (Amharic or English)
-- Keep responses concise — Telegram messages should be short and clear
-- Use simple formatting: bold with *text*, line breaks for lists
-- Always include a link to betachen.com when relevant
-- For legal/financial specifics recommend consulting a professional
-- Never make up property listings or prices — direct to website for live listings
-- If user wants to see properties: betachen.com
-- If user wants to post: betachen.com/owner/listings/new
-- For support issues: support@betachen.com
-
-TELEGRAM FORMATTING:
-- Use *bold* for important terms
-- Use plain text mostly — keep it readable in Telegram
-- Keep responses under 300 words
-- End with a relevant call to action`;
+- Keep responses short and clear for Telegram
+- Never make up listings or prices
+- Always direct to betachen.com for live listings`;
 
 async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -97,8 +71,6 @@ async function getAIReply(userMessage: string, history: any[]) {
   return data.content?.[0]?.text ?? 'Sorry, I could not process that. Please try again or visit betachen.com';
 }
 
-// Simple in-memory conversation history (resets on server restart)
-// For production, move this to Supabase
 const conversations: Record<number, { role: string; content: string }[]> = {};
 
 export async function POST(req: NextRequest) {
@@ -111,13 +83,11 @@ export async function POST(req: NextRequest) {
     const text: string = message.text ?? '';
     const firstName: string = message.from?.first_name ?? 'there';
 
-    // Initialize conversation history
     if (!conversations[chatId]) conversations[chatId] = [];
 
-    // ── Handle commands ──
     if (text === '/start') {
       await sendMessage(chatId,
-        `*ሰላም ${firstName}! Welcome to ቤታችን Bot* 🏠\n\nI'm your Ethiopian real estate assistant. I can help you:\n\n• 🔍 Find properties across Ethiopia\n• 📝 Learn how to post a listing\n• 💡 Understand market prices & neighborhoods\n• 🏗️ Learn about property types & terms\n• 🇪🇹 Guide diaspora investors\n\nJust ask me anything in *English or Amharic*!\n\nVisit us: betachen.com`,
+        `*Hello ${firstName}! Welcome to Betachen Bot* 🏠\n\nI am your Ethiopian real estate assistant. I can help you:\n\n• 🔍 Find properties across Ethiopia\n• 📝 Post a listing\n• 💡 Understand market prices\n• 🇪🇹 Guide diaspora investors\n\nAsk me anything in *English or Amharic*!\n\nVisit: betachen.com`,
         {
           inline_keyboard: [
             [
@@ -137,22 +107,22 @@ export async function POST(req: NextRequest) {
 
     if (text === '/help') {
       await sendMessage(chatId,
-        `*ቤታችን Bot Commands* 🤖\n\n/start — Welcome & main menu\n/search — Find properties\n/post — Post a listing\n/market — Market insights\n/diaspora — Diaspora investor guide\n/contact — Contact support\n\nOr just *type any question* and I'll answer it!\n\nLanguage: I respond in English or Amharic based on what you write.`
+        `*Betachen Bot Commands* 🤖\n\n/start — Welcome & main menu\n/search — Find properties\n/post — Post a listing\n/market — Market insights\n/diaspora — Diaspora investor guide\n/contact — Contact support\n\nOr just *type any question* and I will answer it!`
       );
       return NextResponse.json({ ok: true });
     }
 
     if (text === '/search') {
       await sendMessage(chatId,
-        `*Search Properties on ቤታችን* 🔍\n\nWe have properties for:\n• 🏠 Sale\n• 🔑 Long-term Rent\n• 🛏️ Short Stay\n\nAcross all major Ethiopian cities including Addis Ababa, Dire Dawa, Bahir Dar, Hawassa, Mekelle and more.\n\n👇 Browse all listings:`,
-        { inline_keyboard: [[{ text: '🔍 Search Properties Now', url: 'https://betachen.com' }]] }
+        `*Search Properties on Betachen* 🔍\n\nProperties for:\n• 🏠 Sale\n• 🔑 Long-term Rent\n• 🛏️ Short Stay\n\nAll major Ethiopian cities covered.\n\n👇 Browse now:`,
+        { inline_keyboard: [[{ text: '🔍 Search Properties', url: 'https://betachen.com' }]] }
       );
       return NextResponse.json({ ok: true });
     }
 
     if (text === '/post') {
       await sendMessage(chatId,
-        `*Post Your Property on ቤታችን* 📝\n\n✅ Reach thousands of buyers & renters\n✅ List in under 5 minutes\n✅ ETB 500 for 3 months\n✅ Available in English & Amharic\n✅ Live within 24 hours\n\n👇 Post your listing now:`,
+        `*Post Your Property* 📝\n\n✅ Reach thousands of buyers\n✅ List in under 5 minutes\n✅ ETB 500 for 3 months\n✅ Live within 24 hours\n\n👇 Post now:`,
         { inline_keyboard: [[{ text: '📝 Post a Listing', url: 'https://betachen.com/owner/listings/new' }]] }
       );
       return NextResponse.json({ ok: true });
@@ -160,15 +130,15 @@ export async function POST(req: NextRequest) {
 
     if (text === '/market') {
       await sendMessage(chatId,
-        `*Ethiopian Real Estate Market* 📈\n\nGet live market data, price trends, and AI-powered insights for the Ethiopian property market.\n\n👇 View market intelligence:`,
-        { inline_keyboard: [[{ text: '📈 View Market Data', url: 'https://betachen.com/market' }]] }
+        `*Ethiopian Real Estate Market* 📈\n\nLive market data, price trends, and AI insights.\n\n👇 View now:`,
+        { inline_keyboard: [[{ text: '📈 Market Data', url: 'https://betachen.com/market' }]] }
       );
       return NextResponse.json({ ok: true });
     }
 
     if (text === '/diaspora') {
       await sendMessage(chatId,
-        `*Diaspora Investor Guide* 🌍\n\nInvesting in Ethiopian real estate from abroad? We can help with:\n\n• Understanding leasehold vs freehold\n• Safe buying process from abroad\n• Diaspora-friendly listings\n• Market pricing guidance\n\n👇 Visit our Diaspora page:`,
+        `*Diaspora Investor Guide* 🌍\n\nInvesting from abroad? We help with:\n\n• Leasehold vs freehold\n• Safe buying process\n• Diaspora-friendly listings\n• Market pricing\n\n👇 Learn more:`,
         { inline_keyboard: [[{ text: '🌍 Diaspora Guide', url: 'https://betachen.com/diaspora' }]] }
       );
       return NextResponse.json({ ok: true });
@@ -176,38 +146,32 @@ export async function POST(req: NextRequest) {
 
     if (text === '/contact') {
       await sendMessage(chatId,
-        `*Contact ቤታችን Support* 📞\n\n📧 Email: support@betachen.com\n🌐 Website: betachen.com\n💬 This bot: Just ask your question!\n\nWe typically respond within 24 hours.`
+        `*Contact Betachen Support* 📞\n\n📧 Email: support@betachen.com\n🌐 Website: betachen.com\n\nWe respond within 24 hours.`
       );
       return NextResponse.json({ ok: true });
     }
 
-    // ── AI-powered free text response ──
     await sendTyping(chatId);
-
     const history = conversations[chatId] ?? [];
     const reply = await getAIReply(text, history);
 
-    // Store in history
     conversations[chatId] = [
       ...history,
       { role: 'user', content: text },
       { role: 'assistant', content: reply },
-    ].slice(-12); // Keep last 12 messages
+    ].slice(-12);
 
     await sendMessage(chatId, reply, {
-      inline_keyboard: [[
-        { text: '🏠 betachen.com', url: 'https://betachen.com' },
-      ]],
+      inline_keyboard: [[{ text: '🏠 betachen.com', url: 'https://betachen.com' }]],
     });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Telegram webhook error:', error);
-    return NextResponse.json({ ok: true }); // Always return 200 to Telegram
+    return NextResponse.json({ ok: true });
   }
 }
 
-// GET for webhook verification
 export async function GET() {
   return NextResponse.json({ status: 'Betachen Telegram Bot webhook active' });
 }
