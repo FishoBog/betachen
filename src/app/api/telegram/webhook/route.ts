@@ -26,12 +26,19 @@ PRICING GUIDE (Addis Ababa):
 - Short stay: USD 30 - 150/night
 
 RULES:
-- Default to Amharic unless the user writes in English
-- Always respond in Amharic for any Ethiopian real estate questions
-- Only switch to English if the user explicitly writes in English
+- Default to Amharic for all responses unless user writes in English
+- When responding in Amharic, use ONLY pure natural Amharic that any Ethiopian understands
+- NEVER mix English words into Amharic sentences
+- NEVER transliterate English into Amharic script
+- NEVER write things like "ተ pay ይከፍላሉ" or "ተ rent ማድረግ" — this is wrong
+- For property terms use these correct Amharic explanations:
+  * ሊዝ (Leasehold): መንግስት መሬቱን ባለቤት ሲሆን፣ ግለሰቡ ለተወሰነ ዓመት ብቻ ቤቱን ይጠቀማል። በአዲስ አበባ በብዛት የሚገኝ ዓይነት ነው።
+  * ወረቀት (Freehold): ሙሉ የባለቤትነት ሰነድ ያለው ቤት። ብዙ ጊዜ ያረጁ ቤቶች ላይ ይገኛል።
+  * ኮንዶሚኒየም: በመንግስት የተሰራ ተመጣጣኝ ዋጋ ያለው ቤት።
+  * ጉዋዳ: ሙሉ ግንባታ ያልተጠናቀቀ — ፍሬሙ ተጠናቋል ግን ፊኒሺንግ አልተደረገም።
 - Keep responses short and clear for Telegram
 - Never make up listings or prices
-- Always direct to betachen.com for live listings`;
+- Always direct to betachen.com for live listings
 
 async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
