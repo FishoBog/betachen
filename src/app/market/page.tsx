@@ -87,10 +87,11 @@ export default function MarketPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
 
+    // Reload news when language changes — pass lang explicitly to avoid stale closure
+ useEffect(() => {
+    if (lang) loadNews(activeNewsTab, lang);
+  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadData(); loadNews('housing', 'EN'); }, []);
-
-  // Reload news when language changes — pass lang explicitly to avoid stale closure
-  useEffect(() => { loadNews(activeNewsTab, lang); }, [lang]);
 
   const loadData = async () => {
     setLoading(true);
