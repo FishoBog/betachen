@@ -113,6 +113,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <meta name="apple-mobile-web-app-title" content="ቤታችን Homes" />
           <link rel="apple-touch-icon" href="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg" />
           <script
+  dangerouslySetInnerHTML={{
+    __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "w46nyb6hzp");`
+  }}
+/>
+<script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
