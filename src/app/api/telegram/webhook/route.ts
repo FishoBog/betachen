@@ -26,7 +26,9 @@ PRICING GUIDE (Addis Ababa):
 - Short stay: USD 30 - 150/night
 
 RULES:
-- Respond in the same language the user writes in (Amharic or English)
+- Default to Amharic unless the user writes in English
+- Always respond in Amharic for any Ethiopian real estate questions
+- Only switch to English if the user explicitly writes in English
 - Keep responses short and clear for Telegram
 - Never make up listings or prices
 - Always direct to betachen.com for live listings`;
