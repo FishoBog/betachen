@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { ExternalLink, ArrowLeft, Clock, Globe, Home, MapPin, Brain } from 'lucide-react';
 import Link from 'next/link';
+import { useLang } from '@/context/LangContext';
 
 function formatETB(n: number) {
   if (!n) return 'Negotiable';
