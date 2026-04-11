@@ -27,6 +27,7 @@ function timeAgo(dateStr: string) {
 export default function NewsArticlePage() {
   const params = useParams();
   const router = useRouter();
+  const { lang } = useLang();
   const [article, setArticle] = useState<any>(null);
   const [relatedProperties, setRelatedProperties] = useState<any[]>([]);
   const [aiSummary, setAiSummary] = useState<string>('');
@@ -34,19 +35,35 @@ export default function NewsArticlePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const encoded = params.id as string;
-      const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
-      const decoded = JSON.parse(jsonStr);
-      setArticle(decoded);
-      loadRelatedProperties();
-      // Translate if language is AM
-      if (lang === 'AM') translateArticle(decoded);
-    } catch {
-      router.push('/market');
-    }
-    setLoading(false);
-  }, [params.id]);
+    const init = async () => {
+      try {
+        const encoded = params.id as string;
+        const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+        const decoded = JSON.parse(jsonStr);
+
+        if (lang === 'AM') {
+          try {
+            const res = await fetch('/api/news/translate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title: decoded.title, description: decoded.description }),
+            });
+            const translated = await res.json();
+            setArticle({ ...decoded, title: translated.title || decoded.title, description: translated.description || decoded.description });
+          } catch {
+            setArticle(decoded);
+          }
+        } else {
+          setArticle(decoded);
+        }
+        loadRelatedProperties();
+      } catch {
+        router.push('/market');
+      }
+      setLoading(false);
+    };
+    init();
+  }, [params.id, lang]);
 
   const loadRelatedProperties = async () => {
     const supabase = createBrowserClient();
@@ -99,14 +116,12 @@ export default function NewsArticlePage() {
       <Navbar />
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 16px' }}>
 
-        {/* Back button */}
         <button onClick={() => router.push('/market')} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: '#6b7280', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginBottom: 24, padding: 0 }}>
-          <ArrowLeft size={16} /> Back to Market
+          <ArrowLeft size={16} /> {lang === 'AM' ? 'ወደ ገበያ ተመለስ' : 'Back to Market'}
         </button>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24, alignItems: 'start' }}>
 
-          {/* Main article */}
           <div>
             <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e5e7eb', overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
 
@@ -143,7 +158,7 @@ export default function NewsArticlePage() {
                 </div>
 
                 <a href={article.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
-                  Read Full Article at {article.source?.name} <ExternalLink size={15} />
+                  {lang === 'AM' ? `ሙሉ ዜናውን ${article.source?.name} ላይ ያንብቡ` : `Read Full Article at ${article.source?.name}`} <ExternalLink size={15} />
                 </a>
               </div>
             </div>
@@ -155,31 +170,31 @@ export default function NewsArticlePage() {
                   <Brain size={18} color="#7c3aed" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>AI Market Analysis</div>
-                  <div style={{ fontSize: 12, color: '#6b7280' }}>What this means for Ethiopian real estate</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>{lang === 'AM' ? 'የ AI ገበያ ትንታኔ' : 'AI Market Analysis'}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>{lang === 'AM' ? 'ለኢትዮጵያ ሪል እስቴት ምን ማለት ነው' : 'What this means for Ethiopian real estate'}</div>
                 </div>
               </div>
 
               {!aiSummary ? (
                 <div style={{ textAlign: 'center', padding: '20px 0' }}>
                   <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>
-                    Get an AI-powered analysis of how this news affects the Ethiopian property market
+                    {lang === 'AM' ? 'ይህ ዜና የኢትዮጵያ ንብረት ገበያን እንዴት እንደሚጎዳ AI ትንታኔ ያግኙ' : 'Get an AI-powered analysis of how this news affects the Ethiopian property market'}
                   </div>
                   <button onClick={generateAISummary} disabled={aiLoading} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: aiLoading ? '#9ca3af' : '#7c3aed', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, border: 'none', cursor: aiLoading ? 'not-allowed' : 'pointer' }}>
                     <Brain size={16} />
-                    {aiLoading ? 'Analyzing...' : 'Generate Market Analysis'}
+                    {aiLoading ? (lang === 'AM' ? 'በመተንተን ላይ...' : 'Analyzing...') : (lang === 'AM' ? 'የገበያ ትንታኔ ፍጠር' : 'Generate Market Analysis')}
                   </button>
-                  {aiLoading && <div style={{ marginTop: 12, fontSize: 13, color: '#6b7280' }}>🤖 Claude is analyzing this article...</div>}
+                  {aiLoading && <div style={{ marginTop: 12, fontSize: 13, color: '#6b7280' }}>🤖 {lang === 'AM' ? 'Claude ይህን ዜና እየተነተነ ነው...' : 'Claude is analyzing this article...'}</div>}
                 </div>
               ) : (
                 <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.8, background: '#f9fafb', borderRadius: 12, padding: '20px' }}>
-  {aiSummary.split('\n').map((line, i) => {
-    if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 8, marginTop: 16 }}>{line.replace('## ', '')}</h3>;
-    if (line.startsWith('# ')) return <h2 key={i} style={{ fontSize: 17, fontWeight: 900, color: '#111827', marginBottom: 10, marginTop: 4 }}>{line.replace('# ', '')}</h2>;
-    if (line.trim() === '') return <div key={i} style={{ height: 8 }} />;
-    return <p key={i} style={{ margin: '0 0 8px', color: '#374151' }}>{line}</p>;
-  })}
-</div>
+                  {aiSummary.split('\n').map((line, i) => {
+                    if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 8, marginTop: 16 }}>{line.replace('## ', '')}</h3>;
+                    if (line.startsWith('# ')) return <h2 key={i} style={{ fontSize: 17, fontWeight: 900, color: '#111827', marginBottom: 10, marginTop: 4 }}>{line.replace('# ', '')}</h2>;
+                    if (line.trim() === '') return <div key={i} style={{ height: 8 }} />;
+                    return <p key={i} style={{ margin: '0 0 8px', color: '#374151' }}>{line}</p>;
+                  })}
+                </div>
               )}
             </div>
           </div>
@@ -187,8 +202,8 @@ export default function NewsArticlePage() {
           {/* Sidebar */}
           <div style={{ position: 'sticky', top: 80 }}>
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px' }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 4 }}>🏠 Related Properties</div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Active listings on ቤታችን</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 4 }}>🏠 {lang === 'AM' ? 'ተዛማጅ ንብረቶች' : 'Related Properties'}</div>
+              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>{lang === 'AM' ? 'በቤታችን ላይ ንቁ ማስታወቂያዎች' : 'Active listings on ቤታችን'}</div>
 
               {relatedProperties.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '20px 0', color: '#9ca3af', fontSize: 13 }}>No active listings yet</div>
@@ -221,7 +236,7 @@ export default function NewsArticlePage() {
                     );
                   })}
                   <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', borderRadius: 10, background: '#f9fafb', color: '#006AFF', fontSize: 13, fontWeight: 700, textDecoration: 'none', border: '1px solid #dbeafe' }}>
-                    View All Listings →
+                    {lang === 'AM' ? 'ሁሉም ማስታወቂያዎች →' : 'View All Listings →'}
                   </Link>
                 </div>
               )}
@@ -232,4 +247,3 @@ export default function NewsArticlePage() {
     </div>
   );
 }
-
