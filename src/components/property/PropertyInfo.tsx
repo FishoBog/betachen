@@ -80,6 +80,37 @@ export function PropertyInfo({ property }: { property: Property }) {
   const internetLabel = (t: string) => t === 'fiber' ? (am ? 'ኢትዮ ፋይበር' : 'Ethio Telecom Fiber') : t === 'mobile' ? (am ? 'ሞባይል ዳታ' : 'Mobile Data Only') : (am ? 'ፋይበር + ሞባይል' : 'Fiber + Mobile');
 
   const buildSummary = () => {
+    if (am) {
+      // Amharic summary
+      const parts: string[] = [];
+      if (property.bedrooms) parts.push(`${property.bedrooms} መኝታ ክፍል`);
+      if (property.bathrooms) parts.push(`${property.bathrooms} መታጠቢያ`);
+      if (property.area_sqm) parts.push(`${property.area_sqm} ሜ²`);
+      const type = p.type === 'sale' ? 'ንብረት' : p.type === 'long_rent' ? 'ኪራይ ቤት' : 'አጭር ቆይታ ቤት';
+      const loc = p.location || p.subcity || 'አዲስ አበባ';
+      const highlights: string[] = [];
+      if (p.ground_water) highlights.push('የከርሰ ምድር ውሃ');
+      if (p.electricity_reliability === '24hr') highlights.push('24 ሰዓት ኤሌክትሪክ');
+      if (p.has_compound_wall) highlights.push('ያጥሩ ግቢ');
+      if (p.road_type === 'asphalt') highlights.push('አስፋልት መንገድ');
+      if (p.internet_type === 'fiber' || p.internet_type === 'both') highlights.push('ፋይበር ኢንተርኔት');
+      if (p.parking_spaces) highlights.push(`${p.parking_spaces} ፓርኪንግ ቦታ`);
+      if (p.bank_loan_eligible) highlights.push('የባንክ ዕዳ አለበት');
+      if (p.has_service_room) highlights.push('የሰራተኛ ክፍል');
+      if (p.has_traditional_kitchen) highlights.push('ጭስ ወጥ ቤት');
+      let summary = parts.length > 0
+        ? `ይህ ${parts.join('፣ ')} ${type} በ${loc} ይገኛል።`
+        : `ይህ ${type} በ${loc} ይገኛል።`;
+      if (property.description) {
+        summary += ` ${property.description.slice(0, 180)}`;
+      }
+      if (highlights.length > 0) {
+        summary += ` ዋና ባህሪያት፡ ${highlights.join('፣ ')}።`;
+      }
+      return summary;
+    }
+
+    // English summary
     const parts: string[] = [];
     if (property.bedrooms) parts.push(`${property.bedrooms}-bed`);
     if (property.bathrooms) parts.push(`${property.bathrooms}-bath`);
@@ -93,7 +124,7 @@ export function PropertyInfo({ property }: { property: Property }) {
     if (p.road_type === 'asphalt') highlights.push('asphalt road access');
     if (p.internet_type === 'fiber' || p.internet_type === 'both') highlights.push('fiber internet');
     if (p.parking_spaces) highlights.push(`${p.parking_spaces} parking space${p.parking_spaces > 1 ? 's' : ''}`);
-    if (p.bank_loan_eligible) highlights.push('bank loan eligible');
+    if (p.bank_loan_eligible) highlights.push('has bank debt');
     if (p.has_service_room) highlights.push('service room');
     if (p.has_traditional_kitchen) highlights.push('traditional kitchen');
     let summary = parts.length > 0
@@ -109,53 +140,29 @@ export function PropertyInfo({ property }: { property: Property }) {
   };
 
   const constructionStages: Record<string, { label: string; color: string; bg: string; desc: string }> = {
-    land_only:          { label: am ? 'ባዶ መሬት' : 'Land Only',              color: '#92400e', bg: '#fef3c7', desc: am ? 'ያልተሰራ ቦታ ብቻ' : 'Undeveloped land — build your own' },
-    foundation:         { label: am ? 'መሰረት ብቻ' : 'Foundation Stage',      color: '#1d4ed8', bg: '#dbeafe', desc: am ? 'መሰረት ተቆፍሯል' : 'Foundation laid, construction not yet started' },
-    columns_erected:    { label: am ? 'ምሰሶዎች ቆምቷል' : 'Columns Erected',    color: '#7c3aed', bg: '#ede9fe', desc: am ? 'ምሰሶዎች ቆምቷል፣ ጣሪያ ገና' : 'Frame / columns up, roof not yet started' },
-    shell_only:         { label: am ? 'ጉዋዳ ብቻ' : 'Shell / Carcass',        color: '#7c3aed', bg: '#ede9fe', desc: am ? 'ጉዋዳ ብቻ — ፍሬም ተጠናቋል' : 'Structural shell complete, interior unfinished' },
-    plastering:         { label: am ? 'ሲሚንቶ ደረጃ' : 'Plastering Stage',     color: '#d97706', bg: '#fef3c7', desc: am ? 'ሲሚንቶ ደረጃ ላይ' : 'Plastering / rendering in progress' },
-    finishing:          { label: am ? 'ፊኒሺንግ ላይ' : 'Finishing Stage',      color: '#0891b2', bg: '#cffafe', desc: am ? 'ፊኒሺንግ ላይ ነው' : 'Interior finishing in progress' },
-    completed:          { label: am ? 'ሙሉ በሙሉ ተጠናቋል' : 'Fully Completed',  color: '#059669', bg: '#d1fae5', desc: am ? 'ዝግጁ ነው' : 'Move-in ready' },
+    land_only:        { label: am ? 'ባዶ መሬት' : 'Land Only', color: '#92400e', bg: '#fef3c7', desc: am ? 'ያልተሰራ ቦታ ብቻ' : 'Undeveloped land — build your own' },
+    foundation:       { label: am ? 'መሰረት ብቻ' : 'Foundation Stage', color: '#1d4ed8', bg: '#dbeafe', desc: am ? 'መሰረት ተቆፍሯል' : 'Foundation laid, construction not yet started' },
+    columns_erected:  { label: am ? 'ምሰሶዎች ቆምቷል' : 'Columns Erected', color: '#7c3aed', bg: '#ede9fe', desc: am ? 'ምሰሶዎች ቆምቷል፣ ጣሪያ ገና' : 'Frame / columns up, roof not yet started' },
+    shell_only:       { label: am ? 'ጉዋዳ ብቻ' : 'Shell / Carcass', color: '#7c3aed', bg: '#ede9fe', desc: am ? 'ጉዋዳ ብቻ — ፍሬም ተጠናቋል' : 'Structural shell complete, interior unfinished' },
+    plastering:       { label: am ? 'ሲሚንቶ ደረጃ' : 'Plastering Stage', color: '#d97706', bg: '#fef3c7', desc: am ? 'ሲሚንቶ ደረጃ ላይ' : 'Plastering / rendering in progress' },
+    finishing:        { label: am ? 'ፊኒሺንግ ላይ' : 'Finishing Stage', color: '#0891b2', bg: '#cffafe', desc: am ? 'ፊኒሺንግ ላይ ነው' : 'Interior finishing in progress' },
+    completed:        { label: am ? 'ሙሉ በሙሉ ተጠናቋል' : 'Fully Completed', color: '#059669', bg: '#d1fae5', desc: am ? 'ዝግጁ ነው' : 'Move-in ready' },
   };
 
   const conditionMap: Record<string, { label: string; color: string; bg: string }> = {
     new:              { label: am ? 'አዲስ / በቅርብ የተሰራ' : 'New / Recently Built', color: '#059669', bg: '#d1fae5' },
-    good:             { label: am ? 'ጥሩ ሁኔታ' : 'Good Condition',               color: '#1d4ed8', bg: '#dbeafe' },
-    needs_renovation: { label: am ? 'ጥገና ያስፈልጋል' : 'Needs Renovation',         color: '#92400e', bg: '#fef3c7' },
+    good:             { label: am ? 'ጥሩ ሁኔታ' : 'Good Condition', color: '#1d4ed8', bg: '#dbeafe' },
+    needs_renovation: { label: am ? 'ጥገና ያስፈልጋል' : 'Needs Renovation', color: '#92400e', bg: '#fef3c7' },
   };
 
   const stage = p.construction_stage ? constructionStages[p.construction_stage] : null;
   const condition = p.condition ? conditionMap[p.condition] : null;
 
-  const titleDeedLabel = (t: string) => ({
-    leasehold: am ? 'ሊዝ ይዞታ' : 'Leasehold (ሊዝ)',
-    freehold: am ? 'ፍሪሆልድ / ወረቀት' : 'Freehold / ወረቀት',
-    condominium: am ? 'ኮንዶሚኒየም' : 'Condominium',
-    cooperative: am ? 'ህብረት ስራ' : 'Cooperative / ህብረት ስራ',
-  }[t] ?? t);
+  const titleDeedLabel = (t: string) => ({ leasehold: am ? 'ሊዝ ይዞታ' : 'Leasehold (ሊዝ)', freehold: am ? 'ፍሪሆልድ / ወረቀት' : 'Freehold / ወረቀት', condominium: am ? 'ኮንዶሚኒየም' : 'Condominium', cooperative: am ? 'ህብረት ስራ' : 'Cooperative / ህብረት ስራ' }[t] ?? t);
+  const constructionMaterialLabel = (t: string) => ({ concrete_frame: am ? 'ኮንክሪት ፍሬም / ብሎኬት' : 'Concrete Frame (HB Block)', hcb: am ? 'ሆሎው ብሎክ' : 'HCB / Hollow Block', stone: am ? 'ድንጋይ / ቀርጺ' : 'Stone / Chiseled Stone', wood: am ? 'እንጨት' : 'Wood / Timber', mixed: am ? 'ድብልቅ ቁሳቁስ' : 'Mixed Materials' }[t] ?? t);
+  const roofTypeLabel = (t: string) => ({ concrete_slab: am ? 'ስላብ / ኮንክሪት ጣሪያ' : 'Concrete Slab', corrugated_iron: am ? 'ቆርቆሮ / ኤጋ' : 'Corrugated Iron (EGA)', tile: am ? 'ፋይናሳ ጣሪያ' : 'Tile Roof', flat_roof: am ? 'ጠፍጣፋ ጣሪያ' : 'Flat Roof' }[t] ?? t);
+  const landSlopeLabel = (t: string) => ({ flat: am ? 'ጠፍጣፋ' : 'Flat / Level', slight_slope: am ? 'ትንሽ ቁልቁለት' : 'Slight Slope', steep: am ? 'ዳገት / ቁልቁለት' : 'Steep Slope' }[t] ?? t);
 
-  const constructionMaterialLabel = (t: string) => ({
-    concrete_frame: am ? 'ኮንክሪት ፍሬም / ብሎኬት' : 'Concrete Frame (HB Block)',
-    hcb: am ? 'ሆሎው ብሎክ' : 'HCB / Hollow Block',
-    stone: am ? 'ድንጋይ / ቀርጺ' : 'Stone / Chiseled Stone',
-    wood: am ? 'እንጨት' : 'Wood / Timber',
-    mixed: am ? 'ድብልቅ ቁሳቁስ' : 'Mixed Materials',
-  }[t] ?? t);
-
-  const roofTypeLabel = (t: string) => ({
-    concrete_slab: am ? 'ስላብ / ኮንክሪት ጣሪያ' : 'Concrete Slab',
-    corrugated_iron: am ? 'ቆርቆሮ / ኤጋ' : 'Corrugated Iron (EGA)',
-    tile: am ? 'ፋይናሳ ጣሪያ' : 'Tile Roof',
-    flat_roof: am ? 'ጠፍጣፋ ጣሪያ' : 'Flat Roof',
-  }[t] ?? t);
-
-  const landSlopeLabel = (t: string) => ({
-    flat: am ? 'ጠፍጣፋ' : 'Flat / Level',
-    slight_slope: am ? 'ትንሽ ቁልቁለት' : 'Slight Slope',
-    steep: am ? 'ዳገት / ቁልቁለት' : 'Steep Slope',
-  }[t] ?? t);
-
-  // Ethiopian-specific rooms that exist on the property
   const ethiopianRooms: { label: string; desc: string }[] = [];
   if (p.has_service_room) ethiopianRooms.push({ label: am ? 'የሰራተኛ ክፍል' : 'Service / Maid Room', desc: am ? 'ለሰራተኛ የተለየ ክፍል' : 'Separate quarters for staff' });
   if (p.has_traditional_kitchen) ethiopianRooms.push({ label: am ? 'ጭስ ወጥ ቤት' : 'Traditional Kitchen', desc: am ? 'ለጭስ/ውጭ ወጥ ቤት' : 'Separate outdoor / smoke kitchen' });
@@ -181,7 +188,7 @@ export function PropertyInfo({ property }: { property: Property }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {condition && <Badge color={condition.color} bg={condition.bg}><CheckCircle size={13} /> {condition.label}</Badge>}
         {stage && <Badge color={stage.color} bg={stage.bg}><AlertCircle size={13} /> {stage.label}</Badge>}
-        {p.bank_loan_eligible && <Badge color="#059669" bg="#d1fae5"><CheckCircle size={13} /> {am ? 'ለባንክ ብድር ብቁ' : 'Bank Loan Eligible'}</Badge>}
+        {p.bank_loan_eligible && <Badge color="#c2410c" bg="#fff7ed"><AlertCircle size={13} /> {am ? 'የባንክ ዕዳ አለበት' : 'Has Bank Debt'}</Badge>}
         {p.title_deed_type && <Badge color="#374151" bg="#f3f4f6"><CheckCircle size={13} /> {titleDeedLabel(p.title_deed_type)}</Badge>}
         {p.diaspora_friendly && <Badge color="#7c3aed" bg="#ede9fe"><CheckCircle size={13} /> {am ? 'ዲያስፖራ ተስማሚ' : 'Diaspora Friendly'}</Badge>}
         {p.managed_property && <Badge color="#0891b2" bg="#cffafe"><CheckCircle size={13} /> {am ? 'የሚተዳደር ንብረት' : 'Managed Property'}</Badge>}
@@ -201,7 +208,7 @@ export function PropertyInfo({ property }: { property: Property }) {
         </div>
       )}
 
-      {/* ── BANK LOAN ── */}
+      {/* ── BANK DEBT WARNING ── */}
       {p.bank_loan_eligible && (
         <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '16px 18px' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#c2410c', marginBottom: 8 }}>
