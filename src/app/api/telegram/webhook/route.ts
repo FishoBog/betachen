@@ -71,6 +71,7 @@ async function getAIReply(userMessage: string, history: any[]) {
   return data.content?.[0]?.text ?? 'Sorry, I could not process that. Please try again or visit betachen.com';
 }
 
+export const runtime = 'edge';
 const conversations: Record<number, { role: string; content: string }[]> = {};
 
 export async function POST(req: NextRequest) {
