@@ -39,6 +39,8 @@ export default function NewsArticlePage() {
       const decoded = JSON.parse(jsonStr);
       setArticle(decoded);
       loadRelatedProperties();
+      // Translate if language is AM
+      if (lang === 'AM') translateArticle(decoded);
     } catch {
       router.push('/market');
     }
