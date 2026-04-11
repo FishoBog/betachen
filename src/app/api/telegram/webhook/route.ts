@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     if (text === '/start') {
       await sendMessage(chatId,
-        `*Hello ${firstName}! Welcome to Betachen Bot* 🏠\n\nI am your Ethiopian real estate assistant. I can help you:\n\n• 🔍 Find properties across Ethiopia\n• 📝 Post a listing\n• 💡 Understand market prices\n• 🇪🇹 Guide diaspora investors\n\nAsk me anything in *English or Amharic*!\n\nVisit: betachen.com`,
+        `*ሰላም ${firstName}! እንኳን ደህና መጡ — Betachen Bot* 🏠\n\n*Welcome to Betachen Bot!*\n\nየኢትዮጵያ ሪል እስቴት ረዳትዎ ነኝ። ልረዳዎ የምችለው:\n\n• 🔍 በኢትዮጵያ ንብረቶችን ይፈልጉ\n• 📝 ማስታወቂያ ይለጥፉ\n• 💡 የገበያ ዋጋዎችን ይረዱ\n• 🇪🇹 ለዲያስፖራ ኢንቨስተሮች መመሪያ\n\nበ*አማርኛ ወይም እንግሊዝኛ* ይጠይቁኝ!\n\nVisit: betachen.com`,
         {
           inline_keyboard: [
             [
