@@ -64,7 +64,7 @@ export function PropertyInfo({ property }: { property: Property }) {
     if (property.bathrooms) parts.push(`${property.bathrooms}-bath`);
     if (property.area_sqm) parts.push(`${property.area_sqm} m²`);
     const type = p.type === 'sale' ? 'property' : p.type === 'long_rent' ? 'rental' : 'short-stay property';
-    const loc = p.location || p.subcity || 'Addis Ababa';
+    const loc = property.location || p.subcity || 'Addis Ababa';
     const highlights: string[] = [];
     if (p.ground_water) highlights.push('borehole water');
     if (p.electricity_reliability === '24hr') highlights.push('24hr electricity');
