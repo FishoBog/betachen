@@ -26,9 +26,9 @@ const KEYWORDS = {
 
 async function fetchRSS(url: string): Promise<any[]> {
   try {
-    const res = await fetch(url, {
+   const res = await fetch(url, {
       headers: { 'User-Agent': 'Betachen/1.0 (+https://betachen.com)' },
-      next: { revalidate: 900 },
+      cache: 'no-store',
     });
     if (!res.ok) return [];
     const xml = await res.text();
