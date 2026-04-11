@@ -24,7 +24,7 @@ const QUICK_QUESTIONS_AM = [
   'የዲያስፖራ ኢንቨስተር ነኝ',
 ];
 
-export function ChatWidget() {
+export function HelpChat() {
   const { user } = useUser();
   const { lang } = useLang();
   const [open, setOpen] = useState(false);
