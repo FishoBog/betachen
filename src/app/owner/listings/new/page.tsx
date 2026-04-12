@@ -173,7 +173,7 @@ export default function NewListingPage() {
     }
     setSendingCode(true); setCodeError('');
     try {
-      const res = await fetch('/api/verify/send', {
+      const res = await fetch('https://www.betachen.com/api/verify/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: ownerEmail, name: ownerName }),
@@ -194,7 +194,7 @@ export default function NewListingPage() {
     if (!verificationCode.trim()) return;
     setVerifyingCode(true); setCodeError('');
     try {
-      const res = await fetch('/api/verify/check', {
+      const res = await fetch('https://www.betachen.com/api/verify/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: ownerEmail, code: verificationCode }),
