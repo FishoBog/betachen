@@ -18,7 +18,9 @@ const isPublicRoute = createRouteMatcher([
   '/api/payments/webhook',
   '/api/cron/(.*)',
   '/api/telegram/(.*)',
-  '/api/listings/payment/verify',
+  '/api/verify/(.*)',
+  '/api/verify/send',
+  '/api/verify/check',
   '/owner/listings/(.*)/payment/success',
   '/owner/listings/new',
 ]);
