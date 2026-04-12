@@ -1,24 +1,23 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useUser, SignInButton } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
 import { useLang } from '@/context/LangContext';
-import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Camera, Users, Shield, TrendingUp, PlusCircle, Building2 } from 'lucide-react';
+import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2 } from 'lucide-react';
 import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 
 const ETHIOPIA_CITIES = [
   { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ', subsEn: ['Bole','Yeka','Kirkos','Lemi Kura','Nifas Silk-Lafto','Arada','Lideta','Gullele','Kolfe Keraniyo','Akaki-Kality','Addis Ketema'], subsAm: ['ቦሌ','የካ','ቂርቆስ','ለሚ ኩራ','ንፋስ ስልክ ላፍቶ','አራዳ','ልደታ','ጉለሌ','ኮልፌ ቀራኒዮ','አቃቂ ቃሊቲ','አዲስ ከተማ'] },
-  { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ', subsEn: ['Kezira','Magala','Melka Jebdu','Sabiyan','Gende Qore','Gende Tesfa'], subsAm: ['ቀዚራ','መጋላ','መልካ ጀብዱ','ሳቢያን','ገንደ ቆሬ','ገንደ ተስፋ'] },
-  { cityEn: 'Adama', cityAm: 'አዳማ', subsEn: ['Bole','Arada','Dabe Soloke','Melka Adama','Boku','Migira','Posta Bet'], subsAm: ['ቦሌ','አራዳ','ዳቤ ሶሎቄ','መልካ አዳማ','ቦቁ','ሚጊራ','ፖስታ ቤት'] },
-  { cityEn: 'Gondar', cityAm: 'ጎንደር', subsEn: ['Maraki','Arada','Azezo','Fasil','Jantekel','Lideta','Gebriel'], subsAm: ['ማራኪ','አራዳ','አዘዞ','ፋሲል','ጃንተከል','ልደታ','ገብርኤል'] },
-  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ', subsEn: ['Hayiq Dar','Misrak','Tabor','Mehal','Bahil Adarash','Tula','Monopol'], subsAm: ['ሐይቅ ዳር','ምሥራቅ','ታቦር','መሀል','ባህል አዳራሽ','ቱላ','ሞኖፖል'] },
-  { cityEn: 'Bahir Dar', cityAm: 'ባሕር ዳር', subsEn: ['Belay Zeleke','Atse Tewodros','Fasilo','Shimbit','Ginbot 20','Tana','Diaspora Sefer'], subsAm: ['በላይ ዘለቀ','አፄ ቴዎድሮስ','ፋሲሎ','ሽምቢት','ግንቦት 20','ጣና','ዲያስፖራ ሰፈር'] },
-  { cityEn: 'Mekelle', cityAm: 'መቐለ', subsEn: ['Hadnet','Ayder','Kedamay Weyane','Qwiha','Semien','Saharti','Adi Haki'], subsAm: ['ሃድነት','አይደር','ቀዳማይ ወያነ','ኩዊሃ','ሰሜን','ሰሐርቲ','ዓዲ ሓቂ'] },
-  { cityEn: 'Jimma', cityAm: 'ጅማ', subsEn: ['Hermata','Jiren','Bosa Bazab','Mendera Kochino','Ginjo','Seto Semero'], subsAm: ['ሀርማታ','ጅሬን','ቦሳ ባዛብ','መንደራ ኮቺኖ','ጊንጆ','ሴቶ ሰመሮ'] },
-  { cityEn: 'Dessie', cityAm: 'ደሴ', subsEn: ['Arada','Piazza','Dawudo','Segno Gebeya','Hotie','Memhir Akale Wold','Kurkur'], subsAm: ['አራዳ','ፒያሳ','ዳውዶ','ሰኞ ገበያ','ሆጤ','መምህር አካለ ወልድ','ኩርኩር'] },
-  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ', subsEn: ['Hayiq Dar','Misrak','Tabor'], subsAm: ['ሐይቅ ዳር','ምሥራቅ','ታቦር'] },
+  { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ', subsEn: ['Kezira','Magala','Melka Jebdu','Sabiyan','Gende Qore'], subsAm: ['ቀዚራ','መጋላ','መልካ ጀብዱ','ሳቢያን','ገንደ ቆሬ'] },
+  { cityEn: 'Adama', cityAm: 'አዳማ', subsEn: ['Bole','Arada','Dabe Soloke','Melka Adama','Boku'], subsAm: ['ቦሌ','አራዳ','ዳቤ ሶሎቄ','መልካ አዳማ','ቦቁ'] },
+  { cityEn: 'Gondar', cityAm: 'ጎንደር', subsEn: ['Maraki','Arada','Azezo','Fasil','Jantekel'], subsAm: ['ማራኪ','አራዳ','አዘዞ','ፋሲል','ጃንተከል'] },
+  { cityEn: 'Hawassa', cityAm: 'ሐዋሳ', subsEn: ['Hayiq Dar','Misrak','Tabor','Mehal'], subsAm: ['ሐይቅ ዳር','ምሥራቅ','ታቦር','መሀል'] },
+  { cityEn: 'Bahir Dar', cityAm: 'ባሕር ዳር', subsEn: ['Belay Zeleke','Atse Tewodros','Fasilo','Shimbit'], subsAm: ['በላይ ዘለቀ','አፄ ቴዎድሮስ','ፋሲሎ','ሽምቢት'] },
+  { cityEn: 'Mekelle', cityAm: 'መቐለ', subsEn: ['Hadnet','Ayder','Kedamay Weyane','Qwiha'], subsAm: ['ሃድነት','አይደር','ቀዳማይ ወያነ','ኩዊሃ'] },
+  { cityEn: 'Jimma', cityAm: 'ጅማ', subsEn: ['Hermata','Jiren','Bosa Bazab'], subsAm: ['ሀርማታ','ጅሬን','ቦሳ ባዛብ'] },
+  { cityEn: 'Dessie', cityAm: 'ደሴ', subsEn: ['Arada','Piazza','Dawudo'], subsAm: ['አራዳ','ፒያሳ','ዳውዶ'] },
   { cityEn: 'Shashemene', cityAm: 'ሻሸመኔ', subsEn: ['Bulchana','Arada','Kuyera'], subsAm: ['ቡልቻና','አራዳ','ኩየራ'] },
   { cityEn: 'Bishoftu', cityAm: 'ቢሾፍቱ', subsEn: ['Kebele 01','Kebele 02','Kuriftu'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ኩሪፍቱ'] },
   { cityEn: 'Harar', cityAm: 'ሐረር', subsEn: ['Jugol','Shenkor','Aboker'], subsAm: ['ጁጎል','ሸንኮር','አቦከር'] },
@@ -99,7 +98,7 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
 }
 
 export default function NewListingPage() {
-  const { user, isSignedIn, isLoaded } = useUser();
+  const { user, isSignedIn } = useUser();
   const { t, lang } = useLang();
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -111,6 +110,26 @@ export default function NewListingPage() {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const cityRef = useRef<HTMLDivElement>(null);
 
+  // Email verification state
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [codeError, setCodeError] = useState('');
+
+  useEffect(() => {
+    // If already signed in, pre-fill and skip verification
+    if (isSignedIn && user) {
+      setOwnerEmail(user.primaryEmailAddress?.emailAddress || '');
+      setOwnerName(user.firstName || '');
+      setVerified(true);
+    }
+  }, [isSignedIn, user]);
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => { if (cityRef.current && !cityRef.current.contains(e.target as Node)) setShowCityDropdown(false); };
     document.addEventListener('mousedown', handleClick);
@@ -118,34 +137,25 @@ export default function NewListingPage() {
   }, []);
 
   const [form, setForm] = useState({
-    // Basic
     title: '', description: '', type: 'sale', currency: 'ETB',
     price: '', price_negotiable: false, condition: 'good',
-    // Rooms
     bedrooms: '', bathrooms: '', total_rooms: '', area: '',
-    floor: '', total_floors: '', year_built: '', whatsapp: '',
+    floor: '', total_floors: '', year_built: '',
     bathroom_type: 'private', kitchen_type: 'none',
-    // Ethiopian rooms
     has_service_room: false, has_traditional_kitchen: false,
     has_store_room: false, has_guard_room: false,
     has_prayer_room: false, has_boys_quarter: false,
-    // Construction
     construction_stage: '', construction_material: '', roof_type: '',
-    // Land
     plot_area_sqm: '', land_length_m: '', land_width_m: '',
     land_slope: '', corner_plot: false,
-    // Financial
     bank_loan_eligible: false, bank_loan_amount: '', bank_loan_bank: '',
     title_deed_type: '',
-    // Location
     city: '', subcity: '', woreda: '', kebele: '', specific_location: '',
     lat: '', lng: '',
-    // Utilities
     parking_spaces: '', has_compound_wall: false, has_guard_house: false,
     ground_water: false, water_tanker: false,
     electricity_reliability: '24hr', internet_type: 'none',
     road_type: 'asphalt', distance_to_road_m: '',
-    // Other
     amenities: [] as string[], nearby_landmarks: [] as string[],
     diaspora_friendly: false, managed_property: false,
   });
@@ -156,6 +166,51 @@ export default function NewListingPage() {
   const toggleAmenity = (key: string) => setForm(p => ({ ...p, amenities: p.amenities.includes(key) ? p.amenities.filter(a => a !== key) : [...p.amenities, key] }));
   const toggleLandmark = (key: string) => setForm(p => ({ ...p, nearby_landmarks: p.nearby_landmarks.includes(key) ? p.nearby_landmarks.filter(a => a !== key) : [...p.nearby_landmarks, key] }));
 
+  const handleSendCode = async () => {
+    if (!ownerName.trim() || !ownerEmail.trim()) {
+      setCodeError(lang === 'EN' ? 'Please enter your name and email' : 'ስምዎን እና ኢሜይልዎን ያስገቡ');
+      return;
+    }
+    setSendingCode(true); setCodeError('');
+    try {
+      const res = await fetch('/api/verify/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: ownerEmail, name: ownerName }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCodeSent(true);
+      } else {
+        setCodeError(lang === 'EN' ? 'Failed to send code. Try again.' : 'ኮድ መላክ አልተቻለም። እንደገና ይሞክሩ።');
+      }
+    } catch {
+      setCodeError(lang === 'EN' ? 'Failed to send code. Try again.' : 'ኮድ መላክ አልተቻለም።');
+    }
+    setSendingCode(false);
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) return;
+    setVerifyingCode(true); setCodeError('');
+    try {
+      const res = await fetch('/api/verify/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: ownerEmail, code: verificationCode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVerified(true);
+      } else {
+        setCodeError(lang === 'EN' ? 'Incorrect code. Please try again.' : 'ኮዱ ትክክል አይደለም። እንደገና ይሞክሩ።');
+      }
+    } catch {
+      setCodeError(lang === 'EN' ? 'Verification failed. Try again.' : 'ማረጋገጥ አልተቻለም።');
+    }
+    setVerifyingCode(false);
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -163,7 +218,7 @@ export default function NewListingPage() {
     const supabase = createBrowserClient();
     const urls: string[] = [];
     for (const file of files.slice(0, 10)) {
-      const fileName = `${user?.id}/${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+      const fileName = `guest/${Date.now()}-${file.name.replace(/\s/g, '_')}`;
       const { error } = await supabase.storage.from('property-images').upload(fileName, file, { upsert: true });
       if (!error) { const { data } = supabase.storage.from('property-images').getPublicUrl(fileName); urls.push(data.publicUrl); }
     }
@@ -172,13 +227,14 @@ export default function NewListingPage() {
   };
 
   const handleSubmit = async () => {
-    if (!isSignedIn || !user) return;
+    if (!verified) return;
     setLoading(true); setError('');
     try {
       const supabase = createBrowserClient();
       const locationParts = [form.specific_location, form.kebele, form.woreda, form.subcity, form.city].filter(Boolean);
       const { data, error: err } = await supabase.from('properties').insert({
-        owner_id: user.id, title: form.title, description: form.description,
+        owner_id: user?.id || null,
+        title: form.title, description: form.description,
         type: form.type, currency: form.currency,
         price: form.price_negotiable ? 0 : parseFloat(form.price),
         price_negotiable: form.price_negotiable,
@@ -196,8 +252,7 @@ export default function NewListingPage() {
         plot_area_sqm: form.plot_area_sqm ? parseFloat(form.plot_area_sqm) : null,
         land_length_m: form.land_length_m ? parseFloat(form.land_length_m) : null,
         land_width_m: form.land_width_m ? parseFloat(form.land_width_m) : null,
-        land_slope: form.land_slope || null,
-        corner_plot: form.corner_plot,
+        land_slope: form.land_slope || null, corner_plot: form.corner_plot,
         bathroom_type: form.bathroom_type, kitchen_type: form.kitchen_type,
         distance_to_road_m: form.distance_to_road_m ? parseInt(form.distance_to_road_m) : null,
         road_type: form.road_type, ground_water: form.ground_water, water_tanker: form.water_tanker,
@@ -220,8 +275,9 @@ export default function NewListingPage() {
         diaspora_friendly: form.diaspora_friendly,
         managed_property: form.managed_property,
         status: 'pending_review',
-        owner_email: user.primaryEmailAddress?.emailAddress,
-        owner_whatsapp: form.whatsapp,
+        owner_email: ownerEmail,
+        owner_whatsapp: ownerPhone,
+        owner_name: ownerName,
       }).select().single();
       if (err) throw err;
       router.push(`/owner/listings/${data.id}/payment`);
@@ -247,47 +303,7 @@ export default function NewListingPage() {
 
   const LANDMARKS_EN = ['School','University','Hospital','Clinic','Market','Supermarket','Mosque','Church','Bank','ATM','Bus Stop','Main Road','Shopping Mall','Restaurant','Hotel','Police Station'];
   const LANDMARKS_AM = ['ትምህርት ቤት','ዩኒቨርሲቲ','ሆስፒታል','ክሊኒክ','ገበያ','ሱፐርማርኬት','መስጊድ','ቤተክርስቲያን','ባንክ','ኤቲኤም','የባስ ማቆሚያ','ዋና መንገድ','ሸሞንግ ሞል','ሬስቶራንት','ሆቴል','ፖሊስ ጣቢያ'];
-
   const steps = [t.step1, t.step2, t.step3, t.step4, t.step5];
-
-  if (!isLoaded) return <div style={{ minHeight: '100vh', background: '#f9fafb' }}><Navbar /><div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>{t.loading}</div></div>;
-
-  if (!isSignedIn) return (
-    <div style={{ minHeight: '100vh', background: 'white' }}>
-      <Navbar />
-      <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '64px 24px 72px', textAlign: 'center' as const }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 18px', marginBottom: 20 }}>
-          <Building2 size={13} color="white" />
-          <span style={{ color: 'white', fontSize: 12, fontWeight: 700, letterSpacing: '0.8px' }}>{t.postPageTag}</span>
-        </div>
-        <h1 style={{ fontSize: 'clamp(28px, 5vw, 52px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 16 }}>
-          {t.postPageTitle1}<br /><span style={{ color: '#FF6B35' }}>{t.postPageTitle2}</span>
-        </h1>
-        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, maxWidth: 520, margin: '0 auto 32px' }}>{t.postPageDesc}</p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' as const, maxWidth: 460, margin: '0 auto' }}>
-          <SignInButton mode="modal"><button style={{ flex: 1, minWidth: 200, padding: '15px 24px', borderRadius: 12, background: '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><PlusCircle size={17} /> {t.postPageCta1}</button></SignInButton>
-          <SignInButton mode="modal"><button style={{ flex: 1, minWidth: 160, padding: '15px 24px', borderRadius: 12, background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, fontSize: 15, border: '1.5px solid rgba(255,255,255,0.3)', cursor: 'pointer' }}>{t.postPageCta2}</button></SignInButton>
-        </div>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 16 }}>{t.postPageFooter}</p>
-      </div>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 20 }}>
-          {[
-            { icon: Camera, title: t.postPageB1Title, desc: t.postPageB1Desc, color: '#dbeafe', iconColor: '#1d4ed8' },
-            { icon: Users, title: t.postPageB2Title, desc: t.postPageB2Desc, color: '#d1fae5', iconColor: '#065f46' },
-            { icon: Shield, title: t.postPageB3Title, desc: t.postPageB3Desc, color: '#fef3c7', iconColor: '#92400e' },
-            { icon: TrendingUp, title: t.postPageB4Title, desc: t.postPageB4Desc, color: '#fce7f3', iconColor: '#9d174d' },
-          ].map(({ icon: Icon, title, desc, color, iconColor }) => (
-            <div key={title} style={{ background: 'white', borderRadius: 16, padding: '24px', border: '1px solid #e5e7eb', textAlign: 'center' as const }}>
-              <div style={{ width: 52, height: 52, borderRadius: 14, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}><Icon size={24} color={iconColor} /></div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 6 }}>{title}</div>
-              <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -298,507 +314,541 @@ export default function NewListingPage() {
           <p style={{ color: '#6b7280', fontSize: 15 }}>{t.formSubtitle}</p>
         </div>
 
-        {/* Progress */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
-          {steps.map((s, i) => (
-            <div key={s} style={{ flex: 1, minWidth: 80 }}>
-              <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
-              <div style={{ fontSize: 11, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>{i + 1}. {s}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── STEP 1: Basic Info ── */}
-        {step === 1 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Home size={18} color="#E8431A" /></div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step1}</div>
+        {/* ── EMAIL VERIFICATION GATE ── */}
+        {!verified && (
+          <div style={sectionStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Mail size={18} color="#E8431A" />
               </div>
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>{t.propTitle}</label>
-                  <input style={inputStyle} value={form.title} onChange={e => set('title', e.target.value)} placeholder={t.propTitlePlaceholder} />
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
+                  {lang === 'EN' ? 'Verify your email to continue' : 'ለመቀጠል ኢሜይልዎን ያረጋግጡ'}
                 </div>
-                <div>
-                  <label style={labelStyle}>{t.description}</label>
-                  <textarea style={{ ...inputStyle, height: 100, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
+                <div style={{ fontSize: 13, color: '#6b7280' }}>
+                  {lang === 'EN' ? 'No account needed — just verify your email' : 'መለያ አያስፈልግም — ኢሜይልዎን ብቻ ያረጋግጡ'}
                 </div>
+              </div>
+            </div>
+
+            {!codeSent ? (
+              <div style={{ display: 'grid', gap: 14 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={labelStyle}>{t.listingType}</label>
-                    <select style={inputStyle} value={form.type} onChange={e => set('type', e.target.value)}>
-                      <option value="sale">{t.forSaleOpt}</option>
-                      <option value="long_rent">{t.longRentOpt}</option>
-                      <option value="short_rent">{t.shortRentOpt}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{t.condition}</label>
-                    <select style={inputStyle} value={form.condition} onChange={e => set('condition', e.target.value)}>
-                      <option value="new">{t.condNew}</option>
-                      <option value="good">{t.condGood}</option>
-                      <option value="needs_renovation">{t.condRenovation}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div style={{ background: '#f9fafb', borderRadius: 12, padding: '16px', border: '1px solid #e5e7eb' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <label style={{ ...labelStyle, marginBottom: 0 }}>
-                      {lang === 'EN' ? 'Price' : 'ዋጋ'} {form.type === 'long_rent' ? t.pricePerMonth : form.type === 'short_rent' ? t.pricePerNight : ''}
+                    <label style={labelStyle}>
+                      <User size={12} style={{ display: 'inline', marginRight: 4 }} />
+                      {lang === 'EN' ? 'Your Name' : 'ስምዎ'}
                     </label>
-                    {form.type !== 'short_rent' && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 13, color: '#374151' }}>{t.negotiable}</span>
-                        <div onClick={() => set('price_negotiable', !form.price_negotiable)} style={{ width: 44, height: 24, borderRadius: 12, background: form.price_negotiable ? '#006AFF' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-                          <div style={{ position: 'absolute', top: 2, left: form.price_negotiable ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                        </div>
-                      </div>
-                    )}
+                    <input style={inputStyle} value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder={lang === 'EN' ? 'e.g. Abebe Kebede' : 'ለምሳሌ አበበ ቀበደ'} />
                   </div>
-                  {form.price_negotiable && form.type !== 'short_rent' ? (
-                    <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46' }}>{t.negotiableNote}</div>
-                  ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={labelStyle}>{t.currency}</label>
-                        <select style={inputStyle} value={form.currency} onChange={e => set('currency', e.target.value)}>
-                          <option value="ETB">ETB — Ethiopian Birr</option>
-                          <option value="USD">USD — US Dollar</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={labelStyle}>{t.amount}</label>
-                        <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder={form.type === 'sale' ? 'e.g. 5000000' : 'e.g. 15000'} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Title deed */}
-                <div>
-                  <label style={labelStyle}>{lang === 'EN' ? 'Title Deed Type' : 'የቦታ ሰነድ አይነት'}</label>
-                  <select style={inputStyle} value={form.title_deed_type} onChange={e => set('title_deed_type', e.target.value)}>
-                    <option value="">{lang === 'EN' ? '— Select deed type —' : '— ይምረጡ —'}</option>
-                    <option value="leasehold">{lang === 'EN' ? 'Leasehold (ሊዝ)' : 'ሊዝ ይዞታ'}</option>
-                    <option value="freehold">{lang === 'EN' ? 'Freehold / ወረቀት' : 'ፍሪሆልድ / ወረቀት'}</option>
-                    <option value="condominium">{lang === 'EN' ? 'Condominium' : 'ኮንዶሚኒየም'}</option>
-                    <option value="cooperative">{lang === 'EN' ? 'Cooperative / ህብረት ስራ' : 'ህብረት ስራ'}</option>
-                  </select>
-                </div>
-
-                {/* Rooms */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.bedrooms}</label><input style={inputStyle} type="number" min="0" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} placeholder="e.g. 3" /></div>
-                  <div><label style={labelStyle}>{t.bathrooms}</label><input style={inputStyle} type="number" min="0" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="e.g. 2" /></div>
-                  <div><label style={labelStyle}>{t.totalRooms}</label><input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" /></div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.houseArea}</label><input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" /></div>
-                  <div><label style={labelStyle}>{t.floorNumber}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
-                  <div><label style={labelStyle}>{t.totalFloors}</label><input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 10" /></div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.yearBuilt}</label><input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" /></div>
-                  <div><label style={labelStyle}>{t.whatsapp}</label><input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+251911234567" /></div>
-                </div>
-
-                {/* Ethiopian-specific rooms */}
-                <div>
-                  <div style={subHeading}>{lang === 'EN' ? 'Additional Rooms (Ethiopian Specific)' : 'ተጨማሪ ክፍሎች'}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
-                    <Toggle label={lang === 'EN' ? 'Service / Maid Room' : 'የሰራተኛ ክፍል'} desc={lang === 'EN' ? 'Separate quarters for staff' : 'ለሰራተኛ የተለየ ክፍል'} value={form.has_service_room} onChange={() => set('has_service_room', !form.has_service_room)} />
-                    <Toggle label={lang === 'EN' ? 'Traditional Kitchen' : 'ጭስ ወጥ ቤት'} desc={lang === 'EN' ? 'Separate outdoor/smoke kitchen' : 'ለጭስ/ውጭ ወጥ ቤት'} value={form.has_traditional_kitchen} onChange={() => set('has_traditional_kitchen', !form.has_traditional_kitchen)} color="#d97706" bg="#fffbeb" />
-                    <Toggle label={lang === 'EN' ? 'Store Room / ጎተራ' : 'ጎተራ / መጋዘን'} desc={lang === 'EN' ? 'Storage / ጎተራ' : 'ለምግብ ወይም ዕቃ ማስቀመጫ'} value={form.has_store_room} onChange={() => set('has_store_room', !form.has_store_room)} color="#7c3aed" bg="#ede9fe" />
-                    <Toggle label={lang === 'EN' ? 'Guard / Security Room' : 'የጠባቂ ክፍል'} desc={lang === 'EN' ? 'Room for security guard' : 'ለጠባቂ የተሰራ ክፍል'} value={form.has_guard_room} onChange={() => set('has_guard_room', !form.has_guard_room)} color="#059669" bg="#ecfdf5" />
-                    <Toggle label={lang === 'EN' ? 'Prayer Room' : 'የጸሎት ክፍል'} desc={lang === 'EN' ? 'Dedicated prayer space' : 'ለጸሎት/ስጋጃ ቤት'} value={form.has_prayer_room} onChange={() => set('has_prayer_room', !form.has_prayer_room)} color="#0891b2" bg="#cffafe" />
-                    <Toggle label={lang === 'EN' ? "Boy's Quarter / BQ" : 'ቦይስ ኳርተር'} desc={lang === 'EN' ? 'Self-contained staff unit' : 'ለሰራተኛ/ጠባቂ ክፍል'} value={form.has_boys_quarter} onChange={() => set('has_boys_quarter', !form.has_boys_quarter)} color="#E8431A" bg="#fef2ee" />
+                  <div>
+                    <label style={labelStyle}>
+                      <Phone size={12} style={{ display: 'inline', marginRight: 4 }} />
+                      {lang === 'EN' ? 'Phone Number' : 'ስልክ ቁጥር'}
+                    </label>
+                    <input style={inputStyle} value={ownerPhone} onChange={e => setOwnerPhone(e.target.value)} placeholder="+251911234567" />
                   </div>
                 </div>
-
-                {/* Construction stage */}
                 <div>
-                  <div style={subHeading}>{lang === 'EN' ? 'Construction Stage' : 'የግንባታ ደረጃ'}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <div>
-                      <label style={labelStyle}>{lang === 'EN' ? 'Current Stage' : 'የአሁኑ ደረጃ'}</label>
-                      <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
-                        <option value="">{lang === 'EN' ? '— Select stage —' : '— ይምረጡ —'}</option>
-                        <option value="land_only">{lang === 'EN' ? 'Land Only (ባዶ ቦታ)' : 'ባዶ ቦታ ብቻ'}</option>
-                        <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት ተቆፍሯል'}</option>
-                        <option value="columns_erected">{lang === 'EN' ? 'Columns / Frame Erected' : 'ምሰሶዎች ቆምቷል'}</option>
-                        <option value="shell_only">{lang === 'EN' ? 'Shell / Carcass (Guwada)' : 'ጉዋዳ ብቻ'}</option>
-                        <option value="plastering">{lang === 'EN' ? 'Plastering Stage' : 'ሲሚንቶ ደረጃ'}</option>
-                        <option value="finishing">{lang === 'EN' ? 'Interior Finishing' : 'ፊኒሺንግ ላይ'}</option>
-                        <option value="completed">{lang === 'EN' ? 'Fully Completed' : 'ሙሉ በሙሉ ተጠናቋል'}</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style={labelStyle}>{lang === 'EN' ? 'Construction Material' : 'የግንባታ ቁሳቁስ'}</label>
-                      <select style={inputStyle} value={form.construction_material} onChange={e => set('construction_material', e.target.value)}>
-                        <option value="">{lang === 'EN' ? '— Select material —' : '— ይምረጡ —'}</option>
-                        <option value="concrete_frame">{lang === 'EN' ? 'Concrete Frame (HB Block)' : 'ኮንክሪት ፍሬም / ብሎኬት'}</option>
-                        <option value="hcb">{lang === 'EN' ? 'HCB / Hollow Block' : 'ሆሎው ብሎክ'}</option>
-                        <option value="stone">{lang === 'EN' ? 'Stone / Chiseled Stone' : 'ድንጋይ / ቀርጺ'}</option>
-                        <option value="wood">{lang === 'EN' ? 'Wood / Timber' : 'እንጨት'}</option>
-                        <option value="mixed">{lang === 'EN' ? 'Mixed Materials' : 'ድብልቅ ቁሳቁስ'}</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style={labelStyle}>{lang === 'EN' ? 'Roof Type' : 'የጣሪያ አይነት'}</label>
-                      <select style={inputStyle} value={form.roof_type} onChange={e => set('roof_type', e.target.value)}>
-                        <option value="">{lang === 'EN' ? '— Select roof type —' : '— ይምረጡ —'}</option>
-                        <option value="concrete_slab">{lang === 'EN' ? 'Concrete Slab / Slabs' : 'ስላብ / ኮንክሪት ጣሪያ'}</option>
-                        <option value="corrugated_iron">{lang === 'EN' ? 'Corrugated Iron (EGA)' : 'ቆርቆሮ / ኤጋ'}</option>
-                        <option value="tile">{lang === 'EN' ? 'Tile Roof' : 'ፋይናሳ ጣሪያ'}</option>
-                        <option value="flat_roof">{lang === 'EN' ? 'Flat Roof' : 'ጠፍጣፋ ጣሪያ'}</option>
-                      </select>
-                    </div>
+                  <label style={labelStyle}>
+                    <Mail size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    {lang === 'EN' ? 'Email Address' : 'ኢሜይል አድራሻ'}
+                  </label>
+                  <input style={inputStyle} type="email" value={ownerEmail} onChange={e => setOwnerEmail(e.target.value)} placeholder="example@gmail.com" />
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
+                    {lang === 'EN' ? 'We will send a 6-digit code to this email' : 'ወደዚህ ኢሜይል 6 አሃዝ ኮድ እንልካለን'}
                   </div>
                 </div>
-
-                {/* Bank loan */}
-                <div>
-                  <div style={subHeading}>{lang === 'EN' ? 'Bank Financing' : 'የባንክ ብድር'}</div>
-                  <Toggle
-                    label={lang === 'EN' ? 'This property is eligible for bank loan' : 'ይህ ንብረት ለባንክ ብድር ብቁ ነው'}
-                    desc={lang === 'EN' ? 'Buyer can finance through an Ethiopian bank' : 'ገዢው ከኢትዮጵያ ባንክ ብድር ማግኘት ይችላሉ'}
-                    value={form.bank_loan_eligible}
-                    onChange={() => set('bank_loan_eligible', !form.bank_loan_eligible)}
-                    color="#059669" bg="#ecfdf5"
-                  />
-                  {form.bank_loan_eligible && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
-                      <div>
-                        <label style={labelStyle}>{lang === 'EN' ? 'Loan Amount Available (ETB)' : 'የብድር መጠን (ETB)'}</label>
-                        <input style={inputStyle} type="number" value={form.bank_loan_amount} onChange={e => set('bank_loan_amount', e.target.value)} placeholder="e.g. 3000000" />
-                      </div>
-                      <div>
-                        <label style={labelStyle}>{lang === 'EN' ? 'Bank Name' : 'የባንክ ስም'}</label>
-                        <select style={inputStyle} value={form.bank_loan_bank} onChange={e => set('bank_loan_bank', e.target.value)}>
-                          <option value="">{lang === 'EN' ? '— Select bank —' : '— ባንክ ይምረጡ —'}</option>
-                          <option value="CBE">Commercial Bank of Ethiopia (CBE)</option>
-                          <option value="Awash">Awash Bank</option>
-                          <option value="Dashen">Dashen Bank</option>
-                          <option value="Abyssinia">Bank of Abyssinia</option>
-                          <option value="Wegagen">Wegagen Bank</option>
-                          <option value="United">United Bank</option>
-                          <option value="NIB">NIB International Bank</option>
-                          <option value="Zemen">Zemen Bank</option>
-                          <option value="Cooperative">Cooperative Bank of Oromia</option>
-                          <option value="Multiple">{lang === 'EN' ? 'Multiple Banks' : 'ብዙ ባንኮች'}</option>
-                        </select>
-                      </div>
-                    </div>
-                  )}
+                {codeError && <div style={{ color: '#dc2626', fontSize: 13 }}>{codeError}</div>}
+                <button onClick={handleSendCode} disabled={sendingCode} style={{ padding: '13px', borderRadius: 10, background: sendingCode ? '#9ca3af' : '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: sendingCode ? 'not-allowed' : 'pointer' }}>
+                  {sendingCode
+                    ? (lang === 'EN' ? 'Sending code...' : 'ኮድ እየተላከ ነው...')
+                    : (lang === 'EN' ? 'Send Verification Code' : 'የማረጋገጫ ኮድ ላክ')}
+                </button>
+                <div style={{ textAlign: 'center', fontSize: 13, color: '#6b7280' }}>
+                  {lang === 'EN' ? 'Already have an account?' : 'መለያ አለዎት?'}{' '}
+                  <a href="/sign-in" style={{ color: '#006AFF', fontWeight: 600, textDecoration: 'none' }}>
+                    {lang === 'EN' ? 'Sign in instead' : 'ይግቡ'}
+                  </a>
                 </div>
-
               </div>
-            </div>
-            <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }}
-              style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {t.nextLocation} <ArrowRight size={18} />
-            </button>
-            {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
+            ) : (
+              <div style={{ display: 'grid', gap: 14 }}>
+                <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '14px 16px' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>
+                    {lang === 'EN' ? `Code sent to ${ownerEmail}` : `ኮድ ወደ ${ownerEmail} ተልኳል`}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
+                    {lang === 'EN' ? 'Check your inbox and spam folder' : 'inbox እና spam ያረጋግጡ'}
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>{lang === 'EN' ? 'Enter 6-digit code' : '6 አሃዝ ኮድ ያስገቡ'}</label>
+                  <input
+                    style={{ ...inputStyle, fontSize: 24, letterSpacing: 8, textAlign: 'center', fontWeight: 700 }}
+                    value={verificationCode}
+                    onChange={e => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="000000"
+                    maxLength={6}
+                  />
+                </div>
+                {codeError && <div style={{ color: '#dc2626', fontSize: 13 }}>{codeError}</div>}
+                <button onClick={handleVerifyCode} disabled={verifyingCode || verificationCode.length !== 6} style={{ padding: '13px', borderRadius: 10, background: verifyingCode || verificationCode.length !== 6 ? '#9ca3af' : '#059669', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: verifyingCode || verificationCode.length !== 6 ? 'not-allowed' : 'pointer' }}>
+                  {verifyingCode
+                    ? (lang === 'EN' ? 'Verifying...' : 'እያረጋገጠ ነው...')
+                    : (lang === 'EN' ? 'Verify & Continue' : 'አረጋግጥ እና ቀጥል')}
+                </button>
+                <button onClick={() => { setCodeSent(false); setVerificationCode(''); setCodeError(''); }} style={{ padding: '10px', borderRadius: 10, background: 'white', border: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                  {lang === 'EN' ? 'Change email' : 'ኢሜይል ቀይር'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* ── STEP 2: Location ── */}
-        {step === 2 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={18} color="#E8431A" /></div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step2}</div>
+        {/* ── VERIFIED BADGE ── */}
+        {verified && (
+          <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '12px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <CheckCircle size={20} color="#059669" />
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>
+                {lang === 'EN' ? `Verified: ${ownerEmail}` : `ተረጋግጧል: ${ownerEmail}`}
               </div>
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div ref={cityRef} style={{ position: 'relative' }}>
-                  <label style={labelStyle}>{t.cityLabel}</label>
-                  <div style={{ position: 'relative' }}>
-                    <input value={citySearch || (form.city ? `${form.city} (${ETHIOPIA_CITIES.find(c => c.cityEn === form.city)?.cityAm})` : '')} onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { set('city', ''); set('subcity', ''); } }} onFocus={() => setShowCityDropdown(true)} placeholder={t.cityPlaceholder} style={inputStyle} />
-                    <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+              <div style={{ fontSize: 12, color: '#047857' }}>
+                {lang === 'EN' ? 'You can now post your listing' : 'አሁን ማስታወቂያዎን መለጠፍ ይችላሉ'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── FORM STEPS (only shown after verification) ── */}
+        {verified && (
+          <>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
+              {steps.map((s, i) => (
+                <div key={s} style={{ flex: 1, minWidth: 80 }}>
+                  <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
+                  <div style={{ fontSize: 11, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>{i + 1}. {s}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* STEP 1 */}
+            {step === 1 && (
+              <div>
+                <div style={sectionStyle}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Home size={18} color="#E8431A" /></div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step1}</div>
                   </div>
-                  {showCityDropdown && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 240, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
-                      {filteredCities.map(c => (
-                        <div key={c.cityEn} onClick={() => { set('city', c.cityEn); set('subcity', ''); setCitySearch(''); setShowCityDropdown(false); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 14, color: '#111827', borderBottom: '1px solid #f3f4f6', background: form.city === c.cityEn ? '#f0f6ff' : 'white' }}>
-                          <span style={{ fontWeight: form.city === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
-                          <span style={{ color: '#9ca3af', marginLeft: 8, fontSize: 13 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    <div>
+                      <label style={labelStyle}>{t.propTitle}</label>
+                      <input style={inputStyle} value={form.title} onChange={e => set('title', e.target.value)} placeholder={t.propTitlePlaceholder} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>{t.description}</label>
+                      <textarea style={{ ...inputStyle, height: 100, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={labelStyle}>{t.listingType}</label>
+                        <select style={inputStyle} value={form.type} onChange={e => set('type', e.target.value)}>
+                          <option value="sale">{t.forSaleOpt}</option>
+                          <option value="long_rent">{t.longRentOpt}</option>
+                          <option value="short_rent">{t.shortRentOpt}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>{t.condition}</label>
+                        <select style={inputStyle} value={form.condition} onChange={e => set('condition', e.target.value)}>
+                          <option value="new">{t.condNew}</option>
+                          <option value="good">{t.condGood}</option>
+                          <option value="needs_renovation">{t.condRenovation}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ background: '#f9fafb', borderRadius: 12, padding: '16px', border: '1px solid #e5e7eb' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>{lang === 'EN' ? 'Price' : 'ዋጋ'}</label>
+                        {form.type !== 'short_rent' && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, color: '#374151' }}>{t.negotiable}</span>
+                            <div onClick={() => set('price_negotiable', !form.price_negotiable)} style={{ width: 44, height: 24, borderRadius: 12, background: form.price_negotiable ? '#006AFF' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                              <div style={{ position: 'absolute', top: 2, left: form.price_negotiable ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {form.price_negotiable && form.type !== 'short_rent' ? (
+                        <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46' }}>{t.negotiableNote}</div>
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                          <div>
+                            <label style={labelStyle}>{t.currency}</label>
+                            <select style={inputStyle} value={form.currency} onChange={e => set('currency', e.target.value)}>
+                              <option value="ETB">ETB — Ethiopian Birr</option>
+                              <option value="USD">USD — US Dollar</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={labelStyle}>{t.amount}</label>
+                            <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder={form.type === 'sale' ? 'e.g. 5000000' : 'e.g. 15000'} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label style={labelStyle}>{lang === 'EN' ? 'Title Deed Type' : 'የቦታ ሰነድ አይነት'}</label>
+                      <select style={inputStyle} value={form.title_deed_type} onChange={e => set('title_deed_type', e.target.value)}>
+                        <option value="">{lang === 'EN' ? '— Select deed type —' : '— ይምረጡ —'}</option>
+                        <option value="leasehold">{lang === 'EN' ? 'Leasehold (ሊዝ)' : 'ሊዝ ይዞታ'}</option>
+                        <option value="freehold">{lang === 'EN' ? 'Freehold / ወረቀት' : 'ፍሪሆልድ / ወረቀት'}</option>
+                        <option value="condominium">{lang === 'EN' ? 'Condominium' : 'ኮንዶሚኒየም'}</option>
+                        <option value="cooperative">{lang === 'EN' ? 'Cooperative / ህብረት ስራ' : 'ህብረት ስራ'}</option>
+                      </select>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.bedrooms}</label><input style={inputStyle} type="number" min="0" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} placeholder="e.g. 3" /></div>
+                      <div><label style={labelStyle}>{t.bathrooms}</label><input style={inputStyle} type="number" min="0" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="e.g. 2" /></div>
+                      <div><label style={labelStyle}>{t.totalRooms}</label><input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" /></div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.houseArea}</label><input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" /></div>
+                      <div><label style={labelStyle}>{t.floorNumber}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
+                      <div><label style={labelStyle}>{t.totalFloors}</label><input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 10" /></div>
+                    </div>
+                    <div><label style={labelStyle}>{t.yearBuilt}</label><input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" /></div>
+                    <div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Additional Rooms' : 'ተጨማሪ ክፍሎች'}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
+                        <Toggle label={lang === 'EN' ? 'Service / Maid Room' : 'የሰራተኛ ክፍል'} value={form.has_service_room} onChange={() => set('has_service_room', !form.has_service_room)} />
+                        <Toggle label={lang === 'EN' ? 'Traditional Kitchen' : 'ጭስ ወጥ ቤት'} value={form.has_traditional_kitchen} onChange={() => set('has_traditional_kitchen', !form.has_traditional_kitchen)} color="#d97706" bg="#fffbeb" />
+                        <Toggle label={lang === 'EN' ? 'Store Room / ጎተራ' : 'ጎተራ / መጋዘን'} value={form.has_store_room} onChange={() => set('has_store_room', !form.has_store_room)} color="#7c3aed" bg="#ede9fe" />
+                        <Toggle label={lang === 'EN' ? 'Guard Room' : 'የጠባቂ ክፍል'} value={form.has_guard_room} onChange={() => set('has_guard_room', !form.has_guard_room)} color="#059669" bg="#ecfdf5" />
+                        <Toggle label={lang === 'EN' ? 'Prayer Room' : 'የጸሎት ክፍል'} value={form.has_prayer_room} onChange={() => set('has_prayer_room', !form.has_prayer_room)} color="#0891b2" bg="#cffafe" />
+                        <Toggle label={lang === 'EN' ? "Boy's Quarter / BQ" : 'ቦይስ ኳርተር'} value={form.has_boys_quarter} onChange={() => set('has_boys_quarter', !form.has_boys_quarter)} color="#E8431A" bg="#fef2ee" />
+                      </div>
+                    </div>
+                    <div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Construction Stage' : 'የግንባታ ደረጃ'}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div>
+                          <label style={labelStyle}>{lang === 'EN' ? 'Current Stage' : 'የአሁኑ ደረጃ'}</label>
+                          <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
+                            <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
+                            <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>
+                            <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት ተቆፍሯል'}</option>
+                            <option value="columns_erected">{lang === 'EN' ? 'Columns Erected' : 'ምሰሶዎች ቆምቷል'}</option>
+                            <option value="shell_only">{lang === 'EN' ? 'Shell / Guwada' : 'ጉዋዳ ብቻ'}</option>
+                            <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
+                            <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ'}</option>
+                            <option value="completed">{lang === 'EN' ? 'Completed' : 'ተጠናቋል'}</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={labelStyle}>{lang === 'EN' ? 'Material' : 'ቁሳቁስ'}</label>
+                          <select style={inputStyle} value={form.construction_material} onChange={e => set('construction_material', e.target.value)}>
+                            <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
+                            <option value="concrete_frame">{lang === 'EN' ? 'Concrete Frame' : 'ኮንክሪት ፍሬም'}</option>
+                            <option value="hcb">{lang === 'EN' ? 'HCB Block' : 'ሆሎው ብሎክ'}</option>
+                            <option value="stone">{lang === 'EN' ? 'Stone' : 'ድንጋይ'}</option>
+                            <option value="wood">{lang === 'EN' ? 'Wood' : 'እንጨት'}</option>
+                            <option value="mixed">{lang === 'EN' ? 'Mixed' : 'ድብልቅ'}</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={labelStyle}>{lang === 'EN' ? 'Roof Type' : 'ጣሪያ'}</label>
+                          <select style={inputStyle} value={form.roof_type} onChange={e => set('roof_type', e.target.value)}>
+                            <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
+                            <option value="concrete_slab">{lang === 'EN' ? 'Concrete Slab' : 'ስላብ'}</option>
+                            <option value="corrugated_iron">{lang === 'EN' ? 'Corrugated Iron (EGA)' : 'ቆርቆሮ'}</option>
+                            <option value="tile">{lang === 'EN' ? 'Tile' : 'ፋይናሳ'}</option>
+                            <option value="flat_roof">{lang === 'EN' ? 'Flat Roof' : 'ጠፍጣፋ ጣሪያ'}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Existing Bank Debt / Mortgage' : 'ያለ የባንክ ዕዳ'}</div>
+                      <Toggle label={lang === 'EN' ? 'This property has an existing bank debt' : 'ይህ ንብረት የባንክ ዕዳ አለበት'} desc={lang === 'EN' ? 'Debt transfers to the new owner' : 'ዕዳው ወደ አዲሱ ባለቤት ይተላለፋል'} value={form.bank_loan_eligible} onChange={() => set('bank_loan_eligible', !form.bank_loan_eligible)} color="#c2410c" bg="#fff7ed" />
+                      {form.bank_loan_eligible && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+                          <div>
+                            <label style={labelStyle}>{lang === 'EN' ? 'Outstanding Debt (ETB)' : 'የቀረ ዕዳ (ETB)'}</label>
+                            <input style={inputStyle} type="number" value={form.bank_loan_amount} onChange={e => set('bank_loan_amount', e.target.value)} placeholder="e.g. 3000000" />
+                          </div>
+                          <div>
+                            <label style={labelStyle}>{lang === 'EN' ? 'Lender Bank' : 'ባንክ'}</label>
+                            <select style={inputStyle} value={form.bank_loan_bank} onChange={e => set('bank_loan_bank', e.target.value)}>
+                              <option value="">{lang === 'EN' ? '— Select bank —' : '— ባንክ ይምረጡ —'}</option>
+                              <option value="CBE">Commercial Bank of Ethiopia (CBE)</option>
+                              <option value="Awash">Awash Bank</option>
+                              <option value="Dashen">Dashen Bank</option>
+                              <option value="Abyssinia">Bank of Abyssinia</option>
+                              <option value="Wegagen">Wegagen Bank</option>
+                              <option value="United">United Bank</option>
+                              <option value="NIB">NIB International Bank</option>
+                              <option value="Zemen">Zemen Bank</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  {t.nextLocation} <ArrowRight size={18} />
+                </button>
+                {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
+              </div>
+            )}
+
+            {/* STEP 2 */}
+            {step === 2 && (
+              <div>
+                <div style={sectionStyle}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={18} color="#E8431A" /></div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step2}</div>
+                  </div>
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    <div ref={cityRef} style={{ position: 'relative' }}>
+                      <label style={labelStyle}>{t.cityLabel}</label>
+                      <div style={{ position: 'relative' }}>
+                        <input value={citySearch || (form.city ? `${form.city} (${ETHIOPIA_CITIES.find(c => c.cityEn === form.city)?.cityAm})` : '')} onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { set('city', ''); set('subcity', ''); } }} onFocus={() => setShowCityDropdown(true)} placeholder={t.cityPlaceholder} style={inputStyle} />
+                        <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                      </div>
+                      {showCityDropdown && (
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 240, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
+                          {filteredCities.map(c => (
+                            <div key={c.cityEn} onClick={() => { set('city', c.cityEn); set('subcity', ''); setCitySearch(''); setShowCityDropdown(false); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 14, color: '#111827', borderBottom: '1px solid #f3f4f6', background: form.city === c.cityEn ? '#f0f6ff' : 'white' }}>
+                              <span style={{ fontWeight: form.city === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
+                              <span style={{ color: '#9ca3af', marginLeft: 8, fontSize: 13 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>{t.subcityLabel}</label>
+                      <select value={form.subcity} onChange={e => set('subcity', e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5 }}>
+                        <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
+                        {selectedCity?.subsEn.map((sub, i) => (<option key={sub} value={sub}>{lang === 'EN' ? `${sub} — ${selectedCity.subsAm[i]}` : `${selectedCity.subsAm[i]} — ${sub}`}</option>))}
+                      </select>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.woredaLabel}</label><input style={inputStyle} value={form.woreda} onChange={e => set('woreda', e.target.value)} placeholder={t.woredaPlaceholder} /></div>
+                      <div><label style={labelStyle}>{t.kebeleLabel}</label><input style={inputStyle} value={form.kebele} onChange={e => set('kebele', e.target.value)} placeholder={t.kebelePlaceholder} /></div>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>{t.landmarkLabel}</label>
+                      <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)} placeholder={t.landmarkPlaceholder} />
+                    </div>
+                    <MapPinPicker lat={form.lat} lng={form.lng} city={form.city} t={t} onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
+                </div>
+                {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
+              </div>
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <div>
+                <div style={sectionStyle}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
+                      <div><label style={labelStyle}>{lang === 'EN' ? 'Length (m)' : 'ርዝመት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_length_m} onChange={e => set('land_length_m', e.target.value)} placeholder="e.g. 20" /></div>
+                      <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 15" /></div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.parkingSpaces}</label><input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 2" /></div>
+                      <div>
+                        <label style={labelStyle}>{t.bathroomType}</label>
+                        <select style={inputStyle} value={form.bathroom_type} onChange={e => set('bathroom_type', e.target.value)}>
+                          <option value="private">{t.privateBath}</option>
+                          <option value="shared">{t.sharedBath}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>{t.kitchenType}</label>
+                        <select style={inputStyle} value={form.kitchen_type} onChange={e => set('kitchen_type', e.target.value)}>
+                          <option value="none">{t.noKitchen}</option>
+                          <option value="private">{t.privateKitchen}</option>
+                          <option value="shared">{t.sharedKitchen}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div><label style={labelStyle}>{t.distRoad}</label><input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" /></div>
+                      <div>
+                        <label style={labelStyle}>{t.roadType}</label>
+                        <select style={inputStyle} value={form.road_type} onChange={e => set('road_type', e.target.value)}>
+                          <option value="asphalt">{t.asphalt}</option>
+                          <option value="cobblestone">{t.cobblestone}</option>
+                          <option value="dirt">{t.dirtRoad}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={subHeading}>{t.securityLabel}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <Toggle label={t.compoundWall} desc={t.compoundWallDesc} value={form.has_compound_wall} onChange={() => set('has_compound_wall', !form.has_compound_wall)} />
+                        <Toggle label={t.guardHouse} desc={t.guardHouseDesc} value={form.has_guard_house} onChange={() => set('has_guard_house', !form.has_guard_house)} />
+                      </div>
+                    </div>
+                    <div>
+                      <div style={subHeading}>{t.waterSupply}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <Toggle label={t.groundWater} desc={t.groundWaterDesc} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
+                        <Toggle label={t.waterTanker} desc={t.waterTankerDesc} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={labelStyle}>{t.electricity}</label>
+                        <select style={inputStyle} value={form.electricity_reliability} onChange={e => set('electricity_reliability', e.target.value)}>
+                          <option value="24hr">{t.elec24hr}</option>
+                          <option value="frequent_cuts">{t.elecCuts}</option>
+                          <option value="solar_only">{t.elecSolar}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>{t.internet}</label>
+                        <select style={inputStyle} value={form.internet_type} onChange={e => set('internet_type', e.target.value)}>
+                          <option value="none">{t.noInternet}</option>
+                          <option value="mobile">{t.mobileData}</option>
+                          <option value="fiber">{t.fiberInternet}</option>
+                          <option value="both">{t.bothInternet}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <Toggle label={lang === 'EN' ? 'Diaspora Friendly' : 'ዲያስፖራ ተስማሚ'} value={form.diaspora_friendly} onChange={() => set('diaspora_friendly', !form.diaspora_friendly)} color="#7c3aed" bg="#ede9fe" />
+                      <Toggle label={lang === 'EN' ? 'Managed Property' : 'የሚተዳደር ንብረት'} value={form.managed_property} onChange={() => set('managed_property', !form.managed_property)} color="#0891b2" bg="#cffafe" />
+                    </div>
+                    <div>
+                      <div style={subHeading}>{t.nearbyLandmarks}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
+                        {LANDMARKS_EN.map((enKey, idx) => (
+                          <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '8px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#374151' }}>
+                              {form.nearby_landmarks.includes(enKey) ? '✓ ' : ''}{lang === 'EN' ? LANDMARKS_EN[idx] : LANDMARKS_AM[idx]}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={subHeading}>{t.amenities}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
+                        {AMENITIES.map(a => (
+                          <div key={a.key} onClick={() => toggleAmenity(a.key)} style={{ padding: '10px 14px', borderRadius: 10, border: `2px solid ${form.amenities.includes(a.key) ? '#006AFF' : '#e5e7eb'}`, background: form.amenities.includes(a.key) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: form.amenities.includes(a.key) ? '#006AFF' : '#374151' }}>{form.amenities.includes(a.key) ? '✓ ' : ''}{a.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => setStep(4)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4 */}
+            {step === 4 && (
+              <div>
+                <div style={sectionStyle}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Upload size={18} color="#E8431A" /></div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.uploadTitle}</div>
+                  </div>
+                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>{t.uploadDesc}</div>
+                  <label style={{ display: 'block', cursor: 'pointer' }}>
+                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '40px 24px', textAlign: 'center', background: '#f9fafb' }}>
+                      {uploadingPhotos ? <div style={{ color: '#006AFF', fontWeight: 600 }}>{t.uploading}</div> : (
+                        <><Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
+                        <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{t.uploadClick}</div>
+                        <div style={{ fontSize: 13, color: '#9ca3af' }}>{t.uploadHint}</div></>
+                      )}
+                    </div>
+                    <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                  </label>
+                  {photoUrls.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginTop: 20 }}>
+                      {photoUrls.map((url, i) => (
+                        <div key={url} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}>
+                          <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          {i === 0 && <div style={{ position: 'absolute', top: 6, left: 6, background: '#006AFF', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>COVER</div>}
+                          <button onClick={() => setPhotoUrls(p => p.filter(u => u !== url))} style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={12} color="white" /></button>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                <div>
-                  <label style={{ ...labelStyle, opacity: selectedCity ? 1 : 0.5 }}>{t.subcityLabel}</label>
-                  <select value={form.subcity} onChange={e => set('subcity', e.target.value)} disabled={!selectedCity} style={{ ...inputStyle, opacity: selectedCity ? 1 : 0.5 }}>
-                    <option value="">{selectedCity ? `All ${selectedCity.cityEn}` : '— Select city first —'}</option>
-                    {selectedCity?.subsEn.map((sub, i) => (<option key={sub} value={sub}>{lang === 'EN' ? `${sub} — ${selectedCity.subsAm[i]}` : `${selectedCity.subsAm[i]} — ${sub}`}</option>))}
-                  </select>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={() => setStep(3)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => setStep(5)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.woredaLabel}</label><input style={inputStyle} value={form.woreda} onChange={e => set('woreda', e.target.value)} placeholder={t.woredaPlaceholder} /></div>
-                  <div><label style={labelStyle}>{t.kebeleLabel}</label><input style={inputStyle} value={form.kebele} onChange={e => set('kebele', e.target.value)} placeholder={t.kebelePlaceholder} /></div>
-                </div>
-                <div>
-                  <label style={labelStyle}>{t.landmarkLabel}</label>
-                  <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)} placeholder={t.landmarkPlaceholder} />
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{t.landmarkHint}</div>
-                </div>
-                <MapPinPicker lat={form.lat} lng={form.lng} city={form.city} t={t} onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }} />
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-              <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
-            </div>
-            {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
-          </div>
-        )}
+            )}
 
-        {/* ── STEP 3: Details ── */}
-        {step === 3 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 6 }}>{t.step3}</div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>{lang === 'EN' ? 'Land, utilities, road, and infrastructure details' : 'ቦታ፣ አገልግሎቶች እና መሰረተ ልማት'}</div>
-              <div style={{ display: 'grid', gap: 16 }}>
-
-                {/* Land details */}
-                <div>
-                  <div style={subHeading}>{lang === 'EN' ? 'Land & Plot Details' : 'የቦታ ዝርዝሮች'}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                    <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
-                    <div><label style={labelStyle}>{lang === 'EN' ? 'Length (m)' : 'ርዝመት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_length_m} onChange={e => set('land_length_m', e.target.value)} placeholder="e.g. 20" /></div>
-                    <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 15" /></div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
-                    <div>
-                      <label style={labelStyle}>{lang === 'EN' ? 'Land Slope' : 'የቦታ ቁልቁለት'}</label>
-                      <select style={inputStyle} value={form.land_slope} onChange={e => set('land_slope', e.target.value)}>
-                        <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
-                        <option value="flat">{lang === 'EN' ? 'Flat / Level' : 'ጠፍጣፋ'}</option>
-                        <option value="slight_slope">{lang === 'EN' ? 'Slight Slope' : 'ትንሽ ቁልቁለት'}</option>
-                        <option value="steep">{lang === 'EN' ? 'Steep Slope' : 'ዳገት / ቁልቁለት'}</option>
-                      </select>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
-                      <Toggle label={lang === 'EN' ? 'Corner Plot' : 'ማዕዘን ቦታ'} desc={lang === 'EN' ? 'Plot is on a corner / junction' : 'ቦታው ማዕዘን ላይ ነው'} value={form.corner_plot} onChange={() => set('corner_plot', !form.corner_plot)} color="#7c3aed" bg="#ede9fe" />
-                    </div>
-                  </div>
+            {/* STEP 5 */}
+            {step === 5 && (
+              <div>
+                <div style={{ marginBottom: 20 }}>
+                  <PriceSuggestion propertyData={{ type: form.type, title: form.title, description: form.description, region: '', city: form.city, subcity: form.subcity, woreda: form.woreda, specific_location: form.specific_location, bedrooms: form.bedrooms, bathrooms: form.bathrooms, area: form.area, floor: form.floor, total_floors: form.total_floors, year_built: form.year_built, amenities: form.amenities }} imageUrls={photoUrls} onUsePrice={(price) => set('price', price.toString())} />
                 </div>
-
-                {/* Parking & bathroom/kitchen */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.parkingSpaces}</label><input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 2" /></div>
-                  <div>
-                    <label style={labelStyle}>{t.bathroomType}</label>
-                    <select style={inputStyle} value={form.bathroom_type} onChange={e => set('bathroom_type', e.target.value)}>
-                      <option value="private">{t.privateBath}</option>
-                      <option value="shared">{t.sharedBath}</option>
-                    </select>
+                <div style={sectionStyle}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={18} color="#059669" /></div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.reviewTitle}</div>
                   </div>
-                  <div>
-                    <label style={labelStyle}>{t.kitchenType}</label>
-                    <select style={inputStyle} value={form.kitchen_type} onChange={e => set('kitchen_type', e.target.value)}>
-                      <option value="none">{t.noKitchen}</option>
-                      <option value="private">{t.privateKitchen}</option>
-                      <option value="shared">{t.sharedKitchen}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Road */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div><label style={labelStyle}>{t.distRoad}</label><input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" /></div>
-                  <div>
-                    <label style={labelStyle}>{t.roadType}</label>
-                    <select style={inputStyle} value={form.road_type} onChange={e => set('road_type', e.target.value)}>
-                      <option value="asphalt">{t.asphalt}</option>
-                      <option value="cobblestone">{t.cobblestone}</option>
-                      <option value="dirt">{t.dirtRoad}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Security */}
-                <div>
-                  <div style={subHeading}>{t.securityLabel}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <Toggle label={t.compoundWall} desc={t.compoundWallDesc} value={form.has_compound_wall} onChange={() => set('has_compound_wall', !form.has_compound_wall)} />
-                    <Toggle label={t.guardHouse} desc={t.guardHouseDesc} value={form.has_guard_house} onChange={() => set('has_guard_house', !form.has_guard_house)} />
-                  </div>
-                </div>
-
-                {/* Water */}
-                <div>
-                  <div style={subHeading}>{t.waterSupply}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <Toggle label={t.groundWater} desc={t.groundWaterDesc} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
-                    <Toggle label={t.waterTanker} desc={t.waterTankerDesc} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
-                  </div>
-                </div>
-
-                {/* Electricity & Internet */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={labelStyle}>{t.electricity}</label>
-                    <select style={inputStyle} value={form.electricity_reliability} onChange={e => set('electricity_reliability', e.target.value)}>
-                      <option value="24hr">{t.elec24hr}</option>
-                      <option value="frequent_cuts">{t.elecCuts}</option>
-                      <option value="solar_only">{t.elecSolar}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>{t.internet}</label>
-                    <select style={inputStyle} value={form.internet_type} onChange={e => set('internet_type', e.target.value)}>
-                      <option value="none">{t.noInternet}</option>
-                      <option value="mobile">{t.mobileData}</option>
-                      <option value="fiber">{t.fiberInternet}</option>
-                      <option value="both">{t.bothInternet}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Special flags */}
-                <div>
-                  <div style={subHeading}>{lang === 'EN' ? 'Special Features' : 'ልዩ ባህሪያት'}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                    <Toggle label={lang === 'EN' ? 'Diaspora Friendly' : 'ዲያስፖራ ተስማሚ'} desc={lang === 'EN' ? 'Suitable for diaspora buyers' : 'ለዲያስፖራ ገዢዎች ተስማሚ'} value={form.diaspora_friendly} onChange={() => set('diaspora_friendly', !form.diaspora_friendly)} color="#7c3aed" bg="#ede9fe" />
-                    <Toggle label={lang === 'EN' ? 'Managed Property' : 'የሚተዳደር ንብረት'} desc={lang === 'EN' ? 'Professional management available' : 'ባለሙያ አስተዳደር ይቻላል'} value={form.managed_property} onChange={() => set('managed_property', !form.managed_property)} color="#0891b2" bg="#cffafe" />
-                  </div>
-                </div>
-
-                {/* Nearby landmarks */}
-                <div>
-                  <div style={subHeading}>{t.nearbyLandmarks}</div>
-                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 12 }}>{t.nearbyLandmarksDesc}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
-                    {LANDMARKS_EN.map((enKey, idx) => (
-                      <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '8px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#374151' }}>
-                          {form.nearby_landmarks.includes(enKey) ? '✓ ' : ''}{lang === 'EN' ? LANDMARKS_EN[idx] : LANDMARKS_AM[idx]}
-                        </div>
+                  <div style={{ display: 'grid', gap: 0 }}>
+                    {[
+                      [lang === 'EN' ? 'Owner Name' : 'ባለቤት ስም', ownerName],
+                      [lang === 'EN' ? 'Owner Email' : 'ኢሜይል', ownerEmail],
+                      [lang === 'EN' ? 'Owner Phone' : 'ስልክ', ownerPhone || '—'],
+                      [lang === 'EN' ? 'Title' : 'ርዕስ', form.title],
+                      [lang === 'EN' ? 'Type' : 'አይነት', form.type],
+                      [lang === 'EN' ? 'Price' : 'ዋጋ', form.price_negotiable ? 'Negotiable' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`],
+                      [lang === 'EN' ? 'City' : 'ከተማ', form.city || '—'],
+                      [lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ', form.subcity || '—'],
+                      [t.bedrooms, form.bedrooms || '—'],
+                      [t.bathrooms, form.bathrooms || '—'],
+                      [t.houseArea, form.area ? `${form.area} m²` : '—'],
+                      [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`],
+                    ].map(([label, value]) => (
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+                        <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>{label}</span>
+                        <span style={{ fontSize: 13, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                {/* Amenities */}
-                <div>
-                  <div style={subHeading}>{t.amenities}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
-                    {AMENITIES.map(a => (
-                      <div key={a.key} onClick={() => toggleAmenity(a.key)} style={{ padding: '10px 14px', borderRadius: 10, border: `2px solid ${form.amenities.includes(a.key) ? '#006AFF' : '#e5e7eb'}`, background: form.amenities.includes(a.key) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: form.amenities.includes(a.key) ? '#006AFF' : '#374151' }}>{form.amenities.includes(a.key) ? '✓ ' : ''}{a.label}</div>
-                      </div>
-                    ))}
-                  </div>
+                <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{t.listingFeeTitle}</div>
+                  <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>• {t.listingFeeDesc1}<br />• {t.listingFeeDesc2}<br />• {t.listingFeeDesc3}<br />• {t.listingFeeDesc4}</div>
+                </div>
+                {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    {loading ? t.submitting : t.submitPay}
+                  </button>
                 </div>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(2)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-              <button onClick={() => setStep(4)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 4: Photos ── */}
-        {step === 4 && (
-          <div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Upload size={18} color="#E8431A" /></div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.uploadTitle}</div>
-              </div>
-              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>{t.uploadDesc}</div>
-              <label style={{ display: 'block', cursor: 'pointer' }}>
-                <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '40px 24px', textAlign: 'center', background: '#f9fafb' }}>
-                  {uploadingPhotos ? <div style={{ color: '#006AFF', fontWeight: 600 }}>{t.uploading}</div> : (
-                    <><Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
-                    <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{t.uploadClick}</div>
-                    <div style={{ fontSize: 13, color: '#9ca3af' }}>{t.uploadHint}</div></>
-                  )}
-                </div>
-                <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-              </label>
-              {photoUrls.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginTop: 20 }}>
-                  {photoUrls.map((url, i) => (
-                    <div key={url} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}>
-                      <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      {i === 0 && <div style={{ position: 'absolute', top: 6, left: 6, background: '#006AFF', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>COVER</div>}
-                      <button onClick={() => setPhotoUrls(p => p.filter(u => u !== url))} style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={12} color="white" /></button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(3)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-              <button onClick={() => setStep(5)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 5: Review ── */}
-        {step === 5 && (
-          <div>
-            <div style={{ marginBottom: 20 }}>
-              <PriceSuggestion propertyData={{ type: form.type, title: form.title, description: form.description, region: '', city: form.city, subcity: form.subcity, woreda: form.woreda, specific_location: form.specific_location, bedrooms: form.bedrooms, bathrooms: form.bathrooms, area: form.area, floor: form.floor, total_floors: form.total_floors, year_built: form.year_built, amenities: form.amenities }} imageUrls={photoUrls} onUsePrice={(price) => set('price', price.toString())} />
-            </div>
-            <div style={sectionStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={18} color="#059669" /></div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.reviewTitle}</div>
-              </div>
-              <div style={{ display: 'grid', gap: 0 }}>
-                {[
-                  [lang === 'EN' ? 'Title' : 'ርዕስ', form.title],
-                  [lang === 'EN' ? 'Type' : 'አይነት', form.type],
-                  [lang === 'EN' ? 'Price' : 'ዋጋ', form.price_negotiable ? 'Negotiable' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`],
-                  [lang === 'EN' ? 'Title Deed' : 'ሰነድ', form.title_deed_type || '—'],
-                  [lang === 'EN' ? 'Construction Stage' : 'ደረጃ', form.construction_stage || '—'],
-                  [lang === 'EN' ? 'Material' : 'ቁሳቁስ', form.construction_material || '—'],
-                  [lang === 'EN' ? 'Roof' : 'ጣሪያ', form.roof_type || '—'],
-                  [lang === 'EN' ? 'Bank Loan' : 'ባንክ ብድር', form.bank_loan_eligible ? `Yes — ${form.bank_loan_bank || 'TBD'}` : 'No'],
-                  [lang === 'EN' ? 'City' : 'ከተማ', form.city || '—'],
-                  [lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ', form.subcity || '—'],
-                  [lang === 'EN' ? 'Landmark' : 'ምልክት', form.specific_location || '—'],
-                  [lang === 'EN' ? 'Coordinates' : 'መጋጠሚያ', form.lat && form.lng ? `${parseFloat(form.lat).toFixed(4)}, ${parseFloat(form.lng).toFixed(4)} ✓` : '—'],
-                  [t.bedrooms, form.bedrooms || '—'],
-                  [t.bathrooms, form.bathrooms || '—'],
-                  [t.houseArea, form.area ? `${form.area} m²` : '—'],
-                  [lang === 'EN' ? 'Plot Area' : 'ቦታ', form.plot_area_sqm ? `${form.plot_area_sqm} m²` : '—'],
-                  [lang === 'EN' ? 'Service Room' : 'የሰራተኛ ክፍል', form.has_service_room ? 'Yes' : 'No'],
-                  [lang === 'EN' ? 'Traditional Kitchen' : 'ጭስ ወጥ ቤት', form.has_traditional_kitchen ? 'Yes' : 'No'],
-                  [lang === 'EN' ? 'Ground Water' : 'የከርሰ ምድር ውሃ', form.ground_water ? 'Yes' : 'No'],
-                  [lang === 'EN' ? 'Road' : 'መንገድ', form.road_type],
-                  [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`],
-                ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>{label}</span>
-                    <span style={{ fontSize: 13, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{t.listingFeeTitle}</div>
-              <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>• {t.listingFeeDesc1}<br />• {t.listingFeeDesc2}<br />• {t.listingFeeDesc3}<br />• {t.listingFeeDesc4}</div>
-            </div>
-            {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-              <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {loading ? t.submitting : t.submitPay}
-              </button>
-            </div>
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
