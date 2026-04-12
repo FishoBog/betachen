@@ -1,16 +1,15 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, List, Users, BadgeCheck, CreditCard } from 'lucide-react';
-
+import { LayoutDashboard, List, Users, BadgeCheck, CreditCard, Tag } from 'lucide-react';
 const links = [
   { href: '/admin', icon: LayoutDashboard, label: 'Overview' },
   { href: '/admin/listings', icon: List, label: 'Listings' },
   { href: '/admin/verifications', icon: BadgeCheck, label: 'Badges' },
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
+  { href: '/admin/discounts', icon: Tag, label: 'Discount Codes' },
 ];
-
 export function AdminSidebar() {
   const pathname = usePathname();
   return (
