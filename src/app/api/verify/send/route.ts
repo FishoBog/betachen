@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,25 +23,37 @@ export async function POST(req: NextRequest) {
       verified: false,
     }, { onConflict: 'email' });
 
-    await resend.emails.send({
-      from: 'Betachen <info@betachen.com>',
-      to: email,
-      subject: 'Your Betachen verification code',
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
-          <img src="https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg" height="48" alt="Betachen" style="margin-bottom: 24px;" />
-          <h2 style="color: #111827; font-size: 22px; margin-bottom: 8px;">Hello ${name}!</h2>
-          <p style="color: #374151; font-size: 15px; line-height: 1.6;">Your verification code for posting on Betachen is:</p>
-          <div style="background: #f0f6ff; border: 2px solid #dbeafe; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
-            <div style="font-size: 40px; font-weight: 900; color: #006AFF; letter-spacing: 8px;">${code}</div>
-            <div style="font-size: 13px; color: #6b7280; margin-top: 8px;">Valid for 10 minutes</div>
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Betachen <info@betachen.com>',
+        to: email,
+        subject: 'Your Betachen verification code',
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
+            <h2 style="color:#111827;">Hello ${name}!</h2>
+            <p style="color:#374151;">Your verification code for posting on Betachen is:</p>
+            <div style="background:#f0f6ff;border:2px solid #dbeafe;border-radius:12px;padding:24px;text-align:center;margin:24px 0;">
+              <div style="font-size:40px;font-weight:900;color:#006AFF;letter-spacing:8px;">${code}</div>
+              <div style="font-size:13px;color:#6b7280;margin-top:8px;">Valid for 10 minutes</div>
+            </div>
+            <p style="color:#6b7280;font-size:13px;">If you did not request this, ignore this email.</p>
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+            <p style="color:#9ca3af;font-size:12px;">Betachen — Ethiopia's #1 Real Estate Platform<br/>betachen.com</p>
           </div>
-          <p style="color: #6b7280; font-size: 13px;">If you did not request this code, you can safely ignore this email.</p>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-          <p style="color: #9ca3af; font-size: 12px;">Betachen — Ethiopia's #1 Real Estate Platform<br/>betachen.com</p>
-        </div>
-      `,
+        `,
+      }),
     });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Resend error:', err);
+      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
