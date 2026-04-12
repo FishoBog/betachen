@@ -21,6 +21,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/verify/(.*)',
   '/api/verify/send',
   '/api/verify/check',
+  '/api/discount/(.*)',
+'/api/discount',
   '/owner/listings/(.*)/payment/success',
   '/owner/listings/new',
 ]);
