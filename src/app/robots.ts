@@ -1,4 +1,5 @@
-import { MetadataRoute } from 'next';
+// v2
+import { NextRequest, NextResponse } from 'next/server';
 
 export default function robots(): MetadataRoute.Robots {
   return {
