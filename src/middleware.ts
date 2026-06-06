@@ -22,20 +22,21 @@ const isPublicRoute = createRouteMatcher([
   '/api/verify/send',
   '/api/verify/check',
   '/api/discount/(.*)',
-'/api/discount',
+  '/api/discount',
+  '/api/news',
+  '/api/news/(.*)',
+  '/api/market/(.*)',
   '/owner/listings/(.*)/payment/success',
   '/owner/listings/new',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
-
   if (!userId && !isPublicRoute(req)) {
     const signInUrl = new URL('/sign-in', req.url);
     signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname + req.nextUrl.search);
     return NextResponse.redirect(signInUrl);
   }
-
   return NextResponse.next();
 });
 
