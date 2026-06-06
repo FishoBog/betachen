@@ -87,11 +87,12 @@ export default function MarketPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiGenerated, setAiGenerated] = useState(false);
 
-    // Reload news when language changes — pass lang explicitly to avoid stale closure
- useEffect(() => {
-    if (lang) loadNews(activeNewsTab, lang);
+  useEffect(() => { loadData(); }, []);
+
+  // Load news on mount with correct lang
+  useEffect(() => {
+    if (lang) loadNews('housing', lang);
   }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { loadData(); loadNews('housing', 'EN'); }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -137,24 +138,27 @@ export default function MarketPage() {
     setLoading(false);
   };
 
-  // Accept explicit lang param to avoid stale closure bug
   const loadNews = async (tab: 'housing' | 'economy' | 'ethiopia', explicitLang?: string) => {
     setNewsLoading(true);
     setNewsError(false);
+    setNews([]);
     setActiveNewsTab(tab);
     const activeLang = explicitLang ?? lang;
     try {
       const res = await fetch(`/api/news?tab=${tab}&lang=${activeLang}&t=${Date.now()}`);
+      if (!res.ok) throw new Error('Network error');
       const data = await res.json();
-      if (data.articles && data.articles.length > 0) {
+      if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
         setNews(data.articles);
+        setNewsError(false);
       } else {
         setNewsError(true);
       }
     } catch {
       setNewsError(true);
+    } finally {
+      setNewsLoading(false);
     }
-    setNewsLoading(false);
   };
 
   const generateAIReport = async () => {
@@ -439,7 +443,7 @@ export default function MarketPage() {
                   </div>
                 ))}
               </div>
-            ) : newsError || news.length === 0 ? (
+            ) : newsError ? (
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280', marginBottom: 40 }}>
                 <Newspaper size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
                 <div style={{ fontSize: 15, fontWeight: 600 }}>Could not load news at this time</div>
