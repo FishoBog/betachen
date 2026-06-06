@@ -6,36 +6,9 @@ import { useLang } from '@/context/LangContext';
 import Link from 'next/link';
 import { BarChart2, ArrowRight, MapPin, RefreshCw, Newspaper, Brain, ExternalLink, Clock } from 'lucide-react';
 
-type SubcityStats = {
-  subcity: string;
-  type: string;
-  listing_count: number;
-  avg_price: number;
-  min_price: number;
-  max_price: number;
-};
-
-type SummaryStats = {
-  total: number;
-  active: number;
-  sold: number;
-  rented: number;
-  pending: number;
-  avgSalePrice: number;
-  avgRentPrice: number;
-  topSubcity: string;
-  totalValue: number;
-};
-
-type NewsArticle = {
-  title: string;
-  description: string;
-  url: string;
-  urlToImage: string | null;
-  publishedAt: string;
-  source: { name: string };
-  author: string | null;
-};
+type SubcityStats = { subcity: string; type: string; listing_count: number; avg_price: number; min_price: number; max_price: number; };
+type SummaryStats = { total: number; active: number; sold: number; rented: number; pending: number; avgSalePrice: number; avgRentPrice: number; topSubcity: string; totalValue: number; };
+type NewsArticle = { title: string; description: string; url: string; urlToImage: string | null; publishedAt: string; source: { name: string }; author: string | null; };
 
 function formatETB(n: number) {
   if (!n) return 'N/A';
@@ -88,22 +61,13 @@ export default function MarketPage() {
   const [aiGenerated, setAiGenerated] = useState(false);
 
   useEffect(() => { loadData(); }, []);
-
-  // Load news on mount with correct lang
-  useEffect(() => {
-    if (lang) loadNews('housing', lang);
-  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (lang) loadNews('housing', lang); }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     setLoading(true);
     const supabase = createBrowserClient();
-    const { data: properties } = await supabase
-      .from('properties')
-      .select('subcity, type, price, status, created_at, location')
-      .gt('price', 0);
-
+    const { data: properties } = await supabase.from('properties').select('subcity, type, price, status, created_at, location').gt('price', 0);
     if (!properties) { setLoading(false); return; }
-
     const total = properties.length;
     const active = properties.filter(p => p.status === 'active').length;
     const sold = properties.filter(p => p.status === 'sold').length;
@@ -118,7 +82,6 @@ export default function MarketPage() {
     properties.forEach(p => { const key = p.subcity || p.location || 'Unknown'; subcityCounts[key] = (subcityCounts[key] || 0) + 1; });
     const topSubcity = Object.entries(subcityCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
     setSummary({ total, active, sold, rented, pending, avgSalePrice, avgRentPrice, topSubcity, totalValue });
-
     const subcityMap: Record<string, { prices: number[]; count: number; type: string }> = {};
     properties.forEach(p => {
       const key = `${p.subcity || p.location || 'Unknown'}_${p.type}`;
@@ -126,13 +89,11 @@ export default function MarketPage() {
       subcityMap[key].prices.push(p.price);
       subcityMap[key].count++;
     });
-
     const statsData: SubcityStats[] = Object.entries(subcityMap).map(([key, val]) => {
       const [subcity] = key.split('_');
       const avg = val.prices.reduce((s, p) => s + p, 0) / val.prices.length;
       return { subcity, type: val.type, listing_count: val.count, avg_price: avg, min_price: Math.min(...val.prices), max_price: Math.max(...val.prices) };
     });
-
     setStats(statsData);
     setLastUpdated(new Date().toLocaleTimeString());
     setLoading(false);
@@ -156,7 +117,8 @@ export default function MarketPage() {
       }
     } catch {
       setNewsError(true);
-    }
+    } finally {
+      setNewsLoading(false);
     }
   };
 
@@ -167,11 +129,7 @@ export default function MarketPage() {
       const response = await fetch('/api/market/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          summary,
-          stats: stats.slice(0, 10),
-          date: new Date().toLocaleDateString('en-ET', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-        }),
+        body: JSON.stringify({ summary, stats: stats.slice(0, 10), date: new Date().toLocaleDateString('en-ET', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }),
       });
       const data = await response.json();
       setAiReport(data.report || 'Unable to generate report at this time.');
@@ -191,8 +149,6 @@ export default function MarketPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
-
-      {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #006AFF, #0047CC)', padding: '48px 24px 52px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' as const, gap: 16 }}>
@@ -201,12 +157,8 @@ export default function MarketPage() {
                 <BarChart2 size={14} color="white" />
                 <span style={{ color: 'white', fontSize: 12, fontWeight: 600 }}>LIVE MARKET DATA + NEWS + AI ANALYSIS</span>
               </div>
-              <h1 style={{ fontSize: 36, fontWeight: 900, color: 'white', marginBottom: 8, letterSpacing: '-1px' }}>
-                Ethiopia Real Estate<br />Market Intelligence
-              </h1>
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 15 }}>
-                Live market data, breaking news, and AI-powered insights for Ethiopian property
-              </p>
+              <h1 style={{ fontSize: 36, fontWeight: 900, color: 'white', marginBottom: 8, letterSpacing: '-1px' }}>Ethiopia Real Estate<br />Market Intelligence</h1>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 15 }}>Live market data, breaking news, and AI-powered insights for Ethiopian property</p>
             </div>
             <button onClick={loadData} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               <RefreshCw size={14} /> Refresh
@@ -223,11 +175,8 @@ export default function MarketPage() {
           </div>
         ) : (
           <>
-            {/* ── SECTION 1: MARKET DASHBOARD ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BarChart2 size={18} color="#006AFF" />
-              </div>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BarChart2 size={18} color="#006AFF" /></div>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>Market Dashboard</div>
                 <div style={{ fontSize: 13, color: '#6b7280' }}>Live data from ቤታችን listings • Updated {lastUpdated}</div>
@@ -269,11 +218,7 @@ export default function MarketPage() {
                     ))}
                   </div>
                 </div>
-                {barData.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af', fontSize: 14 }}>No data yet for this category</div>
-                ) : (
-                  <BarChart data={barData} maxValue={maxPrice} color={tabColors[activeTab]} />
-                )}
+                {barData.length === 0 ? <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af', fontSize: 14 }}>No data yet for this category</div> : <BarChart data={barData} maxValue={maxPrice} color={tabColors[activeTab]} />}
               </div>
 
               <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '24px' }}>
@@ -293,10 +238,7 @@ export default function MarketPage() {
                       ].map(item => (
                         <div key={item.label}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span>{item.emoji}</span>
-                              <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{item.label}</span>
-                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span>{item.emoji}</span><span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{item.label}</span></div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.count}</span>
                               <span style={{ fontSize: 11, color: '#9ca3af', background: item.bg, padding: '2px 8px', borderRadius: 10 }}>{((item.count / total) * 100).toFixed(0)}%</span>
@@ -350,11 +292,8 @@ export default function MarketPage() {
               )}
             </div>
 
-            {/* ── SECTION 2: AI WEEKLY REPORT ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Brain size={18} color="#7c3aed" />
-              </div>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Brain size={18} color="#7c3aed" /></div>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>AI Market Report</div>
                 <div style={{ fontSize: 13, color: '#6b7280' }}>Generated by Claude AI based on live ቤታችን data</div>
@@ -364,16 +303,11 @@ export default function MarketPage() {
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '28px', marginBottom: 40 }}>
               {!aiGenerated ? (
                 <div style={{ textAlign: 'center', padding: '32px 0' }}>
-                  <div style={{ width: 64, height: 64, borderRadius: 16, background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                    <Brain size={32} color="#7c3aed" />
-                  </div>
+                  <div style={{ width: 64, height: 64, borderRadius: 16, background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}><Brain size={32} color="#7c3aed" /></div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 8 }}>Generate Weekly Market Report</div>
-                  <div style={{ fontSize: 14, color: '#6b7280', maxWidth: 480, margin: '0 auto 24px' }}>
-                    Claude AI will analyze current market data and generate a comprehensive market intelligence report with trends, insights, and investment recommendations.
-                  </div>
+                  <div style={{ fontSize: 14, color: '#6b7280', maxWidth: 480, margin: '0 auto 24px' }}>Claude AI will analyze current market data and generate a comprehensive market intelligence report with trends, insights, and investment recommendations.</div>
                   <button onClick={generateAIReport} disabled={aiLoading} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: aiLoading ? '#9ca3af' : '#7c3aed', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: aiLoading ? 'not-allowed' : 'pointer' }}>
-                    <Brain size={18} />
-                    {aiLoading ? 'Generating Report...' : 'Generate AI Market Report'}
+                    <Brain size={18} />{aiLoading ? 'Generating Report...' : 'Generate AI Market Report'}
                   </button>
                   {aiLoading && <div style={{ marginTop: 16, fontSize: 13, color: '#6b7280' }}>🤖 Claude is analyzing market data... this takes 10-15 seconds</div>}
                 </div>
@@ -388,7 +322,7 @@ export default function MarketPage() {
                       <RefreshCw size={12} /> Regenerate
                     </button>
                   </div>
-                  <div style={{ background: '#f9fafb', borderRadius: 12, padding: '24px', lineHeight: 1.8, fontSize: 14, color: '#374151', fontFamily: 'inherit' }}>
+                  <div style={{ background: '#f9fafb', borderRadius: 12, padding: '24px', lineHeight: 1.8, fontSize: 14, color: '#374151' }}>
                     {aiReport.split('\n').map((line, i) => {
                       if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 8, marginTop: 16 }}>{line.replace('## ', '')}</h3>;
                       if (line.startsWith('# ')) return <h2 key={i} style={{ fontSize: 17, fontWeight: 900, color: '#111827', marginBottom: 10, marginTop: 4 }}>{line.replace('# ', '')}</h2>;
@@ -401,22 +335,14 @@ export default function MarketPage() {
               )}
             </div>
 
-            {/* ── SECTION 3: NEWS FEED ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Newspaper size={18} color="#E8431A" />
-              </div>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Newspaper size={18} color="#E8431A" /></div>
               <div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>
-                  {lang === 'AM' ? 'የገበያ ዜናዎች እና ትንታኔ' : 'Market News & Analysis'}
-                </div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>
-                  {lang === 'AM' ? 'ከኢትዮጵያ ሚዲያ የቅርብ ጊዜ ዜናዎች' : 'Latest news from Ethiopian media • Real-time RSS feeds'}
-                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>{lang === 'AM' ? 'የገበያ ዜናዎች እና ትንታኔ' : 'Market News & Analysis'}</div>
+                <div style={{ fontSize: 13, color: '#6b7280' }}>{lang === 'AM' ? 'ከኢትዮጵያ ሚዲያ የቅርብ ጊዜ ዜናዎች' : 'Latest news from Ethiopian media • Real-time RSS feeds'}</div>
               </div>
             </div>
 
-            {/* News tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' as const }}>
               {([
                 ['housing', lang === 'AM' ? '🏠 ቤት እና ንብረት' : '🏠 Housing & Property', '#E8431A', '#fef2ee'],
@@ -447,9 +373,7 @@ export default function MarketPage() {
                 <Newspaper size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
                 <div style={{ fontSize: 15, fontWeight: 600 }}>Could not load news at this time</div>
                 <div style={{ fontSize: 13, marginTop: 4 }}>RSS feeds may be temporarily unavailable</div>
-                <button onClick={() => loadNews(activeNewsTab, lang)} style={{ marginTop: 16, padding: '8px 18px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                  Try Again
-                </button>
+                <button onClick={() => loadNews(activeNewsTab, lang)} style={{ marginTop: 16, padding: '8px 18px', background: '#006AFF', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Try Again</button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 40 }}>
@@ -470,19 +394,11 @@ export default function MarketPage() {
                     )}
                     <div style={{ padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', background: '#dbeafe', padding: '3px 8px', borderRadius: 10, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 150 }}>
-                          {article.source.name}
-                        </span>
-                        <span style={{ fontSize: 11, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-                          <Clock size={10} />{timeAgo(article.publishedAt)}
-                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#006AFF', background: '#dbeafe', padding: '3px 8px', borderRadius: 10, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 150 }}>{article.source.name}</span>
+                        <span style={{ fontSize: 11, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}><Clock size={10} />{timeAgo(article.publishedAt)}</span>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as any}>
-                        {article.title}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 } as any}>
-                        {article.description}
-                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' } as any}>{article.title}</div>
+                      <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 } as any}>{article.description}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#E8431A', fontWeight: 600, marginTop: 4 }}>
                         {lang === 'AM' ? 'ሙሉ ዜናውን ያንብቡ' : 'Read full article'} <ExternalLink size={11} />
                       </div>
@@ -492,7 +408,6 @@ export default function MarketPage() {
               </div>
             )}
 
-            {/* Market insights */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
               {[
                 { title: '📈 Market Opportunity', color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', content: summary && summary.total > 0 ? `${summary.active} active listings available now across Ethiopia. Average sale price is ${formatETB(summary.avgSalePrice)}.` : 'Start listing properties to see market insights here.' },
@@ -506,7 +421,6 @@ export default function MarketPage() {
               ))}
             </div>
 
-            {/* CTA */}
             <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: 16 }}>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Want to be part of this market?</div>
