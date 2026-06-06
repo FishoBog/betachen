@@ -156,8 +156,7 @@ export default function MarketPage() {
       }
     } catch {
       setNewsError(true);
-    } finally {
-      setNewsLoading(false);
+    }
     }
   };
 
