@@ -1,193 +1,182 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+'use client';
+import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useParams, useRouter } from 'next/navigation';
+import { createBrowserClient } from '@/lib/supabase';
+import { Navbar } from '@/components/layout/Navbar';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export default function ListingPaymentPage() {
+  const { user, isLoaded } = useUser();
+  const params = useParams();
+  const router = useRouter();
+  const propertyId = params.id as string;
+  const [property, setProperty] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState('loading');
+  const [promoCode, setPromoCode] = useState('');
+  const [showPromo, setShowPromo] = useState(false);
 
-export async function POST(req: NextRequest) {
-  try {
-    const { propertyId, ownerClerkId, ownerEmail, ownerName, type, discountCode } = await req.json();
-    const isRenewal = type === 'renewal';
-    const amount = isRenewal ? 300 : 500;
+  useEffect(() => {
+    if (!user) return;
+    const supabase = createBrowserClient();
+    supabase.from('properties').select('*').eq('id', propertyId).single()
+      .then(({ data }) => setProperty(data));
+    supabase.from('profiles').select('verification_status')
+      .eq('clerk_id', user.id).single()
+      .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
+  }, [user, propertyId]);
 
-    const { data: property, error: propErr } = await supabase
-      .from('properties').select('*').eq('id', propertyId).single();
-    if (propErr) throw new Error(`Property error: ${propErr.message}`);
-    if (!property) throw new Error('Property not found');
-
-    // Compute the new expiry: 3 months from now (or from current expiry if renewing an active listing)
-    const baseDate = isRenewal && property.expires_at && new Date(property.expires_at) > new Date()
-      ? new Date(property.expires_at) : new Date();
-    const extendsUntil = new Date(baseDate);
-    extendsUntil.setMonth(extendsUntil.getMonth() + 3);
-
-    // ─────────────────────────────────────────────
-    // DISCOUNT CODE PATH — if a code is provided, validate and (for 100% off) skip Chapa
-    // ─────────────────────────────────────────────
-    if (discountCode && discountCode.trim()) {
-      const codeInput = discountCode.trim().toUpperCase();
-
-      const { data: codeRow, error: codeErr } = await supabase
-        .from('discount_codes')
-        .select('*')
-        .eq('code', codeInput)
-        .single();
-
-      if (codeErr || !codeRow) {
-        return NextResponse.json({ error: 'Invalid promo code. Please check and try again.' }, { status: 400 });
+  const handlePay = async () => {
+    if (!user || !property) return;
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/listings/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId,
+          ownerClerkId: user.id,
+          ownerEmail: user.primaryEmailAddress?.emailAddress,
+          ownerName: user.fullName || user.firstName || 'Owner',
+          type: 'new',
+          discountCode: promoCode.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      // Free listing (100% promo) → go straight to success, no Chapa
+      if (data.freeListing && data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+        return;
       }
-      if (codeRow.used) {
-        return NextResponse.json({ error: 'This promo code has already been used.' }, { status: 400 });
-      }
-      if (codeRow.expires_at && new Date(codeRow.expires_at) < new Date()) {
-        return NextResponse.json({ error: 'This promo code has expired.' }, { status: 400 });
-      }
-
-      const percent = Number(codeRow.discount_percent) || 0;
-
-      // 100% off → no payment needed. Activate the listing directly.
-      if (percent >= 100) {
-        // Mark the code used FIRST, guarding against double-use (only update if still unused).
-        const { data: claimed, error: claimErr } = await supabase
-          .from('discount_codes')
-          .update({
-            used: true,
-            used_by_email: ownerEmail || null,
-            used_at: new Date().toISOString(),
-          })
-          .eq('code', codeInput)
-          .eq('used', false)        // <-- critical: only succeeds if it was still unused
-          .select()
-          .single();
-
-        if (claimErr || !claimed) {
-          // Someone used it in the meantime, or it was already used
-          return NextResponse.json({ error: 'This promo code has already been used.' }, { status: 400 });
-        }
-
-        // Activate the listing for 3 months
-        const { error: actErr } = await supabase
-          .from('properties')
-          .update({
-            status: 'active',
-            expires_at: extendsUntil.toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', propertyId);
-
-        if (actErr) {
-          // Roll back the code claim so it isn't wasted on a failed activation
-          await supabase.from('discount_codes')
-            .update({ used: false, used_by_email: null, used_at: null })
-            .eq('code', codeInput);
-          throw new Error(`Activation error: ${actErr.message}`);
-        }
-
-        // Record a zero-amount payment for tracking
-        await supabase.from('listing_payments').insert({
-          property_id: propertyId,
-          owner_clerk_id: ownerClerkId,
-          amount: 0,
-          type: isRenewal ? 'renewal' : 'new',
-          chapa_tx_ref: `Betachen-PROMO-${codeInput}-${Date.now()}`,
-          status: 'paid',
-          extends_until: extendsUntil.toISOString(),
-        });
-
-        // Tell the page to go straight to the success screen (no Chapa)
-        return NextResponse.json({
-          success: true,
-          freeListing: true,
-          redirectUrl: `/owner/listings/${propertyId}/payment/success`,
-          amount: 0,
-          extendsUntil: extendsUntil.toISOString(),
-        });
-      }
-
-      // Partial discount (less than 100%) → reduce the Chapa amount but still pay.
-      // NOTE: your current codes are all 100%, so this branch is a safety net.
-      const discountedAmount = Math.max(1, Math.round(amount * (1 - percent / 100)));
-      return await startChapa(discountedAmount, isRenewal, property, propertyId, ownerClerkId, ownerEmail, ownerName, extendsUntil, codeInput);
-    }
-
-    // ─────────────────────────────────────────────
-    // NORMAL PAID PATH (no code) — unchanged behaviour
-    // ─────────────────────────────────────────────
-    return await startChapa(amount, isRenewal, property, propertyId, ownerClerkId, ownerEmail, ownerName, extendsUntil, null);
-
-  } catch (err: any) {
-    console.log('Payment error:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-// Helper: create the listing_payments record + start a Chapa checkout
-async function startChapa(
-  amount: number,
-  isRenewal: boolean,
-  property: any,
-  propertyId: string,
-  ownerClerkId: string,
-  ownerEmail: string,
-  ownerName: string,
-  extendsUntil: Date,
-  appliedCode: string | null,
-) {
-  const txRef = `Betachen-LIST-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-
-  const { data: payment, error: payErr } = await supabase
-    .from('listing_payments').insert({
-      property_id: propertyId,
-      owner_clerk_id: ownerClerkId,
-      amount,
-      type: isRenewal ? 'renewal' : 'new',
-      chapa_tx_ref: txRef,
-      status: 'pending',
-      extends_until: extendsUntil.toISOString(),
-    }).select().single();
-  if (payErr) throw new Error(`Payment record error: ${payErr.message}`);
-
-  const cleanTitle = property.title.replace(/[^a-zA-Z0-9\s\-.]/g, '');
-  const chapaPayload = {
-    amount: amount.toFixed(2),
-    currency: 'ETB',
-    email: ownerEmail || 'noreply@Betachen-homes.com',
-    first_name: ownerName?.split(' ')[0] || 'Owner',
-    last_name: ownerName?.split(' ')[1] || 'User',
-    tx_ref: txRef,
-    callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/payment/verify`,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}/payment/success`,
-    customization: {
-      title: isRenewal ? 'Betachen Listing Renewal' : 'Betachen Listing Fee',
-      description: isRenewal
-        ? `Renewal 3 months - ${cleanTitle}`
-        : `New listing - ${cleanTitle}`,
+      window.location.href = data.checkoutUrl;
+    } catch (err: any) {
+      setError(typeof err.message === 'string' ? err.message : JSON.stringify(err));
+      setLoading(false);
     }
   };
 
-  const chapaRes = await fetch('https://api.chapa.co/v1/transaction/initialize', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(chapaPayload),
-  });
-  const chapaData = await chapaRes.json();
-  if (chapaData.status !== 'success') {
-    throw new Error(`Chapa error: ${JSON.stringify(chapaData)}`);
-  }
+  if (!isLoaded || !property) return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Loading...</div>
+    </div>
+  );
 
-  await supabase.from('listing_payments').update({
-    chapa_checkout_url: chapaData.data.checkout_url
-  }).eq('id', payment.id);
+  const hasPromo = promoCode.trim().length > 0;
 
-  return NextResponse.json({
-    success: true,
-    checkoutUrl: chapaData.data.checkout_url,
-    amount,
-    extendsUntil: extendsUntil.toISOString(),
-  });
+  return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <Navbar />
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px' }}>
+
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>💳</div>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Complete Your Listing</h1>
+          <p style={{ fontSize: 15, color: '#6b7280' }}>One payment to publish your property on ቤታችን Homes</p>
+        </div>
+
+        {/* Property summary */}
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '20px 24px', marginBottom: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#6b7280', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Your Listing</div>
+          <div style={{ fontSize: 17, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{property.title}</div>
+          <div style={{ fontSize: 14, color: '#6b7280' }}>{property.location}</div>
+        </div>
+
+        {/* Payment details */}
+        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px', marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid #f3f4f6' }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Listing Fee</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {hasPromo && <span style={{ fontSize: 16, fontWeight: 700, color: '#9ca3af', textDecoration: 'line-through' }}>ETB 500</span>}
+              <div style={{ fontSize: 28, fontWeight: 900, color: hasPromo ? '#059669' : '#006AFF' }}>{hasPromo ? 'FREE' : 'ETB 500'}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {[
+              '✓ 3 months active listing',
+              '✓ Reviewed by admin within 24 hours',
+              '✓ Visible to all buyers on ቤታችን Homes',
+              '✓ Renewable after expiry for ETB 300',
+            ].map(item => (
+              <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── PROMO CODE ── */}
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '18px 24px', marginBottom: 20 }}>
+          {!showPromo ? (
+            <button onClick={() => setShowPromo(true)} style={{ background: 'none', border: 'none', color: '#006AFF', fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+              Have a promo code?
+            </button>
+          ) : (
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 8 }}>Promo Code</label>
+              <input
+                value={promoCode}
+                onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="BETA-XXXX-XXXX"
+                style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 16, fontFamily: 'monospace', letterSpacing: 1, color: '#111827', outline: 'none', boxSizing: 'border-box' as const }}
+              />
+              {hasPromo && (
+                <div style={{ fontSize: 13, color: '#059669', fontWeight: 600, marginTop: 8 }}>
+                  ✓ Code will be applied — if valid, your listing is free for 3 months.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Verification notice */}
+        {verificationStatus !== 'verified' && (
+          <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>🛡️ ID Verification Required After Payment</div>
+            <div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
+              After completing payment, you will need to verify your identity. Your listing will go live once verified and approved by admin.
+            </div>
+          </div>
+        )}
+
+        {/* What happens next */}
+        <div style={{ background: '#f9fafb', borderRadius: 12, border: '1px solid #e5e7eb', padding: '16px 20px', marginBottom: 24 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>📋 What happens next?</div>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {[
+              { n: '1', t: hasPromo ? 'Apply your promo code' : 'Pay listing fee via Chapa' },
+              { n: '2', t: verificationStatus === 'verified' ? 'Admin reviews your listing within 24hrs' : 'Verify your identity (one-time)' },
+              { n: '3', t: verificationStatus === 'verified' ? 'Listing goes LIVE on ቤታችን Homes ✅' : 'Admin reviews your listing within 24hrs' },
+              { n: '4', t: verificationStatus === 'verified' ? '' : 'Listing goes LIVE on ቤታችን Homes ✅' },
+            ].filter(s => s.t).map(({ n, t }) => (
+              <div key={n} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
+                <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handlePay}
+          disabled={loading}
+          style={{ width: '100%', padding: '16px', borderRadius: 12, background: loading ? '#9ca3af' : hasPromo ? '#059669' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          {loading ? 'Processing...' : hasPromo ? '🎟️ Apply Code & Publish Free' : '💳 Pay ETB 500 & Publish'}
+        </button>
+
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#9ca3af' }}>
+          {hasPromo ? 'Your promo code gives 3 months free' : 'Secure payment powered by Chapa • You will be redirected to complete payment'}
+        </div>
+      </div>
+    </div>
+  );
 }
