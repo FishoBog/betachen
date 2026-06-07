@@ -7,19 +7,26 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { MessageSquare, Home, ChevronRight } from 'lucide-react';
 
+const ADMIN_CLERK_ID = 'user_3AmnQEFKPsp6EX1W9xl88nOW4AV';
+
 export default function MessagesPage() {
   const { user } = useUser();
   const router = useRouter();
   const [threads, setThreads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isAdmin = user?.id === ADMIN_CLERK_ID;
+
   useEffect(() => {
     if (!user) return;
     const supabase = createBrowserClient();
-    supabase
+    let listQuery = supabase
       .from('messages')
-      .select('*, properties(id, title, location, type)')
-      .or(`sender_clerk_id.eq.${user.id},receiver_clerk_id.eq.${user.id}`)
+      .select('*, properties(id, title, location, type)');
+    if (user.id !== ADMIN_CLERK_ID) {
+      listQuery = listQuery.or(`sender_clerk_id.eq.${user.id},receiver_clerk_id.eq.${user.id}`);
+    }
+    listQuery
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         // Group by property_id — show latest message per property
@@ -38,8 +45,9 @@ export default function MessagesPage() {
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, color: '#111827', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, color: '#111827', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' as const }}>
           <MessageSquare size={24} color="#006AFF" /> Messages
+          {isAdmin && <span style={{ fontSize: 12, fontWeight: 700, background: '#ede9fe', color: '#7c3aed', padding: '4px 10px', borderRadius: 12 }}>ADMIN — ALL CONVERSATIONS</span>}
         </h1>
 
         {loading ? (
@@ -76,7 +84,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                     <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
-                      {m.properties?.location ?? ''} • {isMe ? 'You messaged the owner' : 'Buyer messaged you'}
+                      {m.properties?.location ?? ''} • {isAdmin ? 'Admin view' : isMe ? 'You messaged the owner' : 'Buyer messaged you'}
                     </div>
                     <div style={{ fontSize: 13, color: isUnread ? '#111827' : '#6b7280', fontWeight: isUnread ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                       {isMe ? 'You: ' : ''}{m.content}
