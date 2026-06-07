@@ -1,96 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RSS2JSON = 'https://api.rss2json.com/v1/api.json';
+export const revalidate = 3600;
 
-const RSS_FEEDS = {
-  housing: ['https://feeds.bbci.co.uk/news/business/rss.xml'],
-  economy: ['https://feeds.bbci.co.uk/news/business/rss.xml'],
-  ethiopia: ['https://feeds.bbci.co.uk/news/world/africa/rss.xml'],
+const FEEDS = {
+  housing: [
+    'https://capitalethiopia.com/feed/',
+    'https://www.thereporterethiopia.com/feed/',
+    'https://addisfortune.news/feed/',
+  ],
+  economy: [
+    'https://addisfortune.news/feed/',
+    'https://capitalethiopia.com/feed/',
+    'https://www.thereporterethiopia.com/feed/',
+  ],
+  ethiopia: [
+    'https://addisstandard.com/feed/',
+    'https://www.fanabc.com/english/feed/',
+    'https://www.thereporterethiopia.com/feed/',
+  ],
 };
 
 const KEYWORDS = {
-  housing: ['real estate', 'housing', 'property', 'construction', 'rent', 'mortgage', 'home', 'apartment'],
-  economy: ['economy', 'inflation', 'investment', 'finance', 'GDP', 'bank', 'market', 'trade', 'growth'],
-  ethiopia: ['Ethiopia', 'Africa', 'Addis', 'East Africa', 'development', 'infrastructure'],
+  housing: ['real estate', 'housing', 'property', 'construction', 'condominium', 'rent', 'apartment', 'building', 'land', 'home', 'mortgage'],
+  economy: ['economy', 'inflation', 'investment', 'finance', 'gdp', 'bank', 'birr', 'market', 'trade', 'budget', 'tax', 'export', 'business'],
+  ethiopia: ['development', 'infrastructure', 'urban', 'city', 'road', 'project', 'addis', 'growth', 'transport', 'energy', 'water'],
 };
 
-const FALLBACK: Record<string, any[]> = {
-  housing: [
-    { title: 'Ethiopia Real Estate Market Shows Strong Growth', description: 'The Ethiopian real estate sector continues to attract significant investment, with Addis Ababa leading in residential and commercial developments. Demand for affordable housing remains high across major cities.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Condominium Projects Expanding Across Addis Ababa', description: 'New condominium housing projects are being launched in Bole, Yeka, and Nifas Silk Lafto sub-cities, offering more housing options for middle-income families in the capital.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Rental Prices Stabilizing in Key Addis Ababa Districts', description: 'Monthly rental prices in Bole, Kazanchis, and CMC areas are showing signs of stabilization, providing relief for tenants and predictability for investors.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Foreign Investment Drives Commercial Real Estate Boom', description: 'International investors are increasingly targeting Ethiopian commercial real estate, particularly office spaces and mixed-use developments in Addis Ababa business districts.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'New Housing Finance Options for Ethiopian Buyers', description: 'Several Ethiopian banks have introduced new mortgage products, making it easier for first-time buyers to enter the property market with lower down payment requirements.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Urban Development Plans to Transform Outer Addis Areas', description: 'The Addis Ababa City Administration has announced major urban development plans for outer districts, expected to significantly increase property values over the next five years.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-  ],
-  economy: [
-    { title: 'Ethiopian Economy Posts Strong GDP Growth', description: 'Ethiopia economy continues to be one of the fastest-growing in Africa, with GDP growth driven by construction, services, and agricultural sectors.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'National Bank of Ethiopia Adjusts Interest Rates', description: 'The National Bank of Ethiopia has implemented monetary policy adjustments aimed at bringing inflation under control while maintaining economic growth momentum.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Ethiopia Attracts Record Foreign Direct Investment', description: 'Foreign direct investment into Ethiopia reached new highs, with investors particularly interested in manufacturing, real estate, and infrastructure sectors.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Birr Exchange Rate Stabilizes as Export Revenues Increase', description: 'The Ethiopian Birr has shown relative stability against major currencies as export revenues from coffee, gold, and manufactured goods continue to grow.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Infrastructure Investment Creating New Economic Opportunities', description: 'Major infrastructure projects including roads, railways, and energy facilities are creating significant economic opportunities and boosting real estate values in connected areas.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'SME Growth Driving Demand for Commercial Properties', description: 'The rapid growth of small and medium enterprises in Ethiopia is creating strong demand for affordable commercial spaces, offices, and retail properties across major urban centers.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-  ],
-  ethiopia: [
-    { title: 'Addis Ababa Master Plan Envisions Major Urban Transformation', description: 'The updated Addis Ababa city master plan outlines ambitious urban development goals for the next two decades, including new satellite cities, improved transit, and expanded green spaces.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Ethiopia Advances Towards Middle-Income Country Status', description: 'Ethiopia continues making progress towards its goal of becoming a middle-income country, with rising per capita incomes and improving living standards in urban and rural areas.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Light Rail Expansion to Boost Property Values Along Corridors', description: 'Planned expansions of Addis Ababa light rail transit system are expected to significantly increase property values along new corridors, creating investment opportunities for early buyers.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Ethiopian Diaspora Investment in Real Estate Continues to Rise', description: 'Ethiopians living abroad are increasingly investing in real estate back home, contributing to demand for premium properties and driving development in key neighborhoods.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Tourism Growth Opening New Hospitality Real Estate Opportunities', description: 'Growing tourism sector is creating new opportunities in hospitality real estate, with demand for boutique hotels, guesthouses, and serviced apartments rising in key destinations.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-    { title: 'Green Building Standards Gaining Traction in Ethiopian Construction', description: 'Ethiopian developers are increasingly adopting green building practices and sustainable construction standards, driven by regulatory requirements and growing buyer demand.', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'Betachen Market Intelligence' } },
-  ],
-};
+async function fetchFeedXml(feedUrl: string): Promise<string | null> {
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`,
+  ];
+  for (const p of proxies) {
+    try {
+      const res = await fetch(p, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Betachen/1.0)' },
+        next: { revalidate: 3600 },
+      });
+      if (!res.ok) continue;
+      const xml = await res.text();
+      if (xml && xml.includes('<item')) return xml;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
 
-const AMHARIC_FALLBACK: Record<string, any[]> = {
-  housing: [
-    { title: 'የኢትዮጵያ የሪል ስቴት ገበያ ጠንካራ እድገት አሳይቷል', description: 'የኢትዮጵያ የሪል ስቴት ዘርፍ ከፍተኛ ኢንቨስትመንትን እየሳበ ሲሆን አዲስ አበባ በቤት ውስጥና ንግድ ልማቶች ቀዳሚ ቦታ ይዛለች።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'በአዲስ አበባ ክፍለ ከተሞች የኮንዶሚኒየም ፕሮጀክቶች እየተስፋፉ ነው', description: 'አዲስ አዲስ የኮንዶሚኒየም ፕሮጀክቶች በቦሌ፣ ዬካ እና ንፋስ ስልክ ላፍቶ ክፍለ ከተሞች እየተጀመሩ ሲሆን ለዋና ከተማ መካከለኛ ገቢ ለሚኖራቸው ቤተሰቦች ብዙ የቤት አማራጮችን ያቀርባሉ።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'በዋና ዋና የአዲስ አበባ ሰፈሮች የኪራይ ዋጋ እየተረጋጋ ነው', description: 'በቦሌ፣ ካዛንቺስ እና ሲኤምሲ አካባቢዎች ወርሃዊ የኪራይ ዋጋዎች የመረጋጋት ምልክቶችን እያሳዩ ሲሆን ይህ ለተከራዮች እፎይታ ለባለሀብቶችም ወጥነት ይሰጣቸዋል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የውጭ ኢንቨስትመንት የንግድ ሪል ስቴት ዕድገትን እያፋጠነ ነው', description: 'አለምዓቀፍ ባለሀብቶች በኢትዮጵያ የንግድ ሪል ስቴትን በተለይ በአዲስ አበባ ቢዝነስ ወረዳዎች ውስጥ ያሉ ቢሮዎችና የተቀናጀ ልማቶችን እያነጣጠሩ ነው።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'ለኢትዮጵያ ገዢዎች አዲስ የቤት ፋይናንስ አማራጮች ተገኝተዋል', description: 'በርካታ ኢትዮጵያዊ ባንኮች አዲስ የቤት ብድር ምርቶችን አስተዋውቀዋል ይህም ለመጀመሪያ ጊዜ ቤት ለሚገዙ ሰዎች ቀላል ያደርጋቸዋል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የከተማ ልማት እቅዶች የአዲስ አበባ ዳርቻ አካባቢዎችን ለመቀየር ተዘጋጅተዋል', description: 'የአዲስ አበባ ከተማ አስተዳደር ለዳርቻ ወረዳዎች ዋና ዋና የከተማ ልማት እቅዶችን አስታውቋል ይህም የንብረት ዋጋ በከፍተኛ ሁኔታ ሊጨምር ይጠበቃል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-  ],
-  economy: [
-    { title: 'የኢትዮጵያ ኢኮኖሚ ጠንካራ የጂዲፒ እድገት አሳይቷል', description: 'የኢትዮጵያ ኢኮኖሚ በአፍሪካ ከፍተኛ ዕድገት ካሳዩ አንዱ ሆኖ ቀጥሏል የጂዲፒ ዕድገት በግንባታ አገልግሎቶች እና የግብርና ዘርፎች ሲመራ ቆይቷል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የኢትዮጵያ ብሔራዊ ባንክ የወለድ ተመኖችን አስተካክሏል', description: 'የኢትዮጵያ ብሔራዊ ባንክ የኢኮኖሚ ዕድገት እያስጠበቀ የዋጋ ንረትን ለመቆጣጠር የሚያለምቅ የገንዘብ ፖሊሲ ማስተካከያዎችን ተግባራዊ አድርጓል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'ኢትዮጵያ ሪከርድ የቀጥታ የውጭ ኢንቨስትመንት ስቧለች', description: 'ወደ ኢትዮጵያ የሚገባ ቀጥታ የውጭ ኢንቨስትመንት አዲስ ከፍታ ላይ ደርሷል ባለሀብቶቹ በተለይ ማኑፋክቸሪንግ ሪል ስቴት እና የመሠረተ ልማት ዘርፎች ላይ ፍላጎት አሳይተዋል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የወጪ ንግድ ገቢ ሲጨምር የብር ምንዛሪ ተረጋጋ', description: 'ከቡና ወርቅ እና ማኑፋክቸርድ ዕቃዎች የሚገኘው የወጪ ንግድ ገቢ እያደገ ሲሄድ የኢትዮጵያ ብር አንጻራዊ መረጋጋት አሳይቷል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የመሠረተ ልማት ኢንቨስትመንት አዲስ ኢኮኖሚያዊ ዕድሎችን እየፈጠረ ነው', description: 'ትላልቅ የመሠረተ ልማት ፕሮጀክቶች ጉልህ ኢኮኖሚያዊ ዕድሎችን እየፈጠሩ ሲሆን ከተሳሰሩ አካባቢዎች ውስጥ ያሉ ሪል ስቴቶችን ዋጋ ከፍ እያደረጉ ነው።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የኤስኤምኢ ዕድገት ለንግድ ንብረቶች ፍላጎት እያሳደገ ነው', description: 'በኢትዮጵያ የጥቃቅና አነስተኛ ኢንተርፕራይዞች ፈጣን ዕድገት ለተወጣጣሪ የንግድ ቦታዎች ቢሮዎች እና ሱቆች ጠንካራ ፍላጎት እየፈጠረ ነው።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-  ],
-  ethiopia: [
-    { title: 'የአዲስ አበባ ማስተር ፕላን ዋና ዋና የከተማ ለውጥ ያስባል', description: 'የተዘመነው የአዲስ አበባ ከተማ ማስተር ፕላን አዳዲስ ሳተላይት ከተሞች የተሻሻለ ትራንዚት እና የተስፋፉ አረንጓዴ ቦታዎችን ጨምሮ ምኞታዊ የከተማ ልማት ግቦችን ያስቀምጣል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date().toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'ኢትዮጵያ ወደ መካከለኛ ገቢ ሀገር ደረጃ እየገሰገሰ ነው', description: 'ኢትዮጵያ መካከለኛ ገቢ ሀገር የመሆን ግቧ ላይ ለማሳካት ሂደቷን ቀጥላለች የነፍስ ወከፍ ገቢ እየጨመረ ሲሆን ኑሮ እየሻሻለ ነው።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 86400000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'አዲስ ቀላል ባቡር ማስፋፊያ የንብረት ዋጋዎችን ሊያሳድግ ይጠበቃል', description: 'የታቀዱ የአዲስ አበባ ቀላል ባቡር ማጓጓዣ ስርዓት ማስፋፊያዎች በአዲስ ሰርጦቹ ላይ ያሉ የንብረት ዋጋዎችን በከፍተኛ ሁኔታ ሊጨምሩ ይጠበቃል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 172800000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'በሪል ስቴት ያሉ የኢትዮጵያ ዲያስፖራ ኢንቨስትመንት እየጨመረ ነው', description: 'በውጭ አገር የሚኖሩ ኢትዮጵያውያን ወደ ቤታቸው ሀገር ሪል ስቴት ኢንቨስትምነት እያደረጉ ሲሆን ይህ ለፕሪሚየም ንብረቶች ፍላጎት አስተዋፅዖ አድርጓል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 259200000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'የቱሪዝም ዕድገት አዲስ የእንግዳ ማረፊያ ሪል ስቴት ዕድሎችን እየከፈተ ነው', description: 'የኢትዮጵያ እያደገ ያለ የቱሪዝም ዘርፍ አዳዲስ የእንግዳ ማረፊያ ሪል ስቴት ዕድሎችን እየፈጠረ ሲሆን ፍላጎቱ በቡቲክ ሆቴሎች እና ማረፊያ ቤቶች ላይ ከፍ ብሏል።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 345600000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-    { title: 'አረንጓዴ ህንጻ ደረጃዎች በኢትዮጵያ ግንባታ ተቀባይነት እያገኙ ነው', description: 'የኢትዮጵያ ልማት ባለሙያዎች አረንጓዴ ህንጻ አሰራሮችን እና ዘላቂ የግንባታ ደረጃዎችን እየተቀበሉ ሲሆን ይህ በቁጥጥር መስፈርቶች የሚነዳ ነው።', url: 'https://betachen.com/market', urlToImage: null, publishedAt: new Date(Date.now() - 432000000).toISOString(), source: { name: 'ቤታችን የገበያ ትንታኔ' } },
-  ],
-};
+function parseRss(xml: string, sourceName: string): any[] {
+  const items: any[] = [];
+  const matches = Array.from(xml.matchAll(/<item[\s\S]*?<\/item>/g));
+  for (const m of matches) {
+    const block = m[0];
+    const pick = (re: RegExp) => block.match(re)?.[1]?.trim() ?? '';
+    const title = pick(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) || pick(/<title>([\s\S]*?)<\/title>/);
+    const rawDesc = pick(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) || pick(/<description>([\s\S]*?)<\/description>/);
+    const link = pick(/<link>([\s\S]*?)<\/link>/) || block.match(/<link[^>]*href="([^"]+)"/)?.[1] || '#';
+    const pubDate = pick(/<pubDate>([\s\S]*?)<\/pubDate>/) || new Date().toISOString();
+    const image = block.match(/<media:content[^>]+url="([^"]+)"/)?.[1] || block.match(/<media:thumbnail[^>]+url="([^"]+)"/)?.[1] || block.match(/<enclosure[^>]+url="([^"]+)"/)?.[1] || block.match(/<img[^>]+src="([^"]+)"/)?.[1] || null;
+    const description = rawDesc.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#160;|&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#8217;/g, "'").replace(/&#8220;|&#8221;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim().slice(0, 300);
+    const cleanTitle = title.replace(/<[^>]*>/g, '').trim();
+    if (cleanTitle && link !== '#') {
+      items.push({
+        title: cleanTitle,
+        description,
+        url: link,
+        urlToImage: image,
+        publishedAt: new Date(pubDate).toISOString(),
+        source: { name: sourceName },
+        author: null,
+      });
+    }
+  }
+  return items;
+}
 
-async function fetchViaRss2Json(feedUrl: string): Promise<any[]> {
+function hostName(feedUrl: string): string {
   try {
-    const url = `${RSS2JSON}?rss_url=${encodeURIComponent(feedUrl)}&count=6&order_by=pubDate&order_dir=desc`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
-    return data.items.map((item: any) => ({
-      title: item.title ?? '',
-      description: (item.description ?? item.content ?? '')
-        .replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#160;|&nbsp;/g, ' ').replace(/&quot;/g, '"').trim().slice(0, 300),
-      url: item.link ?? '#',
-      urlToImage: item.thumbnail || item.enclosure?.link || null,
-      publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-      source: { name: data.feed?.title ?? new URL(feedUrl).hostname.replace('www.', '') },
-    })).filter((a: any) => a.title);
+    const h = new URL(feedUrl).hostname.replace('www.', '');
+    if (h.includes('capital')) return 'Capital Ethiopia';
+    if (h.includes('reporter')) return 'The Reporter';
+    if (h.includes('fortune')) return 'Addis Fortune';
+    if (h.includes('addisstandard')) return 'Addis Standard';
+    if (h.includes('fana')) return 'Fana Broadcasting';
+    return h;
   } catch {
-    return [];
+    return 'News';
   }
 }
 
 async function translateToAmharic(articles: any[]): Promise<any[]> {
-  if (!process.env.ANTHROPIC_API_KEY) return articles;
+  if (!process.env.ANTHROPIC_API_KEY || articles.length === 0) return articles;
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -113,34 +113,29 @@ async function translateToAmharic(articles: any[]): Promise<any[]> {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const tab = (searchParams.get('tab') ?? 'housing') as keyof typeof RSS_FEEDS;
+  const tab = (searchParams.get('tab') ?? 'housing') as keyof typeof FEEDS;
   const lang = searchParams.get('lang') ?? 'EN';
 
-  let articles: any[] = [];
-  try {
-    const feeds = RSS_FEEDS[tab] ?? RSS_FEEDS.housing;
-    const results = await Promise.all(feeds.map(f => fetchViaRss2Json(f)));
-    articles = results.flat();
-  } catch {
-    articles = [];
+  const feeds = FEEDS[tab] ?? FEEDS.housing;
+  const keywords = KEYWORDS[tab] ?? KEYWORDS.housing;
+
+  const all: any[] = [];
+  for (const feed of feeds) {
+    const xml = await fetchFeedXml(feed);
+    if (xml) all.push(...parseRss(xml, hostName(feed)));
   }
 
-  if (articles.length > 0) {
-    const keywords = KEYWORDS[tab] ?? KEYWORDS.housing;
-    const filtered = articles.filter(a =>
-      keywords.some(kw => a.title.toLowerCase().includes(kw.toLowerCase()) || a.description.toLowerCase().includes(kw.toLowerCase()))
-    );
-    if (filtered.length >= 3) articles = filtered;
-  }
+  let articles = all;
+  const filtered = all.filter(a => keywords.some(kw => a.title.toLowerCase().includes(kw) || a.description.toLowerCase().includes(kw)));
+  if (filtered.length >= 3) articles = filtered;
 
-  const seen = new Set();
+  const seen = new Set<string>();
   articles = articles.filter(a => { if (seen.has(a.title)) return false; seen.add(a.title); return true; });
   articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
   articles = articles.slice(0, 9);
 
-  if (articles.length < 3) {
-    const fallback = lang === 'AM' ? AMHARIC_FALLBACK : FALLBACK;
-    return NextResponse.json({ articles: fallback[tab] ?? fallback.housing, source: 'fallback' });
+  if (articles.length === 0) {
+    return NextResponse.json({ articles: [], source: 'empty' });
   }
 
   const final = lang === 'AM' ? await translateToAmharic(articles) : articles;
