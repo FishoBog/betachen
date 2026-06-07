@@ -1,4 +1,5 @@
 'use client';
+import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
@@ -30,6 +31,7 @@ export function Navbar() {
     { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false },
     { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false },
+    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post' : 'እንዴት መለጠፍ', icon: ListChecks, authOnly: false, external: false },
     { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true  },
     { href: '/contracts',                     label: lang === 'EN' ? 'Contracts'  : 'ውሎች',       icon: FileText,  authOnly: true,  external: false },
     { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false },
