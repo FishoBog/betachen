@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone } from 'lucide-react';
+import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
