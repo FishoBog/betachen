@@ -30,28 +30,28 @@ const CITY_COORDS: Record<string, [number, number]> = {
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '12px 16px',
+  width: '100%', padding: '13px 16px',
   border: '1.5px solid #e5e7eb', borderRadius: 10,
-  fontSize: 14, color: '#111827', outline: 'none',
+  fontSize: 15, color: '#111827', outline: 'none',
   fontFamily: 'inherit', boxSizing: 'border-box', background: 'white',
 };
 const labelStyle: React.CSSProperties = {
-  fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6,
+  fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6,
 };
 const sectionStyle: React.CSSProperties = {
   background: 'white', borderRadius: 16,
-  border: '1px solid #e5e7eb', padding: '28px 32px', marginBottom: 20,
+  border: '1px solid #e5e7eb', padding: '30px 34px', marginBottom: 20,
 };
 const subHeading: React.CSSProperties = {
-  fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 12, marginTop: 20,
+  fontSize: 15, fontWeight: 700, color: '#374151', marginBottom: 12, marginTop: 20,
   paddingBottom: 8, borderBottom: '1px solid #f3f4f6',
 };
 
 function Toggle({ label, desc, value, onChange, color = '#006AFF', bg = '#f0f6ff' }: { label: string; desc?: string; value: boolean; onChange: () => void; color?: string; bg?: string }) {
   return (
     <div onClick={onChange} style={{ padding: '14px 16px', borderRadius: 10, border: `2px solid ${value ? color : '#e5e7eb'}`, background: value ? bg : 'white', cursor: 'pointer' }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: value ? color : '#374151' }}>{value ? '✓ ' : ''}{label}</div>
-      {desc && <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{desc}</div>}
+      <div style={{ fontSize: 14, fontWeight: 700, color: value ? color : '#374151' }}>{value ? '✓ ' : ''}{label}</div>
+      {desc && <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{desc}</div>}
     </div>
   );
 }
@@ -69,27 +69,27 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
   return (
     <div style={{ display: 'grid', gap: 14 }}>
       <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>{t.coordTitle}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>{t.coordTitle}</div>
         <div style={{ display: 'grid', gap: 8 }}>
           {[t.coordStep1, t.coordStep2, t.coordStep3, t.coordStep4, t.coordStep5].map((step: string, i: number) => (
             <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
-              <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{step}</span>
+              <span style={{ fontSize: 14, color: '#374151', lineHeight: 1.5 }}>{step}</span>
             </div>
           ))}
         </div>
-        <button onClick={() => window.open('https://maps.google.com', '_blank')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '9px 18px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+        <button onClick={() => window.open('https://maps.google.com', '_blank')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '10px 20px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
           {t.openMaps}
         </button>
       </div>
       <div>
-        <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>{t.coordPaste}</label>
-        <input type="text" value={coordText} onChange={e => { setCoordText(e.target.value); parseCoords(e.target.value); }} placeholder={`e.g. ${defaultCoords[0].toFixed(4)}, ${defaultCoords[1].toFixed(4)}`} style={{ ...inputStyle, fontSize: 15 }} />
+        <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>{t.coordPaste}</label>
+        <input type="text" value={coordText} onChange={e => { setCoordText(e.target.value); parseCoords(e.target.value); }} placeholder={`e.g. ${defaultCoords[0].toFixed(4)}, ${defaultCoords[1].toFixed(4)}`} style={{ ...inputStyle, fontSize: 16 }} />
         <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{t.coordHint}</div>
       </div>
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46' }}>{t.coordSet}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>{t.coordSet}</div>
           <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>{parseFloat(lat).toFixed(5)}, {parseFloat(lng).toFixed(5)}</div>
         </div>
       )}
@@ -308,24 +308,24 @@ export default function NewListingPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
-      <div style={{ maxWidth: 780, margin: '0 auto', padding: '40px 24px' }}>
+      <div style={{ maxWidth: 920, margin: '0 auto', padding: '44px 24px' }}>
         <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 6 }}>{t.formTitle}</h1>
-          <p style={{ color: '#6b7280', fontSize: 15 }}>{t.formSubtitle}</p>
+          <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111827', marginBottom: 6 }}>{t.formTitle}</h1>
+          <p style={{ color: '#6b7280', fontSize: 16 }}>{t.formSubtitle}</p>
         </div>
 
         {/* ── EMAIL VERIFICATION GATE ── */}
         {!verified && (
           <div style={sectionStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Mail size={18} color="#E8431A" />
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Mail size={20} color="#E8431A" />
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
+                <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>
                   {lang === 'EN' ? 'Verify your email to continue' : 'ለመቀጠል ኢሜይልዎን ያረጋግጡ'}
                 </div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>
+                <div style={{ fontSize: 14, color: '#6b7280' }}>
                   {lang === 'EN' ? 'No account needed — just verify your email' : 'መለያ አያስፈልግም — ኢሜይልዎን ብቻ ያረጋግጡ'}
                 </div>
               </div>
@@ -360,12 +360,12 @@ export default function NewListingPage() {
                   </div>
                 </div>
                 {codeError && <div style={{ color: '#dc2626', fontSize: 13 }}>{codeError}</div>}
-                <button onClick={handleSendCode} disabled={sendingCode} style={{ padding: '13px', borderRadius: 10, background: sendingCode ? '#9ca3af' : '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: sendingCode ? 'not-allowed' : 'pointer' }}>
+                <button onClick={handleSendCode} disabled={sendingCode} style={{ padding: '14px', borderRadius: 10, background: sendingCode ? '#9ca3af' : '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: sendingCode ? 'not-allowed' : 'pointer' }}>
                   {sendingCode
                     ? (lang === 'EN' ? 'Sending code...' : 'ኮድ እየተላከ ነው...')
                     : (lang === 'EN' ? 'Send Verification Code' : 'የማረጋገጫ ኮድ ላክ')}
                 </button>
-                <div style={{ textAlign: 'center', fontSize: 13, color: '#6b7280' }}>
+                <div style={{ textAlign: 'center', fontSize: 14, color: '#6b7280' }}>
                   {lang === 'EN' ? 'Already have an account?' : 'መለያ አለዎት?'}{' '}
                   <a href="/sign-in" style={{ color: '#006AFF', fontWeight: 600, textDecoration: 'none' }}>
                     {lang === 'EN' ? 'Sign in instead' : 'ይግቡ'}
@@ -375,7 +375,7 @@ export default function NewListingPage() {
             ) : (
               <div style={{ display: 'grid', gap: 14 }}>
                 <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '14px 16px' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#065f46' }}>
                     {lang === 'EN' ? `Code sent to ${ownerEmail}` : `ኮድ ወደ ${ownerEmail} ተልኳል`}
                   </div>
                   <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
@@ -385,7 +385,7 @@ export default function NewListingPage() {
                 <div>
                   <label style={labelStyle}>{lang === 'EN' ? 'Enter 6-digit code' : '6 አሃዝ ኮድ ያስገቡ'}</label>
                   <input
-                    style={{ ...inputStyle, fontSize: 24, letterSpacing: 8, textAlign: 'center', fontWeight: 700 }}
+                    style={{ ...inputStyle, fontSize: 26, letterSpacing: 8, textAlign: 'center', fontWeight: 700 }}
                     value={verificationCode}
                     onChange={e => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="000000"
@@ -393,12 +393,12 @@ export default function NewListingPage() {
                   />
                 </div>
                 {codeError && <div style={{ color: '#dc2626', fontSize: 13 }}>{codeError}</div>}
-                <button onClick={handleVerifyCode} disabled={verifyingCode || verificationCode.length !== 6} style={{ padding: '13px', borderRadius: 10, background: verifyingCode || verificationCode.length !== 6 ? '#9ca3af' : '#059669', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: verifyingCode || verificationCode.length !== 6 ? 'not-allowed' : 'pointer' }}>
+                <button onClick={handleVerifyCode} disabled={verifyingCode || verificationCode.length !== 6} style={{ padding: '14px', borderRadius: 10, background: verifyingCode || verificationCode.length !== 6 ? '#9ca3af' : '#059669', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: verifyingCode || verificationCode.length !== 6 ? 'not-allowed' : 'pointer' }}>
                   {verifyingCode
                     ? (lang === 'EN' ? 'Verifying...' : 'እያረጋገጠ ነው...')
                     : (lang === 'EN' ? 'Verify & Continue' : 'አረጋግጥ እና ቀጥል')}
                 </button>
-                <button onClick={() => { setCodeSent(false); setVerificationCode(''); setCodeError(''); }} style={{ padding: '10px', borderRadius: 10, background: 'white', border: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                <button onClick={() => { setCodeSent(false); setVerificationCode(''); setCodeError(''); }} style={{ padding: '11px', borderRadius: 10, background: 'white', border: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
                   {lang === 'EN' ? 'Change email' : 'ኢሜይል ቀይር'}
                 </button>
               </div>
@@ -408,13 +408,13 @@ export default function NewListingPage() {
 
         {/* ── VERIFIED BADGE ── */}
         {verified && (
-          <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '12px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <CheckCircle size={20} color="#059669" />
+          <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '14px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <CheckCircle size={22} color="#059669" />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#065f46' }}>
                 {lang === 'EN' ? `Verified: ${ownerEmail}` : `ተረጋግጧል: ${ownerEmail}`}
               </div>
-              <div style={{ fontSize: 12, color: '#047857' }}>
+              <div style={{ fontSize: 13, color: '#047857' }}>
                 {lang === 'EN' ? 'You can now post your listing' : 'አሁን ማስታወቂያዎን መለጠፍ ይችላሉ'}
               </div>
             </div>
@@ -428,7 +428,7 @@ export default function NewListingPage() {
               {steps.map((s, i) => (
                 <div key={s} style={{ flex: 1, minWidth: 80 }}>
                   <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
-                  <div style={{ fontSize: 11, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>{i + 1}. {s}</div>
+                  <div style={{ fontSize: 12, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>{i + 1}. {s}</div>
                 </div>
               ))}
             </div>
@@ -438,8 +438,8 @@ export default function NewListingPage() {
               <div>
                 <div style={sectionStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Home size={18} color="#E8431A" /></div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step1}</div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Home size={20} color="#E8431A" /></div>
+                    <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>{t.step1}</div>
                   </div>
                   <div style={{ display: 'grid', gap: 16 }}>
                     <div>
@@ -448,7 +448,7 @@ export default function NewListingPage() {
                     </div>
                     <div>
                       <label style={labelStyle}>{t.description}</label>
-                      <textarea style={{ ...inputStyle, height: 100, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
+                      <textarea style={{ ...inputStyle, height: 110, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div>
@@ -481,7 +481,7 @@ export default function NewListingPage() {
                         )}
                       </div>
                       {form.price_negotiable && form.type !== 'short_rent' ? (
-                        <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 13, color: '#065f46' }}>{t.negotiableNote}</div>
+                        <div style={{ padding: '12px 16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #bbf7d0', fontSize: 14, color: '#065f46' }}>{t.negotiableNote}</div>
                       ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                           <div>
@@ -597,7 +597,7 @@ export default function NewListingPage() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   {t.nextLocation} <ArrowRight size={18} />
                 </button>
                 {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
@@ -609,8 +609,8 @@ export default function NewListingPage() {
               <div>
                 <div style={sectionStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={18} color="#E8431A" /></div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.step2}</div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={20} color="#E8431A" /></div>
+                    <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>{t.step2}</div>
                   </div>
                   <div style={{ display: 'grid', gap: 16 }}>
                     <div ref={cityRef} style={{ position: 'relative' }}>
@@ -622,7 +622,7 @@ export default function NewListingPage() {
                       {showCityDropdown && (
                         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 10, zIndex: 100, maxHeight: 240, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: 4 }}>
                           {filteredCities.map(c => (
-                            <div key={c.cityEn} onClick={() => { set('city', c.cityEn); set('subcity', ''); setCitySearch(''); setShowCityDropdown(false); }} style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 14, color: '#111827', borderBottom: '1px solid #f3f4f6', background: form.city === c.cityEn ? '#f0f6ff' : 'white' }}>
+                            <div key={c.cityEn} onClick={() => { set('city', c.cityEn); set('subcity', ''); setCitySearch(''); setShowCityDropdown(false); }} style={{ padding: '11px 16px', cursor: 'pointer', fontSize: 15, color: '#111827', borderBottom: '1px solid #f3f4f6', background: form.city === c.cityEn ? '#f0f6ff' : 'white' }}>
                               <span style={{ fontWeight: form.city === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
                               <span style={{ color: '#9ca3af', marginLeft: 8, fontSize: 13 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
                             </div>
@@ -649,8 +649,8 @@ export default function NewListingPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
+                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
                 </div>
                 {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
               </div>
@@ -660,7 +660,7 @@ export default function NewListingPage() {
             {step === 3 && (
               <div>
                 <div style={sectionStyle}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
+                  <div style={{ fontSize: 19, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
                   <div style={{ display: 'grid', gap: 16 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
@@ -737,8 +737,8 @@ export default function NewListingPage() {
                       <div style={subHeading}>{t.nearbyLandmarks}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
                         {LANDMARKS_EN.map((enKey, idx) => (
-                          <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '8px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#374151' }}>
+                          <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '9px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#374151' }}>
                               {form.nearby_landmarks.includes(enKey) ? '✓ ' : ''}{lang === 'EN' ? LANDMARKS_EN[idx] : LANDMARKS_AM[idx]}
                             </div>
                           </div>
@@ -749,8 +749,8 @@ export default function NewListingPage() {
                       <div style={subHeading}>{t.amenities}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
                         {AMENITIES.map(a => (
-                          <div key={a.key} onClick={() => toggleAmenity(a.key)} style={{ padding: '10px 14px', borderRadius: 10, border: `2px solid ${form.amenities.includes(a.key) ? '#006AFF' : '#e5e7eb'}`, background: form.amenities.includes(a.key) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: form.amenities.includes(a.key) ? '#006AFF' : '#374151' }}>{form.amenities.includes(a.key) ? '✓ ' : ''}{a.label}</div>
+                          <div key={a.key} onClick={() => toggleAmenity(a.key)} style={{ padding: '11px 14px', borderRadius: 10, border: `2px solid ${form.amenities.includes(a.key) ? '#006AFF' : '#e5e7eb'}`, background: form.amenities.includes(a.key) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: form.amenities.includes(a.key) ? '#006AFF' : '#374151' }}>{form.amenities.includes(a.key) ? '✓ ' : ''}{a.label}</div>
                           </div>
                         ))}
                       </div>
@@ -758,8 +758,8 @@ export default function NewListingPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => setStep(4)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
+                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => setStep(4)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
                 </div>
               </div>
             )}
@@ -769,22 +769,22 @@ export default function NewListingPage() {
               <div>
                 <div style={sectionStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Upload size={18} color="#E8431A" /></div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.uploadTitle}</div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef2ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Upload size={20} color="#E8431A" /></div>
+                    <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>{t.uploadTitle}</div>
                   </div>
-                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>{t.uploadDesc}</div>
+                  <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 20 }}>{t.uploadDesc}</div>
                   <label style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '40px 24px', textAlign: 'center', background: '#f9fafb' }}>
+                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '44px 24px', textAlign: 'center', background: '#f9fafb' }}>
                       {uploadingPhotos ? <div style={{ color: '#006AFF', fontWeight: 600 }}>{t.uploading}</div> : (
                         <><Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
-                        <div style={{ fontSize: 15, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{t.uploadClick}</div>
-                        <div style={{ fontSize: 13, color: '#9ca3af' }}>{t.uploadHint}</div></>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{t.uploadClick}</div>
+                        <div style={{ fontSize: 14, color: '#9ca3af' }}>{t.uploadHint}</div></>
                       )}
                     </div>
                     <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
                   </label>
                   {photoUrls.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginTop: 20 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 20 }}>
                       {photoUrls.map((url, i) => (
                         <div key={url} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}>
                           <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -796,8 +796,8 @@ export default function NewListingPage() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(3)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => setStep(5)} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
+                  <button onClick={() => setStep(3)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => setStep(5)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
                 </div>
               </div>
             )}
@@ -810,8 +810,8 @@ export default function NewListingPage() {
                 </div>
                 <div style={sectionStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={18} color="#059669" /></div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{t.reviewTitle}</div>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={20} color="#059669" /></div>
+                    <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>{t.reviewTitle}</div>
                   </div>
                   <div style={{ display: 'grid', gap: 0 }}>
                     {[
@@ -828,21 +828,21 @@ export default function NewListingPage() {
                       [t.houseArea, form.area ? `${form.area} m²` : '—'],
                       [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`],
                     ].map(([label, value]) => (
-                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
-                        <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>{label}</span>
-                        <span style={{ fontSize: 13, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderBottom: '1px solid #f3f4f6' }}>
+                        <span style={{ fontSize: 14, color: '#6b7280', fontWeight: 600 }}>{label}</span>
+                        <span style={{ fontSize: 14, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px 28px', marginBottom: 20 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{t.listingFeeTitle}</div>
-                  <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.7 }}>• {t.listingFeeDesc1}<br />• {t.listingFeeDesc2}<br />• {t.listingFeeDesc3}<br />• {t.listingFeeDesc4}</div>
+                <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '26px 30px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{t.listingFeeTitle}</div>
+                  <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.7 }}>• {t.listingFeeDesc1}<br />• {t.listingFeeDesc2}<br />• {t.listingFeeDesc3}<br />• {t.listingFeeDesc4}</div>
                 </div>
                 {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(4)} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '14px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 15, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <button onClick={() => setStep(4)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '15px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     {loading ? t.submitting : t.submitPay}
                   </button>
                 </div>
