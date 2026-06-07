@@ -266,7 +266,7 @@ export default function HomePage() {
 
       {/* Filter bar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '12px 24px', position: 'sticky', top: 64, zIndex: 40 }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto' }}>
           {commercialOnly && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '10px 16px', background: '#eff6ff', borderRadius: 10, border: '1px solid #dbeafe', flexWrap: 'wrap' as const, gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -372,7 +372,7 @@ export default function HomePage() {
       </div>
 
       {/* Property Grid */}
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
+      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
             <div style={{ width: 48, height: 48, border: '4px solid #e5e7eb', borderTop: '4px solid #006AFF', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' }} />
@@ -444,11 +444,11 @@ export default function HomePage() {
                         </>
                       )}
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 13, marginBottom: 14 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 14, marginBottom: 14 }}>
                       <MapPin size={13} />{p.location || p.subcity || 'Ethiopia'}
                     </div>
-                    <div style={{ display: 'flex', gap: 16, paddingTop: 14, borderTop: '1px solid #f3f4f6', fontSize: 13, color: '#6b7280' }}>
+                    <div style={{ display: 'flex', gap: 16, paddingTop: 14, borderTop: '1px solid #f3f4f6', fontSize: 14, color: '#6b7280' }}>
                       {p.bedrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} />{p.bedrooms} {t.bd}</span>}
                       {p.bathrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Bath size={14} />{p.bathrooms} {t.ba}</span>}
                       {p.area && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Maximize2 size={14} />{p.area} m²</span>}
@@ -462,14 +462,14 @@ export default function HomePage() {
       </div>
 
       {!loading && filtered.length > 0 && (
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 40px' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 24px 40px' }}>
           <AdCard placement="homepage" maxAds={3} />
         </div>
       )}
 
       {/* Commercial Properties Teaser */}
       <div style={{ background: '#f8faff', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap' as const, gap: 16 }}>
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
@@ -538,7 +538,7 @@ export default function HomePage() {
 
       {/* Advertisement Section */}
       <div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto' }}>
           <div style={{ textAlign: 'center' as const, marginBottom: 40 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2ee', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
               <Megaphone size={14} color="#E8431A" />
@@ -605,7 +605,7 @@ export default function HomePage() {
 
       {/* Diaspora Section */}
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', padding: '72px 24px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto', position: 'relative' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 60, alignItems: 'center' }}>
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#E8431A', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
@@ -660,7 +660,7 @@ export default function HomePage() {
 
       {/* Features */}
       <div style={{ background: '#f9fafb', padding: '64px 24px', borderTop: '1px solid #e5e7eb' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: 1600, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 32, fontWeight: 800, color: '#111827', marginBottom: 12 }}>{t.whyTitle}</h2>
           <p style={{ color: '#6b7280', fontSize: 16, marginBottom: 48 }}>{t.whySub}</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 28 }}>
