@@ -25,7 +25,7 @@ export function Navbar() {
   const links = [
     { href: '/',                              label: lang === 'EN' ? 'Buy'        : 'ግዛ',         icon: Home,      authOnly: false, external: false },
     { href: '/?type=long_rent',               label: lang === 'EN' ? 'Rent'       : 'ተከራይ',      icon: Key,       authOnly: false, external: false },
-    { href: '/commercial',                    label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false },
+    { href: '/?commercial=true',              label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false },
     { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false },
     { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false },
@@ -46,19 +46,16 @@ export function Navbar() {
     transition: 'all 0.15s',
   });
 
-  // First name or email prefix for display
   const displayName = user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Account';
 
   return (
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
 
-        {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
           <img src={LOGO_URL} alt="ቤታችን" style={{ height: 46, width: 'auto' }} />
         </Link>
 
-        {/* Desktop Nav */}
         {!isMobile && (
           <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
             {links.map(link => {
@@ -91,10 +88,8 @@ export function Navbar() {
           </nav>
         )}
 
-        {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
 
-          {/* Language switcher */}
           <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2 }}>
             {(['EN', 'AM'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', background: lang === l ? 'white' : 'transparent', color: lang === l ? '#006AFF' : '#6b7280', boxShadow: lang === l ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
@@ -103,23 +98,16 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* ── DESKTOP AUTH ── */}
           {!isMobile && isLoaded && (
             <>
               {isSignedIn ? (
-                // ── LOGGED IN STATE ──
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {/* Post listing */}
                   <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                     <PlusCircle size={14} />{t.navPostListing}
                   </Link>
-
-                  {/* Favorites */}
                   <Link href="/favorites" title="Favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
                     <Heart size={20} />
                   </Link>
-
-                  {/* User pill — shows logged-in state clearly */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px 6px 6px', borderRadius: 20, background: '#f0f6ff', border: '1.5px solid #dbeafe', cursor: 'pointer' }}>
                     <UserButton afterSignOutUrl="/" />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1d4ed8', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
@@ -128,14 +116,10 @@ export function Navbar() {
                   </div>
                 </div>
               ) : (
-                // ── LOGGED OUT STATE ──
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {/* Post listing — still accessible */}
                   <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                     <PlusCircle size={14} />{t.navPostListing}
                   </Link>
-
-                  {/* Clear guest state indicator */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 20, background: '#f9fafb', border: '1.5px solid #e5e7eb' }}>
                     <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -144,7 +128,6 @@ export function Navbar() {
                       {lang === 'EN' ? 'Guest' : 'እንግዳ'}
                     </span>
                   </div>
-
                   <SignInButton mode="modal">
                     <button style={{ padding: '9px 14px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       {t.navSignIn}
@@ -158,13 +141,11 @@ export function Navbar() {
             </>
           )}
 
-          {/* ── MOBILE RIGHT SIDE ── */}
           {isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                 <PlusCircle size={14} /> Post
               </Link>
-
               {isLoaded && !isSignedIn && (
                 <SignInButton mode="modal">
                   <button style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -172,11 +153,9 @@ export function Navbar() {
                   </button>
                 </SignInButton>
               )}
-
               {isLoaded && isSignedIn && (
                 <UserButton afterSignOutUrl="/" />
               )}
-
               <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
                 {menuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -185,11 +164,8 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ── MOBILE MENU ── */}
       {menuOpen && isMobile && (
         <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 24px 16px', background: 'white' }}>
-
-          {/* Login state banner in mobile menu */}
           {isLoaded && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, background: isSignedIn ? '#f0f6ff' : '#f9fafb', border: `1px solid ${isSignedIn ? '#dbeafe' : '#e5e7eb'}`, marginBottom: 16 }}>
               {isSignedIn ? (
@@ -214,7 +190,6 @@ export function Navbar() {
             </div>
           )}
 
-          {/* Language */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             {(['EN', 'AM'] as const).map(l => (
               <button key={l} onClick={() => setLang(l)} style={{ flex: 1, padding: '8px', borderRadius: 8, fontSize: 13, fontWeight: 700, border: `2px solid ${lang === l ? '#006AFF' : '#e5e7eb'}`, background: lang === l ? '#006AFF' : 'white', color: lang === l ? 'white' : '#6b7280', cursor: 'pointer' }}>
@@ -223,7 +198,6 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Nav links */}
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
             const Icon = link.icon;
