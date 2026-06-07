@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
   '/market',
   '/news',
   '/news/(.*)',
+  '/how-to-post',
   '/advertise',
   '/advertise/(.*)',
   '/commercial',
