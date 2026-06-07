@@ -7,17 +7,22 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { Send, ArrowLeft, Home } from 'lucide-react';
 
+const ADMIN_CLERK_ID = 'user_3AmnQEFKPsp6EX1W9xl88nOW4AV';
+
 export default function MessageThreadPage() {
   const { user, isLoaded } = useUser();
   const params = useParams();
   const router = useRouter();
-  const propertyId = params.id as string;
+  // Works whether the folder is [chatId] or [id]
+  const propertyId = (params.chatId ?? params.id) as string;
   const [messages, setMessages] = useState<any[]>([]);
   const [property, setProperty] = useState<any>(null);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [otherPartyId, setOtherPartyId] = useState<string>('');
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const isAdmin = user?.id === ADMIN_CLERK_ID;
 
   useEffect(() => {
     if (!user || !propertyId) return;
@@ -47,17 +52,20 @@ export default function MessageThreadPage() {
       setOtherPartyId(other ?? '');
     }
 
-    // Load all messages for this property involving this user
-    const { data: msgs } = await supabase
+    // Admin sees the whole conversation; everyone else sees only their own
+    let msgQuery = supabase
       .from('messages')
       .select('*')
-      .eq('property_id', propertyId)
-      .or(`sender_clerk_id.eq.${user!.id},receiver_clerk_id.eq.${user!.id}`)
-      .order('created_at', { ascending: true });
+      .eq('property_id', propertyId);
 
+    if (user!.id !== ADMIN_CLERK_ID) {
+      msgQuery = msgQuery.or(`sender_clerk_id.eq.${user!.id},receiver_clerk_id.eq.${user!.id}`);
+    }
+
+    const { data: msgs } = await msgQuery.order('created_at', { ascending: true });
     setMessages(msgs ?? []);
 
-    // Mark messages as read
+    // Mark messages as read (only those addressed to this user)
     await supabase
       .from('messages')
       .update({ is_read: true })
@@ -123,7 +131,7 @@ export default function MessageThreadPage() {
               {property?.title ?? 'Loading...'}
             </div>
             <div style={{ fontSize: 12, color: '#6b7280' }}>
-              {property?.location ?? ''} {property?.owner_id === user?.id ? '• You are the owner' : '• Conversation with owner'}
+              {property?.location ?? ''} {isAdmin ? '• Admin view (all messages)' : property?.owner_id === user?.id ? '• You are the owner' : '• Conversation with owner'}
             </div>
           </div>
         </div>
