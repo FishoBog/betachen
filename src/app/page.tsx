@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef } from 'react';
@@ -14,6 +14,7 @@ type Property = {
   bedrooms: number; bathrooms: number; area: number;
   location: string; subcity: string; images: string[];
   status: string; currency: string; price_negotiable: boolean;
+  is_commercial?: boolean; commercial_type?: string | null;
 };
 
 const TYPE_COLORS: Record<string, { color: string; bg: string }> = {
@@ -91,7 +92,22 @@ export default function HomePage() {
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const [commercialOnly, setCommercialOnly] = useState(false);
+  const [commercialTypeFilter, setCommercialTypeFilter] = useState('');
   const cityRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('commercial') === 'true') setCommercialOnly(true);
+      const ct = params.get('commercial_type');
+      if (ct) { setCommercialOnly(true); setCommercialTypeFilter(ct); }
+      const q = params.get('search');
+      if (q) setSearch(q);
+      const tp = params.get('type');
+      if (tp) setTypeFilter(tp);
+    }
+  }, []);
 
   const selectedCity = ETHIOPIA_CITIES.find(c => c.cityEn === cityFilter);
   const filteredCities = ETHIOPIA_CITIES.filter(c =>
@@ -118,6 +134,8 @@ export default function HomePage() {
   }, []);
 
   const filtered = properties.filter(p => {
+    if (commercialOnly && !p.is_commercial) return false;
+    if (commercialTypeFilter && p.commercial_type !== commercialTypeFilter) return false;
     if (typeFilter !== 'all' && p.type !== typeFilter) return false;
     if (search && !p.title?.toLowerCase().includes(search.toLowerCase()) && !p.location?.toLowerCase().includes(search.toLowerCase())) return false;
     if (minPrice && p.price < parseFloat(minPrice)) return false;
@@ -143,6 +161,7 @@ export default function HomePage() {
     bedrooms !== 'any' ? bedrooms : '',
     cityFilter, subcity,
     sortBy !== 'newest' ? sortBy : '',
+    commercialOnly ? 'commercial' : '',
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -151,6 +170,7 @@ export default function HomePage() {
     setCityFilter(''); setCitySearch('');
     setSortBy('newest'); setSearch('');
     setTypeFilter('all');
+    setCommercialOnly(false); setCommercialTypeFilter('');
   };
 
   const inputStyle = {
@@ -180,14 +200,10 @@ export default function HomePage() {
         backgroundPosition: 'center 40%',
       }}>
 
-
-        {/* Original blue overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, rgba(0,50,140,0.55) 0%, rgba(0,70,180,0.42) 40%, rgba(0,30,100,0.65) 100%)' }} />
 
-        {/* ── BETACHEN BRAND BADGE ── */}
         <div style={{ position: 'relative', zIndex: 20, maxWidth: 860, margin: '-60px auto 44px', background: 'rgba(8,18,45,0.88)', border: '2px solid rgba(139,26,26,0.8)', borderRadius: 20, padding: '20px 24px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' as const }}>
 
-          {/* LEFT — Amharic */}
           <div style={{ flex: 1, minWidth: 140, maxWidth: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, textAlign: 'center' }}>
             <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>ቤታችን</span>
             <span style={{ fontFamily: "'Noto Serif Ethiopic', serif", fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>የኢትዮጵያ ቁጥር 1 የሪል እስቴት መድረክ</span>
@@ -197,36 +213,17 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* CENTER — Badge */}
           <svg width="90" height="90" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <defs><clipPath id="bc"><circle cx="48" cy="48" r="42" /></clipPath></defs>
             <circle cx="48" cy="48" r="46" fill="#0d1f45" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
             <g clipPath="url(#bc)">
               <rect x="0" y="0" width="96" height="96" fill="#0d1f45" />
-              <line x1="48" y1="17" x2="14" y2="60" stroke="#c8941e" strokeWidth="0.7" opacity="0.5" />
-              <line x1="48" y1="17" x2="18" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="24" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="31" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="39" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="48" y2="61" stroke="#c8941e" strokeWidth="0.7" opacity="0.55" />
-              <line x1="48" y1="17" x2="57" y2="61" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="65" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="72" y2="62" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="78" y2="60" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
-              <line x1="48" y1="17" x2="82" y2="57" stroke="#c8941e" strokeWidth="0.6" opacity="0.45" />
               <polygon points="48,15 82,61 14,61" fill="#7a5810" />
               <rect x="22" y="61" width="52" height="24" fill="#c8941e" rx="1" />
               <rect x="31" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
               <rect x="59" y="63" width="6" height="22" fill="#5a2d0c" rx="1" />
-              <ellipse cx="16" cy="69" rx="5" ry="7" fill="#1a5c2a" />
-              <rect x="14" y="74" width="4" height="11" fill="#5a3010" />
-              <ellipse cx="80" cy="69" rx="5" ry="7" fill="#1a5c2a" />
-              <rect x="78" y="74" width="4" height="11" fill="#5a3010" />
               <rect x="40" y="67" width="16" height="18" fill="#2d1206" rx="2" />
-              <rect x="43" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
-              <rect x="48" y="70" width="5" height="8" fill="#3d1a08" rx="1" />
               <circle cx="48" cy="15" r="3" fill="#8b1a1a" />
-              <circle cx="48" cy="15" r="1.4" fill="#fff" opacity="0.9" />
               <rect x="6" y="80" width="28" height="7" fill="#078930" />
               <rect x="34" y="80" width="28" height="7" fill="#FCDD09" />
               <rect x="62" y="80" width="28" height="7" fill="#DA121A" />
@@ -234,7 +231,6 @@ export default function HomePage() {
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           </svg>
 
-          {/* RIGHT — English */}
           <div style={{ flex: 1, minWidth: 140, maxWidth: 220, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, textAlign: 'center' }}>
             <span style={{ fontFamily: 'inherit', fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Betachen</span>
             <span style={{ fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>Ethiopia's #1 Real Estate Platform</span>
@@ -245,9 +241,7 @@ export default function HomePage() {
           </div>
 
         </div>
-        {/* ── END BRAND BADGE ── */}
 
-        {/* Search + Stats */}
         <div style={{ position: 'relative', zIndex: 10, maxWidth: 760, margin: '0 auto' }}>
           <div style={{ background: 'white', borderRadius: 16, padding: 8, display: 'flex', gap: 8, maxWidth: 620, margin: '0 auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 14px' }}>
@@ -269,11 +263,24 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-      {/* ── END HERO ── */}
 
       {/* Filter bar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '12px 24px', position: 'sticky', top: 64, zIndex: 40 }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          {commercialOnly && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '10px 16px', background: '#eff6ff', borderRadius: 10, border: '1px solid #dbeafe', flexWrap: 'wrap' as const, gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Building2 size={16} color="#006AFF" />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8' }}>
+                  {lang === 'EN' ? 'Showing Commercial Properties' : 'የንግድ ንብረቶች እየታዩ ነው'}
+                  {commercialTypeFilter ? ` — ${commercialTypeFilter.replace(/_/g, ' ')}` : ''}
+                </span>
+              </div>
+              <button onClick={() => { setCommercialOnly(false); setCommercialTypeFilter(''); }} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 20, border: '1px solid #bfdbfe', background: 'white', color: '#1d4ed8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <X size={12} /> {lang === 'EN' ? 'Show all' : 'ሁሉንም አሳይ'}
+              </button>
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
             {[['all', t.allProps], ['sale', t.forSale], ['long_rent', t.forRent], ['short_rent', t.shortStay]].map(([val, label]) => (
               <button key={val} onClick={() => setTypeFilter(val)} style={{ padding: '8px 18px', borderRadius: 25, border: `2px solid ${typeFilter === val ? '#006AFF' : '#e5e7eb'}`, background: typeFilter === val ? '#006AFF' : 'white', color: typeFilter === val ? 'white' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{label}</button>
@@ -333,9 +340,7 @@ export default function HomePage() {
                       {filteredCities.map(c => (
                         <div key={c.cityEn}
                           onClick={() => { setCityFilter(c.cityEn); setCitySearch(lang === 'EN' ? `${c.cityEn} (${c.cityAm})` : `${c.cityAm} (${c.cityEn})`); setSubcity(''); setShowCityDropdown(false); }}
-                          style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#111827', borderBottom: '1px solid #f3f4f6', background: cityFilter === c.cityEn ? '#f0f6ff' : 'white' }}
-                          onMouseEnter={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = '#f9fafb'; }}
-                          onMouseLeave={e => { if (cityFilter !== c.cityEn) (e.currentTarget as HTMLElement).style.background = 'white'; }}>
+                          style={{ padding: '10px 14px', cursor: 'pointer', fontSize: 13, color: '#111827', borderBottom: '1px solid #f3f4f6', background: cityFilter === c.cityEn ? '#f0f6ff' : 'white' }}>
                           <span style={{ fontWeight: cityFilter === c.cityEn ? 700 : 400 }}>{lang === 'EN' ? c.cityEn : c.cityAm}</span>
                           <span style={{ color: '#9ca3af', marginLeft: 6, fontSize: 12 }}>{lang === 'EN' ? c.cityAm : c.cityEn}</span>
                         </div>
@@ -361,16 +366,6 @@ export default function HomePage() {
                   </select>
                 </div>
               </div>
-              {activeFilterCount > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8, marginTop: 16 }}>
-                  {minPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{lang === 'EN' ? 'Min' : 'ዝቅተኛ'}: ETB {parseInt(minPrice).toLocaleString()} <button onClick={() => setMinPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {maxPrice && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{lang === 'EN' ? 'Max' : 'ከፍተኛ'}: ETB {parseInt(maxPrice).toLocaleString()} <button onClick={() => setMaxPrice('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {bedrooms !== 'any' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{bedrooms} {lang === 'EN' ? 'bed' : 'መኝ'} <button onClick={() => setBedrooms('any')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {cityFilter && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{cityFilter} <button onClick={() => { setCityFilter(''); setCitySearch(''); setSubcity(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {subcity && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{subcity} <button onClick={() => setSubcity('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                  {sortBy !== 'newest' && <span style={{ padding: '4px 12px', background: '#fef2ee', color: '#E8431A', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>{sortBy === 'price_asc' ? (lang === 'EN' ? 'Price ↑' : 'ዋጋ ↑') : (lang === 'EN' ? 'Price ↓' : 'ዋጋ ↓')} <button onClick={() => setSortBy('newest')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E8431A', marginLeft: 4 }}>×</button></span>}
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -389,8 +384,8 @@ export default function HomePage() {
             <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <Building2 size={40} color="#d1d5db" />
             </div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
-            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : t.noPropsDesc}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{commercialOnly ? (lang === 'EN' ? 'No commercial properties yet' : 'እስካሁን የንግድ ንብረቶች የሉም') : activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
+            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{commercialOnly ? (lang === 'EN' ? 'Be the first to list a commercial property' : 'የንግድ ንብረት ለመጀመሪያ ጊዜ ይዘርዝሩ') : activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : t.noPropsDesc}</div>
             {activeFilterCount > 0 ? (
               <button onClick={clearFilters} style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>{lang === 'EN' ? 'Clear Filters' : 'ማጣሪያዎችን አጽዳ'}</button>
             ) : (
@@ -420,8 +415,15 @@ export default function HomePage() {
                           <div style={{ fontSize: 12, color: '#93c5fd', fontWeight: 600 }}>{t.noPhoto}</div>
                         </div>
                       )}
-                      <div style={{ position: 'absolute', top: 12, left: 12, background: tc.bg, color: tc.color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20 }}>
-                        {typeLabels[p.type]}
+                      <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6 }}>
+                        <div style={{ background: tc.bg, color: tc.color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20 }}>
+                          {typeLabels[p.type]}
+                        </div>
+                        {p.is_commercial && (
+                          <div style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Building2 size={11} /> {lang === 'EN' ? 'Commercial' : 'ንግድ'}
+                          </div>
+                        )}
                       </div>
                       <button onClick={e => { e.preventDefault(); toggleFav(p.id); }} style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
                         <Heart size={16} fill={isFav ? '#E8431A' : 'none'} color={isFav ? '#E8431A' : '#6b7280'} />
@@ -459,7 +461,6 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Homepage Ads */}
       {!loading && filtered.length > 0 && (
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 40px' }}>
           <AdCard placement="homepage" maxAds={3} />
@@ -484,7 +485,7 @@ export default function HomePage() {
                 {lang === 'EN' ? 'Office spaces, retail, warehouses, event halls and more across Ethiopia' : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች በኢትዮጵያ'}
               </p>
             </div>
-            <Link href="/commercial" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+            <Link href="/?commercial=true" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               {lang === 'EN' ? 'Browse All Commercial' : 'ሁሉንም የንግድ ቤቶች ይሰሱ'} <ArrowRight size={17} />
             </Link>
           </div>
@@ -499,7 +500,7 @@ export default function HomePage() {
               { key: 'mixed_use', Icon: Layers, en: 'Mixed Use', am: 'ድብልቅ አጠቃቀም', color: '#fff7ed', iconColor: '#c2410c' },
               { key: 'medical', Icon: Stethoscope, en: 'Medical / Clinic', am: 'የሕክምና ቦታ', color: '#fef2f2', iconColor: '#dc2626' },
             ].map(({ key, Icon, en, am, color, iconColor }) => (
-              <Link key={key} href={`/commercial?type=${key}`} style={{ textDecoration: 'none' }}>
+              <Link key={key} href={`/?commercial_type=${key}`} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'white', borderRadius: 16, padding: '24px 16px', border: '1.5px solid #e5e7eb', textAlign: 'center' as const, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#006AFF'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,106,255,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
@@ -523,16 +524,17 @@ export default function HomePage() {
                   {lang === 'EN' ? 'Own a commercial space? List it on ቤታችን' : 'የንግድ ቦታ አለዎት? በቤታችን ላይ ይዘርዝሩ'}
                 </div>
                 <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
-                  {lang === 'EN' ? 'Reach businesses, investors and tenants — ETB 500 for 3 months' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ — 3 ወር ETB 500'}
+                  {lang === 'EN' ? 'Reach businesses, investors and tenants' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ'}
                 </div>
               </div>
             </div>
-            <Link href="/owner/commercial/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+            <Link href="/owner/listings/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               {lang === 'EN' ? 'List Commercial Space' : 'የንግድ ቦታ ዘርዝር'} <ArrowRight size={17} />
             </Link>
           </div>
         </div>
       </div>
+
 
       {/* Advertisement Section */}
       <div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
