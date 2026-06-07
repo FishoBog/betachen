@@ -38,7 +38,7 @@ export function Navbar() {
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
-    padding: '9px 14px', borderRadius: 10, fontSize: 13.5, fontWeight: 700,
+    padding: '9px 12px', borderRadius: 10, fontSize: 15, fontWeight: 700,
     color: external ? '#0088cc' : active ? '#E8431A' : '#4B5563',
     background: active ? '#fef2ee' : 'transparent',
     textDecoration: 'none', whiteSpace: 'nowrap' as const, letterSpacing: '0.1px',
@@ -58,15 +58,15 @@ export function Navbar() {
         </Link>
 
         {!isMobile && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'space-evenly' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center' }}>
             {links.map(link => {
               if (link.authOnly && !isSignedIn) return null;
               const active = pathname === link.href;
               const Icon = link.icon;
               const content = (
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Icon size={15} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
-                  <span style={{ fontSize: 15, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
+                  <Icon size={17} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
+                  <span style={{ fontSize: 16, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
                     {link.label}
                   </span>
                 </span>
