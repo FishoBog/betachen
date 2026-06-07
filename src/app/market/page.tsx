@@ -157,7 +157,7 @@ export default function MarketPage() {
                 <BarChart2 size={15} color="white" />
                 <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>LIVE MARKET DATA + NEWS + AI ANALYSIS</span>
               </div>
-              <h1 style={{ fontSize: 44, fontWeight: 900, color: 'white', marginBottom: 10, letterSpacing: '-1px' }}>Ethiopia Real Estate<br />Market Intelligence</h1>
+              <h1 style={{ fontSize: 44, fontWeight: 900, color: 'white', marginBottom: 10, letterSpacing: '-1px' }}>Ethiopia Real Estate Market Intelligence</h1>
               <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 18 }}>Live market data, breaking news, and AI-powered insights for Ethiopian property</p>
             </div>
             <button onClick={loadData} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '11px 20px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
