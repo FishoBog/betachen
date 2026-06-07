@@ -51,14 +51,14 @@ export function Navbar() {
 
   return (
     <header style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+      <div style={{ width: '100%', margin: '0 auto', padding: '0 32px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
 
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
-          <img src={LOGO_URL} alt="ቤታችን" style={{ height: 46, width: 'auto' }} />
+          <img src={LOGO_URL} alt="ቤታችን" style={{ height: 48, width: 'auto' }} />
         </Link>
 
         {!isMobile && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'center' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'space-evenly' }}>
             {links.map(link => {
               if (link.authOnly && !isSignedIn) return null;
               const active = pathname === link.href;
@@ -66,7 +66,7 @@ export function Navbar() {
               const content = (
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Icon size={15} color={active ? '#E8431A' : link.external ? '#0088cc' : '#6B7280'} strokeWidth={2.2} />
-                  <span style={{ fontSize: 14, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
+                  <span style={{ fontSize: 15, fontWeight: active ? 700 : 600, color: active ? '#E8431A' : link.external ? '#0088cc' : '#374151' }}>
                     {link.label}
                   </span>
                 </span>
