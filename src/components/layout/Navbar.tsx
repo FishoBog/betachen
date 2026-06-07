@@ -32,7 +32,6 @@ export function Navbar() {
     { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false },
     { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post': 'እንዴት መለጠፍ', icon: ListChecks,authOnly: false, external: false },
     { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true  },
-    { href: '/contracts',                     label: lang === 'EN' ? 'Contracts'  : 'ውሎች',       icon: FileText,  authOnly: true,  external: false },
     { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false },
     { href: '/messages',                      label: lang === 'EN' ? 'Messages'   : 'መልዕክቶች',   icon: Send,      authOnly: true,  external: false },
   ];
