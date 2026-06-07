@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser, UserButton, SignInButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks } from 'lucide-react';
+import { useUser, UserButton, SignInButton, SignOutButton } from '@clerk/nextjs';
+import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks, LogOut, LogIn } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -30,7 +30,7 @@ export function Navbar() {
     { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false },
     { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false },
-    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post' : 'እንዴት መለጠፍ', icon: ListChecks, authOnly: false, external: false },
+    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post': 'እንዴት መለጠፍ', icon: ListChecks,authOnly: false, external: false },
     { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true  },
     { href: '/contracts',                     label: lang === 'EN' ? 'Contracts'  : 'ውሎች',       icon: FileText,  authOnly: true,  external: false },
     { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false },
@@ -99,7 +99,8 @@ export function Navbar() {
             ))}
           </div>
 
-          {!isMobile && isLoaded && (
+          {/* ── DESKTOP AUTH ── */}
+          {!isMobile && (
             <>
               {isSignedIn ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -109,32 +110,33 @@ export function Navbar() {
                   <Link href="/favorites" title="Favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
                     <Heart size={20} />
                   </Link>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px 6px 6px', borderRadius: 20, background: '#f0f6ff', border: '1.5px solid #dbeafe', cursor: 'pointer' }}>
-                    <UserButton afterSignOutUrl="/" />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1d4ed8', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                  {/* User email pill */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 20, background: '#f0f6ff', border: '1.5px solid #dbeafe' }}>
+                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#006AFF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>
+                      {displayName.charAt(0).toUpperCase()}
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1d4ed8', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                       {displayName}
                     </span>
                   </div>
+                  {/* Explicit Sign Out button */}
+                  <SignOutButton>
+                    <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, border: '1.5px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                      <LogOut size={14} /> {lang === 'EN' ? 'Sign Out' : 'ውጣ'}
+                    </button>
+                  </SignOutButton>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                     <PlusCircle size={14} />{t.navPostListing}
                   </Link>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 20, background: '#f9fafb', border: '1.5px solid #e5e7eb' }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                    </div>
-                    <span style={{ fontSize: 12, color: '#9ca3af', fontWeight: 600 }}>
-                      {lang === 'EN' ? 'Guest' : 'እንግዳ'}
-                    </span>
-                  </div>
                   <SignInButton mode="modal">
-                    <button style={{ padding: '9px 14px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {t.navSignIn}
+                    <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                      <LogIn size={14} /> {t.navSignIn}
                     </button>
                   </SignInButton>
-                  <Link href="/sign-up" style={{ padding: '9px 14px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                  <Link href="/sign-up" style={{ padding: '9px 16px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                     {t.navJoin}
                   </Link>
                 </div>
@@ -142,21 +144,12 @@ export function Navbar() {
             </>
           )}
 
+          {/* ── MOBILE RIGHT SIDE ── */}
           {isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
                 <PlusCircle size={14} /> Post
               </Link>
-              {isLoaded && !isSignedIn && (
-                <SignInButton mode="modal">
-                  <button style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    {t.navSignIn}
-                  </button>
-                </SignInButton>
-              )}
-              {isLoaded && isSignedIn && (
-                <UserButton afterSignOutUrl="/" />
-              )}
               <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
                 {menuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
@@ -165,31 +158,33 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* ── MOBILE MENU ── */}
       {menuOpen && isMobile && (
         <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px 24px 16px', background: 'white' }}>
-          {isLoaded && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, background: isSignedIn ? '#f0f6ff' : '#f9fafb', border: `1px solid ${isSignedIn ? '#dbeafe' : '#e5e7eb'}`, marginBottom: 16 }}>
-              {isSignedIn ? (
-                <>
-                  <UserButton afterSignOutUrl="/" />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8' }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>{lang === 'EN' ? 'Signed in' : 'ገብተዋል'}</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>{lang === 'EN' ? 'Browsing as Guest' : 'እንደ እንግዳ እየተዘዋወሩ ነው'}</div>
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>{lang === 'EN' ? 'Sign in to unlock all features' : 'ሁሉንም ባህሪዎች ለመጠቀም ይግቡ'}</div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+          {/* Login state banner */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, background: isSignedIn ? '#f0f6ff' : '#f9fafb', border: `1px solid ${isSignedIn ? '#dbeafe' : '#e5e7eb'}`, marginBottom: 16 }}>
+            {isSignedIn ? (
+              <>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#006AFF', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800 }}>
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8' }}>{displayName}</div>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>{lang === 'EN' ? 'Signed in' : 'ገብተዋል'}</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>{lang === 'EN' ? 'Browsing as Guest' : 'እንደ እንግዳ'}</div>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>{lang === 'EN' ? 'Sign in to unlock all features' : 'ሁሉንም ለመጠቀም ይግቡ'}</div>
+                </div>
+              </>
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             {(['EN', 'AM'] as const).map(l => (
@@ -215,34 +210,28 @@ export function Navbar() {
             );
           })}
 
-          {isLoaded && isSignedIn && (
+          {isSignedIn ? (
             <>
               <Link href="/favorites" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Heart size={16} color="#6b7280" />{lang === 'EN' ? 'Favorites' : 'ተወዳጆች'}
               </Link>
-              <Link href="/owner/verify" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-                <Shield size={16} color="#6b7280" />{lang === 'EN' ? 'Get Verified' : 'ተረጋግጥ'}
-              </Link>
-              <Link href="/contracts/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-                <FileText size={16} color="#6b7280" />{lang === 'EN' ? 'New Contract' : 'አዲስ ውል'}
-              </Link>
-              <a href="https://t.me/BETACHENEthiopiaBot" target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
-                <Send size={16} />{lang === 'EN' ? 'Telegram Bot' : 'ቴሌግራም ቦት'}
-              </a>
               <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
                 <PlusCircle size={18} />{t.navPostListing}
               </Link>
+              <SignOutButton>
+                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, width: '100%', padding: '12px 16px', borderRadius: 10, border: '1.5px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  <LogOut size={18} /> {lang === 'EN' ? 'Sign Out' : 'ውጣ'}
+                </button>
+              </SignOutButton>
             </>
-          )}
-
-          {isLoaded && !isSignedIn && (
+          ) : (
             <>
               <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
                 <PlusCircle size={18} />{t.navPostListing}
               </Link>
               <SignInButton mode="modal">
-                <button style={{ marginTop: 8, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
-                  {t.navSignIn}
+                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  <LogIn size={18} /> {t.navSignIn}
                 </button>
               </SignInButton>
               <Link href="/sign-up" onClick={() => setMenuOpen(false)} style={{ display: 'block', marginTop: 8, padding: '12px 16px', borderRadius: 8, background: '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', textAlign: 'center' as const }}>
