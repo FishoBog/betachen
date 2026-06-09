@@ -118,7 +118,9 @@ export default function HomePage() {
 
   useEffect(() => {
     const supabase = createBrowserClient();
-    supabase.from('properties').select('*').eq('status', 'active')
+    supabase.from('properties')
+      .select('id,title,description,type,price,currency,price_negotiable,bedrooms,bathrooms,area,location,subcity,images,status,is_commercial,commercial_type,created_at')
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .then(({ data }) => { setProperties(data || []); setLoading(false); });
   }, []);
