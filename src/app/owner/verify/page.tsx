@@ -36,7 +36,7 @@ export default function VerifyPage() {
       });
   }, [user]);
 
-  const uploadDoc = async (
+  cconst uploadDoc = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'id' | 'biz'
   ) => {
@@ -44,13 +44,15 @@ export default function VerifyPage() {
     if (!file || !user) return;
     type === 'id' ? setUploadingId(true) : setUploadingBiz(true);
     const supabase = createBrowserClient();
-    const fileName = `verifications/${user.id}/${type}-${Date.now()}-${file.name}`;
+    // Store in the PRIVATE verifications bucket. Path only — no public URL.
+    const filePath = `${user.id}/${type}-${Date.now()}-${file.name}`;
     const { error } = await supabase.storage
-      .from('property-images').upload(fileName, file, { upsert: true });
+      .from('verifications').upload(filePath, file, { upsert: true });
     if (!error) {
-      const { data } = supabase.storage
-        .from('property-images').getPublicUrl(fileName);
-      type === 'id' ? setIdUrl(data.publicUrl) : setBizUrl(data.publicUrl);
+      // Save the path (not a public URL) — admin will generate a signed URL to view it
+      type === 'id' ? setIdUrl(filePath) : setBizUrl(filePath);
+    } else {
+      setError('Upload failed: ' + error.message);
     }
     type === 'id' ? setUploadingId(false) : setUploadingBiz(false);
   };
