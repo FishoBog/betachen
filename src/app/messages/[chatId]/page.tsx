@@ -36,7 +36,7 @@ export default function MessageThreadPage() {
   const loadThread = async () => {
     const supabase = createBrowserClient();
 
-    // Load property
+    // Load property (header info only — properties table, not part of the messages lockdown)
     const { data: prop } = await supabase
       .from('properties')
       .select('id, title, location, type, price, currency, owner_id')
@@ -56,6 +56,7 @@ export default function MessageThreadPage() {
     const res = await fetch(`/api/messages/thread?propertyId=${encodeURIComponent(propertyId)}`);
     const threadData = await res.json();
     setMessages(threadData.messages ?? []);
+  };
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !property) return;
@@ -74,6 +75,7 @@ export default function MessageThreadPage() {
     }
     setSending(false);
   };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
