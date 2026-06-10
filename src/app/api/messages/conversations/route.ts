@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 
 const ADMIN_CLERK_ID = 'user_3AmnQEFKPsp6EX1W9xl88nOW4AV';
 
-// Service-role client — server-side only. Bypasses RLS safely.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -24,7 +23,6 @@ export async function GET() {
       .from('messages')
       .select('*, properties(id, title, location, type)');
 
-    // Non-admins only see conversations they are part of
     if (!isAdmin) {
       query = query.or(`sender_clerk_id.eq.${userId},receiver_clerk_id.eq.${userId}`);
     }
@@ -34,7 +32,6 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Group by property_id — keep only the latest message per property
     const seen = new Set();
     const grouped = (data ?? []).filter((m: any) => {
       if (seen.has(m.property_id)) return false;
