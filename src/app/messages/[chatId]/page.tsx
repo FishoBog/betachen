@@ -52,57 +52,28 @@ export default function MessageThreadPage() {
       setOtherPartyId(other ?? '');
     }
 
-    // Admin sees the whole conversation; everyone else sees only their own
-    let msgQuery = supabase
-      .from('messages')
-      .select('*')
-      .eq('property_id', propertyId);
-
-    if (user!.id !== ADMIN_CLERK_ID) {
-      msgQuery = msgQuery.or(`sender_clerk_id.eq.${user!.id},receiver_clerk_id.eq.${user!.id}`);
-    }
-
-    const { data: msgs } = await msgQuery.order('created_at', { ascending: true });
-    setMessages(msgs ?? []);
-
-    // Mark messages as read (only those addressed to this user)
-    await supabase
-      .from('messages')
-      .update({ is_read: true })
-      .eq('property_id', propertyId)
-      .eq('receiver_clerk_id', user!.id)
-      .eq('is_read', false);
-  };
+    // Load thread + mark-as-read via secure server route (participant check enforced server-side)
+    const res = await fetch(`/api/messages/thread?propertyId=${encodeURIComponent(propertyId)}`);
+    const threadData = await res.json();
+    setMessages(threadData.messages ?? []);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !property) return;
     setSending(true);
 
-    const receiverId = property.owner_id === user.id
-      ? messages.find((m: any) => m.sender_clerk_id !== user.id)?.sender_clerk_id
-      : property.owner_id;
+    const res = await fetch('/api/messages/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ propertyId, content: newMessage.trim() }),
+    });
+    const data = await res.json();
 
-    if (!receiverId) {
-      setSending(false);
-      return;
-    }
-
-    const supabase = createBrowserClient();
-    const { data } = await supabase.from('messages').insert({
-      property_id: propertyId,
-      sender_clerk_id: user.id,
-      receiver_clerk_id: receiverId,
-      content: newMessage.trim(),
-      is_read: false,
-    }).select().single();
-
-    if (data) {
-      setMessages(prev => [...prev, data]);
+    if (data.message) {
+      setMessages(prev => [...prev, data.message]);
       setNewMessage('');
     }
     setSending(false);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
