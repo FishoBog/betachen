@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
@@ -24,10 +24,15 @@ export default function VerifyPage() {
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
+  // Refs for camera vs file-picker on each upload slot
+  const idCameraRef = useRef<HTMLInputElement>(null);
+  const idFileRef = useRef<HTMLInputElement>(null);
+  const bizCameraRef = useRef<HTMLInputElement>(null);
+  const bizFileRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!user) return;
-    const supabase = createBrowserClient();
-   fetch('/api/profile/me')
+    fetch('/api/profile/me')
       .then(res => res.json())
       .then(({ profile }) => {
         if (profile) setStatus(profile.verification_status || 'unverified');
@@ -37,7 +42,7 @@ export default function VerifyPage() {
       .catch(() => setLoading(false));
   }, [user]);
 
-const uploadDoc = async (
+  const uploadDoc = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'id' | 'biz'
   ) => {
@@ -87,6 +92,39 @@ const uploadDoc = async (
     } catch { setError('Network error'); }
     finally { setSubmitting(false); }
   };
+
+  // Reusable two-button upload prompt
+  const UploadButtons = ({ cameraRef, fileRef, uploading, onChange }: {
+    cameraRef: React.RefObject<HTMLInputElement>;
+    fileRef: React.RefObject<HTMLInputElement>;
+    uploading: boolean;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  }) => (
+    <div style={{ border: '2px dashed #d1d5db', borderRadius: 10, padding: '24px', textAlign: 'center', background: '#f9fafb' }}>
+      {uploading ? (
+        <div style={{ color: '#006AFF', fontSize: 14, fontWeight: 600 }}>Uploading...</div>
+      ) : (
+        <>
+          <Upload size={24} color="#9ca3af" style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 14 }}>JPG, PNG or PDF • Max 5MB</div>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button type="button" onClick={() => cameraRef.current?.click()}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 8, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer' }}>
+              📷 Take Photo
+            </button>
+            <button type="button" onClick={() => fileRef.current?.click()}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 8, background: 'white', color: '#374151', fontWeight: 700, fontSize: 13, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+              📁 Choose File
+            </button>
+          </div>
+        </>
+      )}
+      {/* Camera input — opens camera directly on phones */}
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={onChange} style={{ display: 'none' }} />
+      {/* File picker — choose existing image or PDF */}
+      <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={onChange} style={{ display: 'none' }} />
+    </div>
+  );
 
   if (!isSignedIn) return (
     <div><Navbar />
@@ -202,21 +240,7 @@ const uploadDoc = async (
                     </button>
                   </div>
                 ) : (
-                  <label style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 10, padding: '24px', textAlign: 'center', background: '#f9fafb' }}>
-                      {uploadingId ? (
-                        <div style={{ color: '#006AFF', fontSize: 14, fontWeight: 600 }}>Uploading...</div>
-                      ) : (
-                        <>
-                          <Upload size={24} color="#9ca3af" style={{ marginBottom: 8 }} />
-                          <div style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>Upload ID Document</div>
-                          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>JPG, PNG or PDF • Max 5MB</div>
-                        </>
-                      )}
-                    </div>
-                    <input type="file" accept="image/*,.pdf"
-                      onChange={e => uploadDoc(e, 'id')} style={{ display: 'none' }} />
-                  </label>
+                  <UploadButtons cameraRef={idCameraRef} fileRef={idFileRef} uploading={uploadingId} onChange={e => uploadDoc(e, 'id')} />
                 )}
               </div>
 
@@ -234,21 +258,7 @@ const uploadDoc = async (
                     </button>
                   </div>
                 ) : (
-                  <label style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 10, padding: '24px', textAlign: 'center', background: '#f9fafb' }}>
-                      {uploadingBiz ? (
-                        <div style={{ color: '#006AFF', fontSize: 14, fontWeight: 600 }}>Uploading...</div>
-                      ) : (
-                        <>
-                          <Upload size={24} color="#9ca3af" style={{ marginBottom: 8 }} />
-                          <div style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>Upload Business License</div>
-                          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>JPG, PNG or PDF • Max 5MB</div>
-                        </>
-                      )}
-                    </div>
-                    <input type="file" accept="image/*,.pdf"
-                      onChange={e => uploadDoc(e, 'biz')} style={{ display: 'none' }} />
-                  </label>
+                  <UploadButtons cameraRef={bizCameraRef} fileRef={bizFileRef} uploading={uploadingBiz} onChange={e => uploadDoc(e, 'biz')} />
                 )}
               </div>
 
