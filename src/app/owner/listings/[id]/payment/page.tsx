@@ -17,18 +17,30 @@ export default function ListingPaymentPage() {
   const [promoCode, setPromoCode] = useState('');
   const [showPromo, setShowPromo] = useState(false);
 
+  // Load the property by id REGARDLESS of sign-in state. Guests (email-verified,
+  // no Clerk account) must be able to reach and pay for the listing they just
+  // created, so this no longer gates on `user`. We only look up a profile /
+  // verification status when there actually is a signed-in user.
   useEffect(() => {
-    if (!user) return;
+    if (!propertyId) return;
     const supabase = createBrowserClient();
+
     supabase.from('properties').select('*').eq('id', propertyId).single()
       .then(({ data }) => setProperty(data));
-    supabase.from('profiles').select('verification_status')
-      .eq('clerk_id', user.id).single()
-      .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
+
+    if (user) {
+      supabase.from('profiles').select('verification_status')
+        .eq('clerk_id', user.id).single()
+        .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
+    } else {
+      // Guests have no profile row; treat as unverified (ID verification happens
+      // after payment, exactly as the notice on this page describes).
+      setVerificationStatus('unverified');
+    }
   }, [user, propertyId]);
 
   const handlePay = async () => {
-    if (!user || !property) return;
+    if (!property) return;
     setLoading(true);
     setError('');
     try {
@@ -37,14 +49,25 @@ export default function ListingPaymentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           propertyId,
-          ownerClerkId: user.id,
-          ownerEmail: user.primaryEmailAddress?.emailAddress,
-          ownerName: user.fullName || user.firstName || 'Owner',
+          // For guests these come from the property row (owner_email / owner_name
+          // were saved at creation). For signed-in users we prefer the live
+          // Clerk values, falling back to the stored ones.
+          ownerClerkId: user?.id || property.owner_id || null,
+          ownerEmail: user?.primaryEmailAddress?.emailAddress || property.owner_email,
+          ownerName: user?.fullName || user?.firstName || property.owner_name || 'Owner',
           type: 'new',
           discountCode: promoCode.trim() || null,
         }),
       });
-      const data = await res.json();
+      // Guard against the route returning HTML (e.g. an auth redirect) instead
+      // of JSON, which would otherwise throw an opaque "Unexpected token" error.
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Payment service returned an unexpected response. Please try again.');
+      }
       if (data.error) throw new Error(data.error);
       // Free listing (100% promo) → go straight to success, no Chapa
       if (data.freeListing && data.redirectUrl) {
@@ -58,7 +81,9 @@ export default function ListingPaymentPage() {
     }
   };
 
-  if (!isLoaded || !property) return (
+  // Only wait on `property`. We no longer block on Clerk's isLoaded, because a
+  // guest will never have a user and that previously caused an infinite "Loading".
+  if (!property) return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
       <div style={{ textAlign: 'center', padding: '80px 24px', color: '#6b7280' }}>Loading...</div>
