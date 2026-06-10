@@ -17,28 +17,15 @@ export default function MessagesPage() {
 
   const isAdmin = user?.id === ADMIN_CLERK_ID;
 
-  useEffect(() => {
+ useEffect(() => {
     if (!user) return;
-    const supabase = createBrowserClient();
-    let listQuery = supabase
-      .from('messages')
-      .select('*, properties(id, title, location, type)');
-    if (user.id !== ADMIN_CLERK_ID) {
-      listQuery = listQuery.or(`sender_clerk_id.eq.${user.id},receiver_clerk_id.eq.${user.id}`);
-    }
-    listQuery
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        // Group by property_id — show latest message per property
-        const seen = new Set();
-        const grouped = (data ?? []).filter((m: any) => {
-          if (seen.has(m.property_id)) return false;
-          seen.add(m.property_id);
-          return true;
-        });
-        setThreads(grouped);
+    fetch('/api/messages/conversations')
+      .then(res => res.json())
+      .then(data => {
+        setThreads(data.threads ?? []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [user]);
 
   return (
