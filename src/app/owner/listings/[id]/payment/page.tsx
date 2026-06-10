@@ -1,14 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function ListingPaymentPage() {
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const params = useParams();
-  const router = useRouter();
   const propertyId = params.id as string;
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(false);
