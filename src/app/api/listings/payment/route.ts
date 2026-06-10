@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+);a
 
 export async function POST(req: NextRequest) {
   try {
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         // Record a zero-amount payment for tracking
         await supabase.from('listing_payments').insert({
           property_id: propertyId,
-          owner_clerk_id: ownerClerkId,
+          owner_clerk_id: ownerClerkId || null,
           amount: 0,
           type: isRenewal ? 'renewal' : 'new',
           chapa_tx_ref: `Betachen-PROMO-${codeInput}-${Date.now()}`,
@@ -129,7 +129,7 @@ async function startChapa(
   isRenewal: boolean,
   property: any,
   propertyId: string,
-  ownerClerkId: string,
+  ownerClerkId: string | null,
   ownerEmail: string,
   ownerName: string,
   extendsUntil: Date,
@@ -140,7 +140,7 @@ async function startChapa(
   const { data: payment, error: payErr } = await supabase
     .from('listing_payments').insert({
       property_id: propertyId,
-      owner_clerk_id: ownerClerkId,
+      owner_clerk_id: ownerClerkId || null,
       amount,
       type: isRenewal ? 'renewal' : 'new',
       chapa_tx_ref: txRef,
@@ -149,13 +149,18 @@ async function startChapa(
     }).select().single();
   if (payErr) throw new Error(`Payment record error: ${payErr.message}`);
 
-  const cleanTitle = property.title.replace(/[^a-zA-Z0-9\s\-.]/g, '');
+  const cleanTitle = (property.title || 'Listing').replace(/[^a-zA-Z0-9\s\-.]/g, '');
+  // Chapa expects both a first and last name. Guests may enter only one word,
+  // so fall back to a placeholder last name instead of sending undefined.
+  const nameParts = (ownerName || 'Owner').trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Owner';
+  const lastName = nameParts[1] || 'Betachen';
   const chapaPayload = {
     amount: amount.toFixed(2),
     currency: 'ETB',
     email: ownerEmail || 'noreply@Betachen-homes.com',
-    first_name: ownerName?.split(' ')[0] || 'Owner',
-    last_name: ownerName?.split(' ')[1] || 'User',
+    first_name: firstName,
+    last_name: lastName,
     tx_ref: txRef,
     callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/payment/verify`,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}/payment/success`,
