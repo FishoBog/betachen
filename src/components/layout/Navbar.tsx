@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
 const LOGO_URL = 'https://pqmdujnwudahviyvljmg.supabase.co/storage/v1/object/public/property-images/betachen-logo.svg';
+const ADMIN_CLERK_ID = 'user_3BeYdNiwHjIpWA8iw63QXV5Yb6Y';
 
 export function Navbar() {
   const { isSignedIn, isLoaded, user } = useUser();
@@ -22,18 +23,21 @@ export function Navbar() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  const isAdmin = user?.id === ADMIN_CLERK_ID;
+
   const links = [
-    { href: '/',                              label: lang === 'EN' ? 'Buy'        : 'ግዛ',         icon: Home,      authOnly: false, external: false },
-    { href: '/?type=long_rent',               label: lang === 'EN' ? 'Rent'       : 'ተከራይ',      icon: Key,       authOnly: false, external: false },
-    { href: '/?commercial=true',              label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false },
-    { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false },
-    { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false },
-    { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false },
-    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false },
-    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post': 'እንዴት መለጠፍ', icon: ListChecks,authOnly: false, external: false },
-    { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true  },
-    { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false },
-    { href: '/messages',                      label: lang === 'EN' ? 'Messages'   : 'መልዕክቶች',   icon: Send,      authOnly: true,  external: false },
+    { href: '/',                              label: lang === 'EN' ? 'Buy'        : 'ግዛ',         icon: Home,      authOnly: false, external: false, adminOnly: false },
+    { href: '/?type=long_rent',               label: lang === 'EN' ? 'Rent'       : 'ተከራይ',      icon: Key,       authOnly: false, external: false, adminOnly: false },
+    { href: '/?commercial=true',              label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false, adminOnly: false },
+    { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false, adminOnly: false },
+    { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
+    { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false, adminOnly: false },
+    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false, adminOnly: false },
+    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post': 'እንዴት መለጠፍ', icon: ListChecks,authOnly: false, external: false, adminOnly: false },
+    { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true,  adminOnly: false },
+    { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false, adminOnly: false },
+    { href: '/messages',                      label: lang === 'EN' ? 'Messages'   : 'መልዕክቶች',   icon: Send,      authOnly: true,  external: false, adminOnly: false },
+    { href: '/admin',                         label: lang === 'EN' ? 'Admin'      : 'አስተዳዳሪ',   icon: Shield,    authOnly: true,  external: false, adminOnly: true  },
   ];
 
   const navLinkStyle = (active: boolean, external?: boolean) => ({
@@ -60,6 +64,7 @@ export function Navbar() {
           <nav style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'space-between', margin: '0 20px' }}>
             {links.map(link => {
               if (link.authOnly && !isSignedIn) return null;
+              if (link.adminOnly && !isAdmin) return null;
               const active = pathname === link.href;
               const Icon = link.icon;
               const content = (
@@ -195,6 +200,7 @@ export function Navbar() {
 
           {links.map(link => {
             if (link.authOnly && !isSignedIn) return null;
+            if (link.adminOnly && !isAdmin) return null;
             const Icon = link.icon;
             return link.external ? (
               <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}
