@@ -27,13 +27,14 @@ export default function VerifyPage() {
   useEffect(() => {
     if (!user) return;
     const supabase = createBrowserClient();
-    supabase.from('profiles').select('verification_status, is_verified')
-      .eq('clerk_id', user.id).single()
-      .then(({ data }) => {
-        if (data) setStatus(data.verification_status || 'unverified');
+   fetch('/api/profile/me')
+      .then(res => res.json())
+      .then(({ profile }) => {
+        if (profile) setStatus(profile.verification_status || 'unverified');
         setFullName(user.fullName || '');
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [user]);
 
 const uploadDoc = async (
