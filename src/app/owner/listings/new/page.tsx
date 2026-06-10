@@ -109,6 +109,8 @@ export default function NewListingPage() {
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const cityRef = useRef<HTMLDivElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Email verification state
   const [ownerName, setOwnerName] = useState('');
@@ -773,16 +775,31 @@ export default function NewListingPage() {
                     <div style={{ fontSize: 19, fontWeight: 800, color: '#111827' }}>{t.uploadTitle}</div>
                   </div>
                   <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 20 }}>{t.uploadDesc}</div>
-                  <label style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '44px 24px', textAlign: 'center', background: '#f9fafb' }}>
-                      {uploadingPhotos ? <div style={{ color: '#006AFF', fontWeight: 600 }}>{t.uploading}</div> : (
-                        <><Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
+                  <div style={{ border: '2px dashed #d1d5db', borderRadius: 14, padding: '32px 24px', textAlign: 'center', background: '#f9fafb' }}>
+                    {uploadingPhotos ? (
+                      <div style={{ color: '#006AFF', fontWeight: 600, padding: '12px 0' }}>{t.uploading}</div>
+                    ) : (
+                      <>
+                        <Upload size={36} color="#9ca3af" style={{ marginBottom: 12 }} />
                         <div style={{ fontSize: 16, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{t.uploadClick}</div>
-                        <div style={{ fontSize: 14, color: '#9ca3af' }}>{t.uploadHint}</div></>
-                      )}
-                    </div>
-                    <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-                  </label>
+                        <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 18 }}>{t.uploadHint}</div>
+                        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                          <button type="button" onClick={() => cameraInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 10, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }}>
+                            📷 {lang === 'EN' ? 'Take Photo' : 'ፎቶ አንሳ'}
+                          </button>
+                          <button type="button" onClick={() => galleryInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 10, background: 'white', color: '#374151', fontWeight: 700, fontSize: 14, border: '1.5px solid #d1d5db', cursor: 'pointer' }}>
+                            📁 {lang === 'EN' ? 'Choose from device' : 'ከመሳሪያ ምረጥ'}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {/* Camera input — opens camera directly on phones */}
+                  <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                  {/* Gallery / file picker — allows choosing existing photos (multiple) */}
+                  <input ref={galleryInputRef} type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
                   {photoUrls.length > 0 && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 20 }}>
                       {photoUrls.map((url, i) => (
