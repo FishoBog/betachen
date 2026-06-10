@@ -1,45 +1,94 @@
 import { createClient } from "@supabase/supabase-js";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 export default async function AdminVerificationsPage() {
-  let debugInfo = "Starting...";
   let requests: any[] = [];
+  const signedUrls: Record<string, { id?: string; biz?: string }> = {};
 
   try {
-    debugInfo = "Creating client...";
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    debugInfo = "Querying verification_requests...";
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("verification_requests")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("submitted_at", { ascending: false })
       .limit(50);
+    requests = data ?? [];
 
-    if (error) {
-      debugInfo = "QUERY ERROR: " + JSON.stringify(error);
-    } else {
-      requests = data ?? [];
-      debugInfo = `Query OK. Found ${requests.length} request(s).`;
+    // Generate temporary signed URLs (valid 5 min) so admin can view private docs.
+    // Wrapped per-request so one bad path can never blank the whole page.
+    for (const req of requests) {
+      signedUrls[req.id] = {};
+      try {
+        if (req.id_document_url) {
+          const { data: s } = await supabase.storage.from("verifications").createSignedUrl(req.id_document_url, 300);
+          if (s?.signedUrl) signedUrls[req.id].id = s.signedUrl;
+        }
+      } catch { /* ignore — link will show as unavailable */ }
+      try {
+        if (req.business_license_url) {
+          const { data: s } = await supabase.storage.from("verifications").createSignedUrl(req.business_license_url, 300);
+          if (s?.signedUrl) signedUrls[req.id].biz = s.signedUrl;
+        }
+      } catch { /* ignore */ }
     }
-  } catch (err: any) {
-    debugInfo = "CAUGHT EXCEPTION: " + (err?.message || String(err));
+  } catch (err) {
+    requests = [];
   }
 
+  const statusColors: Record<string, string> = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
+
   return (
-    <div style={{ padding: 32, fontFamily: "monospace", fontSize: 14, color: "#111", background: "#fff", minHeight: "100vh", width: "100%" }}>
-      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Verifications — Debug Mode</h1>
-      <div style={{ padding: 16, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, marginBottom: 16 }}>
-        <strong>Status:</strong> {debugInfo}
-      </div>
-      <div style={{ padding: 16, background: "#f3f4f6", borderRadius: 8 }}>
-        <strong>Raw data ({requests.length} rows):</strong>
-        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all", marginTop: 8 }}>
-          {JSON.stringify(requests, null, 2)}
-        </pre>
-      </div>
+    <div className="flex flex-1">
+      <AdminSidebar />
+      <main className="flex-1 p-8">
+        <h1 className="text-2xl font-bold mb-6" style={{ color: "var(--navy)" }}>Owner Badge Verifications</h1>
+        <div className="grid gap-4">
+          {requests.length > 0 ? requests.map((req: any) => (
+            <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[req.status] ?? "bg-gray-100 text-gray-600"}`}>{req.status}</span>
+                    <span className="text-xs text-gray-400">{req.submitted_at ? new Date(req.submitted_at).toLocaleDateString() : ""}</span>
+                  </div>
+                  {req.full_name && <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Full Name:</span> {req.full_name}</p>}
+                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">User ID:</span> {req.clerk_id ?? req.user_id ?? "—"}</p>
+                  {req.notes && <p className="text-sm text-gray-600"><span className="font-medium">Notes:</span> {req.notes}</p>}
+                  <div className="mt-2 flex flex-wrap gap-4">
+                    {req.id_document_url && (
+                      signedUrls[req.id]?.id
+                        ? <a href={signedUrls[req.id].id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">View ID document →</a>
+                        : <span className="text-sm text-gray-400">ID document (link unavailable)</span>
+                    )}
+                    {req.business_license_url && (
+                      signedUrls[req.id]?.biz
+                        ? <a href={signedUrls[req.id].biz} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">View business license →</a>
+                        : <span className="text-sm text-gray-400">Business license (link unavailable)</span>
+                    )}
+                  </div>
+                </div>
+                {req.status === "pending" && (
+                  <div className="flex gap-2 flex-shrink-0">
+                    <form action="/api/admin/verify" method="POST">
+                      <input type="hidden" name="requestId" value={req.id} />
+                      <input type="hidden" name="userId" value={req.user_id ?? req.clerk_id ?? ""} />
+                      <button name="action" value="approve" className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">Approve</button>
+                    </form>
+                    <form action="/api/admin/verify" method="POST">
+                      <input type="hidden" name="requestId" value={req.id} />
+                      <input type="hidden" name="userId" value={req.user_id ?? req.clerk_id ?? ""} />
+                      <button name="action" value="reject" className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium">Reject</button>
+                    </form>
+                  </div>
+                )}
+              </div>
+            </div>
+          )) : (
+            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400">No verification requests yet.</div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
