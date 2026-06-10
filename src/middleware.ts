@@ -31,6 +31,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/news',
   '/api/news/(.*)',
   '/api/market/(.*)',
+  '/owner/listings/(.*)/payment',
   '/owner/listings/(.*)/payment/success',
   '/owner/listings/new',
 ]);
