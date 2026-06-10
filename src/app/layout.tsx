@@ -96,17 +96,17 @@ export const viewport: Viewport = {
   themeColor: '#E8431A',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // maximumScale removed — allows pinch-to-zoom (accessibility fix)
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_test_placeholder00000000000000000000000000000000000000000';
   return (
     <ClerkProvider publishableKey={key}>
-      <html lang="am" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
+      <html lang="en" className={`${notoEthiopic.variable} ${dmSans.variable}`}>
         <head>
           <meta name="google-site-verification" content="uBxm0oxxyRvmMztHXEXLlRAUqcXiSaKvtijuVN9TL6I" />
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+          {/* viewport meta removed — handled by the Next.js `viewport` export above, which now allows zoom */}
           <link rel="manifest" href="/manifest.json" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
