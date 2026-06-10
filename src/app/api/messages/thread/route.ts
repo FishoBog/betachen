@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
-const ADMIN_CLERK_ID = 'user_3AmnQEFKPsp6EX1W9xl88nOW4AV';
+const ADMIN_CLERK_ID = 'user_3BeYdNiwHjIpWA8iw63QXV5Yb6Y';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
