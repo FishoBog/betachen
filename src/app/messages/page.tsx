@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createBrowserClient } from '@/lib/supabase';
 import { MessageSquare, Home, ChevronRight } from 'lucide-react';
 
-const ADMIN_CLERK_ID = 'user_3AmnQEFKPsp6EX1W9xl88nOW4AV';
+const ADMIN_CLERK_ID = 'user_3BeYdNiwHjIpWA8iw63QXV5Yb6Y';
 
 export default function MessagesPage() {
   const { user } = useUser();
