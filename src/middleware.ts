@@ -1,6 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-
 const isPublicRoute = createRouteMatcher([
   '/',
   '/property/(.*)',
@@ -24,6 +23,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/verify/(.*)',
   '/api/verify/send',
   '/api/verify/check',
+  '/api/listings/create',
   '/api/discount/(.*)',
   '/api/discount',
   '/api/news',
@@ -32,7 +32,6 @@ const isPublicRoute = createRouteMatcher([
   '/owner/listings/(.*)/payment/success',
   '/owner/listings/new',
 ]);
-
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
   if (!userId && !isPublicRoute(req)) {
@@ -42,7 +41,6 @@ export default clerkMiddleware(async (auth, req) => {
   }
   return NextResponse.next();
 });
-
 export const config = {
   matcher: [
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
