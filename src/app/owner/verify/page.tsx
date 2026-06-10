@@ -36,7 +36,7 @@ export default function VerifyPage() {
       });
   }, [user]);
 
-  cconst uploadDoc = async (
+ const uploadDoc = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'id' | 'biz'
   ) => {
