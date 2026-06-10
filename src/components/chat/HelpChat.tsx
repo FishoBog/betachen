@@ -32,6 +32,13 @@ export function HelpChat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -108,7 +115,7 @@ export function HelpChat() {
         <button
           onClick={() => setOpen(true)}
           style={{
-            position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
+            position: 'fixed', bottom: isMobile ? 88 : 24, right: isMobile ? 16 : 24, zIndex: 1000,
             width: 56, height: 56, borderRadius: '50%',
             background: 'linear-gradient(135deg, #006AFF, #0047CC)',
             border: 'none', cursor: 'pointer',
@@ -133,7 +140,7 @@ export function HelpChat() {
       {/* ── Chat window ── */}
       {open && (
         <div style={{
-          position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
+          position: 'fixed', bottom: isMobile ? 88 : 24, right: isMobile ? 16 : 24, zIndex: 1000,
           width: 380, maxWidth: 'calc(100vw - 32px)',
           borderRadius: 20, overflow: 'hidden',
           boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
