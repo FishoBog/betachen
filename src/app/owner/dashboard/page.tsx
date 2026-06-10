@@ -53,8 +53,9 @@ export default function OwnerDashboard() {
     Promise.all([
       supabase.from('properties').select('*, property_images(*)').eq('owner_id', user.id).order('created_at', { ascending: false }),
       supabase.from('listing_payments').select('*').eq('owner_clerk_id', user.id).eq('status', 'paid'),
-      supabase.from('profiles').select('*').eq('clerk_id', user.id).single(),
-    ]).then(async ([{ data: props }, { data: pays }, { data: prof }]) => {
+      fetch('/api/profile/me').then(res => res.json()),
+    ]).then(async ([{ data: props }, { data: pays }, profileRes]) => {
+      const prof = profileRes?.profile ?? null;
       setProperties(props ?? []);
       setPayments(pays ?? []);
       setProfile(prof);
