@@ -36,23 +36,31 @@ export default function VerifyPage() {
       });
   }, [user]);
 
- const uploadDoc = async (
+const uploadDoc = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'id' | 'biz'
   ) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     type === 'id' ? setUploadingId(true) : setUploadingBiz(true);
-    const supabase = createBrowserClient();
-    // Store in the PRIVATE verifications bucket. Path only — no public URL.
-    const filePath = `${user.id}/${type}-${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage
-      .from('verifications').upload(filePath, file, { upsert: true });
-    if (!error) {
-      // Save the path (not a public URL) — admin will generate a signed URL to view it
-      type === 'id' ? setIdUrl(filePath) : setBizUrl(filePath);
-    } else {
-      setError('Upload failed: ' + error.message);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+      const res = await fetch('/api/verify/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.path) {
+        // Store the file PATH (admin generates a signed URL to view it)
+        type === 'id' ? setIdUrl(data.path) : setBizUrl(data.path);
+      } else {
+        setError(data.error || 'Upload failed');
+      }
+    } catch {
+      setError('Upload failed — please try again');
     }
     type === 'id' ? setUploadingId(false) : setUploadingBiz(false);
   };
