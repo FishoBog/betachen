@@ -1,9 +1,30 @@
 import { createClient } from "@supabase/supabase-js";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
 export default async function AdminVerificationsPage() {
   const { data: requests } = await supabase.from("verification_requests").select("*").order("created_at", { ascending: false }).limit(50);
+
+  // Generate temporary signed URLs (valid 5 minutes) so the admin can view documents
+  // stored in the PRIVATE verifications bucket. Public URLs do not work for private buckets.
+  const signedUrls: Record<string, { id?: string; biz?: string }> = {};
+  if (requests) {
+    for (const req of requests) {
+      signedUrls[req.id] = {};
+      if (req.id_document_url) {
+        const { data } = await supabase.storage.from("verifications").createSignedUrl(req.id_document_url, 300);
+        if (data?.signedUrl) signedUrls[req.id].id = data.signedUrl;
+      }
+      if (req.business_license_url) {
+        const { data } = await supabase.storage.from("verifications").createSignedUrl(req.business_license_url, 300);
+        if (data?.signedUrl) signedUrls[req.id].biz = data.signedUrl;
+      }
+    }
+  }
+
   const statusColors: Record<string, string> = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
+
   return (
     <div className="flex flex-1">
       <AdminSidebar />
@@ -18,9 +39,21 @@ export default async function AdminVerificationsPage() {
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[req.status] ?? "bg-gray-100 text-gray-600"}`}>{req.status}</span>
                     <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">User ID:</span> {req.user_id}</p>
+                  {req.full_name && <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Full Name:</span> {req.full_name}</p>}
+                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">User ID:</span> {req.clerk_id ?? req.user_id}</p>
                   {req.notes && <p className="text-sm text-gray-600"><span className="font-medium">Notes:</span> {req.notes}</p>}
-                  {req.id_document_url && <p className="text-sm text-blue-600 mt-2">ID document uploaded</p>}
+                  <div className="mt-2 flex flex-wrap gap-4">
+                    {req.id_document_url && (
+                      signedUrls[req.id]?.id
+                        ? <a href={signedUrls[req.id].id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">View ID document →</a>
+                        : <span className="text-sm text-gray-400">ID document (link unavailable)</span>
+                    )}
+                    {req.business_license_url && (
+                      signedUrls[req.id]?.biz
+                        ? <a href={signedUrls[req.id].biz} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">View business license →</a>
+                        : <span className="text-sm text-gray-400">Business license (link unavailable)</span>
+                    )}
+                  </div>
                 </div>
                 {req.status === "pending" && (
                   <div className="flex gap-2 flex-shrink-0">
