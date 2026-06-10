@@ -21,10 +21,9 @@ export default function PaymentSuccessPage() {
       return;
     }
 
-    const supabase = createBrowserClient();
-    supabase.from('profiles').select('verification_status')
-      .eq('clerk_id', user.id).single()
-      .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
+    fetch('/api/profile/me')
+      .then(res => res.json())
+      .then(({ profile }) => setVerificationStatus(profile?.verification_status ?? 'unverified'));
   }, [user, isLoaded]);
 
   if (!isLoaded || verificationStatus === 'loading') return (
