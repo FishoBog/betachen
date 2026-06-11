@@ -70,7 +70,7 @@ function Toggle({ label, desc, value, onChange, color = '#006AFF', bg = '#f0f6ff
   );
 }
 
-function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string; t: any }) {
+function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string; t: any; lang: string }) {
   const defaultCoords = CITY_COORDS[city] || [9.0192, 38.7525];
   const [coordText, setCoordText] = useState(lat && lng ? `${lat}, ${lng}` : '');
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -711,7 +711,7 @@ export default function NewListingPage() {
                       <label style={labelStyle}>{t.landmarkLabel}</label>
                       <input style={inputStyle} value={form.specific_location} onChange={e => set('specific_location', e.target.value)} placeholder={t.landmarkPlaceholder} />
                     </div>
-                    <MapPinPicker lat={form.lat} lng={form.lng} city={form.city} t={t} onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }} />
+                    <MapPinPicker lat={form.lat} lng={form.lng} city={form.city} t={t} lang={lang} onPick={(lat, lng) => { set('lat', lat.toFixed(6)); set('lng', lng.toFixed(6)); }} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
