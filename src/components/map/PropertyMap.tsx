@@ -2,7 +2,8 @@
 import { useEffect, useRef } from 'react';
 
 // Self-contained type so this component does not depend on the shared `Property`
-// type (which may not list city/subcity/location). Only the fields the map uses.
+// type. Note: there is no `city` column on properties — the city is derived from
+// the `location` string (built as "specific, kebele, woreda, subcity, city").
 type MapProperty = {
   id: string | number;
   title: string;
@@ -11,14 +12,12 @@ type MapProperty = {
   latitude?: number | null;
   longitude?: number | null;
   location?: string | null;
-  city?: string | null;
   subcity?: string | null;
   type?: string | null;
 };
 
 // City centre coordinates for every city in the listing form's ETHIOPIA_CITIES
-// list. Used to place an APPROXIMATE pin when a listing has no exact GPS
-// coordinates, so the map is never empty just because owners skipped the pin.
+// list. Used to place an APPROXIMATE pin when a listing has no exact GPS pin.
 const CITY_COORDS: Record<string, [number, number]> = {
   'Addis Ababa': [9.0192, 38.7525],
   'Dire Dawa': [9.5931, 41.8661],
@@ -33,6 +32,19 @@ const CITY_COORDS: Record<string, [number, number]> = {
   'Bishoftu': [8.7500, 38.9833],
   'Harar': [9.3133, 42.1180],
 };
+
+// Derive a known city from the `location` string. The form builds location as
+// "specific_location, kebele, woreda, subcity, city", so the city is usually the
+// last comma-separated segment — but we scan all segments for a known city name
+// to be safe against missing parts.
+function cityFromLocation(location?: string | null): [number, number] | undefined {
+  if (!location) return undefined;
+  const parts = location.split(',').map(s => s.trim());
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (CITY_COORDS[parts[i]]) return CITY_COORDS[parts[i]];
+  }
+  return undefined;
+}
 
 interface Props { properties: MapProperty[]; center?: [number, number]; zoom?: number; }
 
@@ -56,9 +68,6 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
         document.head.appendChild(link);
       }
 
-      // Leaflet's default marker icons break under bundlers because the image
-      // paths are resolved relative to the CSS. Point them at the CDN copies so
-      // markers actually render.
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -78,9 +87,7 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
     return () => { cancelled = true; mapInstanceRef.current?.remove(); mapInstanceRef.current = null; };
   }, []);
 
-  // 2) Draw / redraw markers whenever properties change. The previous version
-  // had `[]` deps and read `properties` once, so pins that arrived after mount
-  // (which is always, since the page fetches async) were never drawn.
+  // 2) Draw / redraw markers whenever properties change.
   useEffect(() => {
     const draw = async () => {
       const map = mapInstanceRef.current;
@@ -96,10 +103,10 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
         let lng = p.longitude as number | null | undefined;
         let approximate = false;
 
-        // Fall back to the city centre when there is no exact GPS pin.
+        // Fall back to the city centre (derived from location) when no GPS pin.
         if (lat == null || lng == null) {
-          const c = p.city ? CITY_COORDS[p.city] : undefined;
-          if (!c) return; // no coordinates and unknown city → can't place it
+          const c = cityFromLocation(p.location);
+          if (!c) return; // no coordinates and no recognizable city → skip
           [lat, lng] = c;
           approximate = true;
         }
