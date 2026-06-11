@@ -21,12 +21,23 @@ const ETHIOPIA_CITIES = [
   { cityEn: 'Shashemene', cityAm: 'ሻሸመኔ', subsEn: ['Bulchana','Arada','Kuyera'], subsAm: ['ቡልቻና','አራዳ','ኩየራ'] },
   { cityEn: 'Bishoftu', cityAm: 'ቢሾፍቱ', subsEn: ['Kebele 01','Kebele 02','Kuriftu'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ኩሪፍቱ'] },
   { cityEn: 'Harar', cityAm: 'ሐረር', subsEn: ['Jugol','Shenkor','Aboker'], subsAm: ['ጁጎል','ሸንኮር','አቦከር'] },
+  { cityEn: 'Shaggar', cityAm: 'ሸገር', subsEn: ['Sebeta','Burayu','Sululta','Gelan','Holeta','Legetafo'], subsAm: ['ሰበታ','ቡራዩ','ሱሉልታ','ገላን','ሆለታ','ለገጣፎ'] },
+  { cityEn: 'Jigjiga', cityAm: 'ጅጅጋ', subsEn: ['Ayer Tena','Sheik Ali','Ycatib','24 Kebele'], subsAm: ['አየር ጤና','ሸይክ አሊ','ያቲብ','24 ቀበሌ'] },
+  { cityEn: 'Sodo', cityAm: 'ሶዶ', subsEn: ['Mehal','Arada','Sikela'], subsAm: ['መሀል','አራዳ','ሲቄላ'] },
+  { cityEn: 'Arba Minch', cityAm: 'አርባ ምንጭ', subsEn: ['Secha','Sikela'], subsAm: ['ሰቻ','ሲቄላ'] },
+  { cityEn: 'Hosaena', cityAm: 'ሆሳዕና', subsEn: ['Addis Ketema','Sefer Selam','Lekemt'], subsAm: ['አዲስ ከተማ','ሰፈር ሰላም','ለቀምት'] },
 ];
 
 const CITY_COORDS: Record<string, [number, number]> = {
   'Addis Ababa': [9.0192, 38.7525], 'Dire Dawa': [9.5931, 41.8661],
   'Adama': [8.5400, 39.2700], 'Gondar': [12.6000, 37.4667],
   'Hawassa': [7.0500, 38.4667], 'Bahir Dar': [11.5742, 37.3614],
+  'Mekelle': [13.4833, 39.4667], 'Jimma': [7.6667, 36.8333],
+  'Dessie': [11.1333, 39.6333], 'Shashemene': [7.2000, 38.6000],
+  'Bishoftu': [8.7500, 38.9833], 'Harar': [9.3000, 42.1333],
+  'Shaggar': [9.0000, 38.7500], 'Jigjiga': [9.3500, 42.8000],
+  'Sodo': [6.9000, 37.7500], 'Arba Minch': [6.0333, 37.5500],
+  'Hosaena': [7.5500, 37.8500],
 };
 
 const inputStyle: React.CSSProperties = {
@@ -46,6 +57,9 @@ const subHeading: React.CSSProperties = {
   fontSize: 15, fontWeight: 700, color: '#374151', marginBottom: 12, marginTop: 20,
   paddingBottom: 8, borderBottom: '1px solid #f3f4f6',
 };
+
+// Small red asterisk to mark required fields.
+const Req = () => <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>;
 
 function Toggle({ label, desc, value, onChange, color = '#006AFF', bg = '#f0f6ff' }: { label: string; desc?: string; value: boolean; onChange: () => void; color?: string; bg?: string }) {
   return (
@@ -309,7 +323,7 @@ export default function NewListingPage() {
                   <div>
                     <label style={labelStyle}>
                       <User size={12} style={{ display: 'inline', marginRight: 4 }} />
-                      {lang === 'EN' ? 'Your Name' : 'ስምዎ'}
+                      {lang === 'EN' ? 'Your Name' : 'ስምዎ'}<Req />
                     </label>
                     <input style={inputStyle} value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder={lang === 'EN' ? 'e.g. Abebe Kebede' : 'ለምሳሌ አበበ ቀበደ'} />
                   </div>
@@ -324,7 +338,7 @@ export default function NewListingPage() {
                 <div>
                   <label style={labelStyle}>
                     <Mail size={12} style={{ display: 'inline', marginRight: 4 }} />
-                    {lang === 'EN' ? 'Email Address' : 'ኢሜይል አድራሻ'}
+                    {lang === 'EN' ? 'Email Address' : 'ኢሜይል አድራሻ'}<Req />
                   </label>
                   <input style={inputStyle} type="email" value={ownerEmail} onChange={e => setOwnerEmail(e.target.value)} placeholder="example@gmail.com" />
                   <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
@@ -415,7 +429,7 @@ export default function NewListingPage() {
                   </div>
                   <div style={{ display: 'grid', gap: 16 }}>
                     <div>
-                      <label style={labelStyle}>{t.propTitle}</label>
+                      <label style={labelStyle}>{t.propTitle}<Req /></label>
                       <input style={inputStyle} value={form.title} onChange={e => set('title', e.target.value)} placeholder={t.propTitlePlaceholder} />
                     </div>
                     <div>
@@ -442,7 +456,7 @@ export default function NewListingPage() {
                     </div>
                     <div style={{ background: '#f9fafb', borderRadius: 12, padding: '16px', border: '1px solid #e5e7eb' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                        <label style={{ ...labelStyle, marginBottom: 0 }}>{lang === 'EN' ? 'Price' : 'ዋጋ'}</label>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>{lang === 'EN' ? 'Price' : 'ዋጋ'}<Req /></label>
                         {form.type !== 'short_rent' && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 13, color: '#374151' }}>{t.negotiable}</span>
@@ -572,6 +586,9 @@ export default function NewListingPage() {
                 <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   {t.nextLocation} <ArrowRight size={18} />
                 </button>
+                <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
+                  <Req /> {lang === 'EN' ? 'Required fields' : 'የግዴታ መስኮች'}
+                </div>
                 {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
               </div>
             )}
@@ -586,7 +603,7 @@ export default function NewListingPage() {
                   </div>
                   <div style={{ display: 'grid', gap: 16 }}>
                     <div ref={cityRef} style={{ position: 'relative' }}>
-                      <label style={labelStyle}>{t.cityLabel}</label>
+                      <label style={labelStyle}>{t.cityLabel}<Req /></label>
                       <div style={{ position: 'relative' }}>
                         <input value={citySearch || (form.city ? `${form.city} (${ETHIOPIA_CITIES.find(c => c.cityEn === form.city)?.cityAm})` : '')} onChange={e => { setCitySearch(e.target.value); setShowCityDropdown(true); if (!e.target.value) { set('city', ''); set('subcity', ''); } }} onFocus={() => setShowCityDropdown(true)} placeholder={t.cityPlaceholder} style={inputStyle} />
                         <ChevronDown size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
@@ -623,6 +640,9 @@ export default function NewListingPage() {
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button onClick={() => setStep(1)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
                   <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
+                </div>
+                <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
+                  <Req /> {lang === 'EN' ? 'Required fields' : 'የግዴታ መስኮች'}
                 </div>
                 {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 10, textAlign: 'center' }}>{error}</div>}
               </div>
