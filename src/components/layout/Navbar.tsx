@@ -26,9 +26,7 @@ export function Navbar() {
   const isAdmin = user?.id === ADMIN_CLERK_ID;
 
   const links = [
-    { href: '/',                              label: lang === 'EN' ? 'Buy'        : 'ግዛ',         icon: Home,      authOnly: false, external: false, adminOnly: false },
-    { href: '/?type=long_rent',               label: lang === 'EN' ? 'Rent'       : 'ተከራይ',      icon: Key,       authOnly: false, external: false, adminOnly: false },
-    { href: '/?commercial=true',              label: lang === 'EN' ? 'Commercial' : 'የንግድ ቤቶች', icon: Building2, authOnly: false, external: false, adminOnly: false },
+    { href: '/',                              label: lang === 'EN' ? 'Properties' : 'ንብረቶች',     icon: Building2, authOnly: false, external: false, adminOnly: false },
     { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false, adminOnly: false },
     { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false, adminOnly: false },
