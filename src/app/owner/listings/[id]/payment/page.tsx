@@ -24,8 +24,13 @@ export default function ListingPaymentPage() {
     if (!propertyId) return;
     const supabase = createBrowserClient();
 
-    supabase.from('properties').select('*').eq('id', propertyId).single()
-      .then(({ data }) => setProperty(data));
+    // Fetch the property server-side (service-role) so a guest's pending_review
+    // listing is readable. The anon browser client gets a 406 here because RLS
+    // only exposes 'active' rows or the owner's own rows.
+    fetch(`/api/listings/get?id=${propertyId}`)
+      .then(res => res.json())
+      .then(data => { if (data.property) setProperty(data.property); })
+      .catch(() => {});
 
     if (user) {
       supabase.from('profiles').select('verification_status')
