@@ -1,17 +1,28 @@
 'use client';
-
 export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { PropertyMap } from '@/components/map/PropertyMap';
 import { createBrowserClient } from '@/lib/supabase';
 import type { Property } from '@/types';
+
 export default function MapPage() {
   const [properties, setProperties] = useState<Property[]>([]);
+
   useEffect(() => {
-    createBrowserClient().from('properties').select('id,title,price,currency,latitude,longitude,type,location_name').eq('status','published').not('latitude','is',null)
+    // Fixes the previous 400:
+    //  - selected `location` (the real column) instead of `location_name`
+    //  - filtered on `status = 'active'` (the public/approved value) instead of
+    //    'published', which no row ever has.
+    // We no longer require latitude to be non-null here, because listings without
+    // GPS coordinates are still shown on the map at their city centre.
+    createBrowserClient()
+      .from('properties')
+      .select('id,title,price,currency,latitude,longitude,type,location,city,subcity')
+      .eq('status', 'active')
       .then(({ data }) => setProperties((data as Property[]) ?? []));
   }, []);
+
   return (
     <div className="min-h-screen">
       <Navbar />
