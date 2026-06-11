@@ -23,6 +23,17 @@ const TYPE_COLORS: Record<string, { color: string; bg: string }> = {
   short_rent: { color: '#92400e', bg: '#fef3c7' },
 };
 
+// Commercial subtypes shown as a second row when the Commercial tab is active.
+const COMMERCIAL_SUBTYPES = [
+  { key: 'office', en: 'Office', am: 'ቢሮ' },
+  { key: 'retail', en: 'Retail / Shop', am: 'መደብር' },
+  { key: 'warehouse', en: 'Warehouse', am: 'መጋዘን' },
+  { key: 'event_hall', en: 'Event Hall', am: 'አዳራሽ' },
+  { key: 'commercial_land', en: 'Commercial Land', am: 'የንግድ መሬት' },
+  { key: 'mixed_use', en: 'Mixed Use', am: 'ድብልቅ' },
+  { key: 'medical', en: 'Medical / Clinic', am: 'ሕክምና' },
+];
+
 function formatPrice(price: number, currency: string) {
   if (!price) return 'Negotiable';
   if (price >= 1000000) return `${currency} ${(price / 1000000).toFixed(1)}M`;
@@ -80,7 +91,10 @@ export default function HomePage() {
   const { t, lang } = useLang();
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
+  // Single coordinated category drives the listing filter. One of:
+  // 'all' | 'sale' | 'long_rent' | 'short_rent' | 'commercial' | 'hotel'
+  const [category, setCategory] = useState('all');
+  const [commercialSubtype, setCommercialSubtype] = useState('');
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -92,20 +106,32 @@ export default function HomePage() {
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
-  const [commercialOnly, setCommercialOnly] = useState(false);
-  const [commercialTypeFilter, setCommercialTypeFilter] = useState('');
   const cityRef = useRef<HTMLDivElement>(null);
 
+  // Map any incoming URL params (from the navbar / old links) into the single
+  // `category` system so existing links keep working.
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('commercial') === 'true') setCommercialOnly(true);
-      const ct = params.get('commercial_type');
-      if (ct) { setCommercialOnly(true); setCommercialTypeFilter(ct); }
       const q = params.get('search');
       if (q) setSearch(q);
+
+      const ct = params.get('commercial_type');
+      const isCommercial = params.get('commercial') === 'true';
       const tp = params.get('type');
-      if (tp) setTypeFilter(tp);
+
+      if (ct === 'hotel') {
+        setCategory('hotel');
+      } else if (ct) {
+        setCategory('commercial');
+        setCommercialSubtype(ct);
+      } else if (isCommercial) {
+        setCategory('commercial');
+      } else if (tp === 'sale' || tp === 'long_rent' || tp === 'short_rent') {
+        setCategory(tp);
+      } else if (tp === 'hotel' || tp === 'commercial') {
+        setCategory(tp === 'hotel' ? 'hotel' : 'commercial');
+      }
     }
   }, []);
 
@@ -135,10 +161,23 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  // ── Unified category filter ──
+  const matchesCategory = (p: Property) => {
+    switch (category) {
+      case 'sale': return p.type === 'sale';
+      case 'long_rent': return p.type === 'long_rent';
+      case 'short_rent': return p.type === 'short_rent';
+      case 'commercial':
+        if (!p.is_commercial || p.commercial_type === 'hotel') return false;
+        if (commercialSubtype && p.commercial_type !== commercialSubtype) return false;
+        return true;
+      case 'hotel': return p.commercial_type === 'hotel';
+      default: return true; // 'all'
+    }
+  };
+
   const filtered = properties.filter(p => {
-    if (commercialOnly && !p.is_commercial) return false;
-    if (commercialTypeFilter && p.commercial_type !== commercialTypeFilter) return false;
-    if (typeFilter !== 'all' && p.type !== typeFilter) return false;
+    if (!matchesCategory(p)) return false;
     if (search && !p.title?.toLowerCase().includes(search.toLowerCase()) && !p.location?.toLowerCase().includes(search.toLowerCase())) return false;
     if (minPrice && p.price < parseFloat(minPrice)) return false;
     if (maxPrice && p.price > parseFloat(maxPrice)) return false;
@@ -163,7 +202,6 @@ export default function HomePage() {
     bedrooms !== 'any' ? bedrooms : '',
     cityFilter, subcity,
     sortBy !== 'newest' ? sortBy : '',
-    commercialOnly ? 'commercial' : '',
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -171,8 +209,7 @@ export default function HomePage() {
     setBedrooms('any'); setSubcity('');
     setCityFilter(''); setCitySearch('');
     setSortBy('newest'); setSearch('');
-    setTypeFilter('all');
-    setCommercialOnly(false); setCommercialTypeFilter('');
+    setCategory('all'); setCommercialSubtype('');
   };
 
   const inputStyle = {
@@ -185,6 +222,16 @@ export default function HomePage() {
     fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block',
     marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.5px'
   };
+
+  // Top-level category tabs.
+  const CATEGORY_TABS: { key: string; en: string; am: string }[] = [
+    { key: 'all', en: 'All Properties', am: 'ሁሉም' },
+    { key: 'sale', en: 'For Sale', am: 'ለሽያጭ' },
+    { key: 'long_rent', en: 'For Rent', am: 'ለኪራይ' },
+    { key: 'short_rent', en: 'Short Stay', am: 'የአጭር ቆይታ' },
+    { key: 'commercial', en: 'Commercial', am: 'ንግድ' },
+    { key: 'hotel', en: 'Hotels', am: 'ሆቴሎች' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', width: '100%', overflowX: 'hidden' }}>
@@ -269,29 +316,21 @@ export default function HomePage() {
       {/* Filter bar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '12px 24px', position: 'sticky', top: 64, zIndex: 40 }}>
         <div style={{ maxWidth: 1760, margin: '0 auto' }}>
-          {commercialOnly && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, padding: '10px 16px', background: '#eff6ff', borderRadius: 10, border: '1px solid #dbeafe', flexWrap: 'wrap' as const, gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Building2 size={16} color="#006AFF" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#1d4ed8' }}>
-                  {lang === 'EN' ? 'Showing Commercial Properties' : 'የንግድ ንብረቶች እየታዩ ነው'}
-                  {commercialTypeFilter ? ` — ${commercialTypeFilter.replace(/_/g, ' ')}` : ''}
-                </span>
-              </div>
-              <button onClick={() => { setCommercialOnly(false); setCommercialTypeFilter(''); }} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 20, border: '1px solid #bfdbfe', background: 'white', color: '#1d4ed8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                <X size={12} /> {lang === 'EN' ? 'Show all' : 'ሁሉንም አሳይ'}
-              </button>
-            </div>
-          )}
+          {/* Top-level category tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
-            {[['all', t.allProps], ['sale', t.forSale], ['long_rent', t.forRent], ['short_rent', t.shortStay]].map(([val, label]) => (
-              <button key={val} onClick={() => setTypeFilter(val)} style={{ padding: '8px 18px', borderRadius: 25, border: `2px solid ${typeFilter === val ? '#006AFF' : '#e5e7eb'}`, background: typeFilter === val ? '#006AFF' : 'white', color: typeFilter === val ? 'white' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{label}</button>
+            {CATEGORY_TABS.map(tab => (
+              <button key={tab.key} onClick={() => { setCategory(tab.key); if (tab.key !== 'commercial') setCommercialSubtype(''); }}
+                style={{ padding: '8px 18px', borderRadius: 25, border: `2px solid ${category === tab.key ? '#006AFF' : '#e5e7eb'}`, background: category === tab.key ? '#006AFF' : 'white', color: category === tab.key ? 'white' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                {tab.key === 'commercial' && <Building2 size={13} />}
+                {tab.key === 'hotel' && <Hotel size={13} />}
+                {lang === 'EN' ? tab.en : tab.am}
+              </button>
             ))}
             <button onClick={() => setShowFilters(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 25, border: `2px solid ${showFilters || activeFilterCount > 0 ? '#E8431A' : '#e5e7eb'}`, background: showFilters || activeFilterCount > 0 ? '#fef2ee' : 'white', color: showFilters || activeFilterCount > 0 ? '#E8431A' : '#374151', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               <SlidersHorizontal size={14} />
               {lang === 'EN' ? 'Filters' : 'ማጣሪያዎች'} {activeFilterCount > 0 && <span style={{ background: '#E8431A', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{activeFilterCount}</span>}
             </button>
-            {activeFilterCount > 0 && (
+            {(activeFilterCount > 0 || category !== 'all') && (
               <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 14px', borderRadius: 25, border: '1.5px solid #e5e7eb', background: 'white', color: '#6b7280', fontSize: 13, cursor: 'pointer' }}>
                 <X size={13} /> {lang === 'EN' ? 'Clear all' : 'ሁሉንም አጽዳ'}
               </button>
@@ -300,6 +339,22 @@ export default function HomePage() {
               {loading ? t.loading : `${filtered.length} ${t.propsFound}`}
             </span>
           </div>
+
+          {/* Commercial subtype row (only when Commercial tab active) */}
+          {category === 'commercial' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const, marginTop: 12, paddingTop: 12, borderTop: '1px solid #f3f4f6' }}>
+              <button onClick={() => setCommercialSubtype('')}
+                style={{ padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${commercialSubtype === '' ? '#006AFF' : '#e5e7eb'}`, background: commercialSubtype === '' ? '#eff6ff' : 'white', color: commercialSubtype === '' ? '#1d4ed8' : '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                {lang === 'EN' ? 'All Commercial' : 'ሁሉም ንግድ'}
+              </button>
+              {COMMERCIAL_SUBTYPES.map(st => (
+                <button key={st.key} onClick={() => setCommercialSubtype(st.key)}
+                  style={{ padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${commercialSubtype === st.key ? '#006AFF' : '#e5e7eb'}`, background: commercialSubtype === st.key ? '#eff6ff' : 'white', color: commercialSubtype === st.key ? '#1d4ed8' : '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  {lang === 'EN' ? st.en : st.am}
+                </button>
+              ))}
+            </div>
+          )}
 
           {showFilters && (
             <div style={{ marginTop: 16, padding: '20px 24px', background: '#f9fafb', borderRadius: 16, border: '1px solid #e5e7eb' }}>
@@ -386,9 +441,18 @@ export default function HomePage() {
             <div style={{ width: 80, height: 80, borderRadius: 20, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <Building2 size={40} color="#d1d5db" />
             </div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{commercialOnly ? (lang === 'EN' ? 'No commercial properties yet' : 'እስካሁን የንግድ ንብረቶች የሉም') : activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}</div>
-            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>{commercialOnly ? (lang === 'EN' ? 'Be the first to list a commercial property' : 'የንግድ ንብረት ለመጀመሪያ ጊዜ ይዘርዝሩ') : activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : t.noPropsDesc}</div>
-            {activeFilterCount > 0 ? (
+            <div style={{ fontSize: 26, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+              {category === 'commercial' ? (lang === 'EN' ? 'No commercial properties yet' : 'እስካሁን የንግድ ንብረቶች የሉም')
+                : category === 'hotel' ? (lang === 'EN' ? 'No hotels or guest houses yet' : 'እስካሁን ሆቴሎች የሉም')
+                : category === 'long_rent' ? (lang === 'EN' ? 'No rentals listed yet' : 'እስካሁን ኪራዮች የሉም')
+                : category === 'short_rent' ? (lang === 'EN' ? 'No short-stay listings yet' : 'እስካሁን የአጭር ቆይታ የሉም')
+                : category === 'sale' ? (lang === 'EN' ? 'No properties for sale yet' : 'እስካሁን ለሽያጭ የሉም')
+                : activeFilterCount > 0 ? (lang === 'EN' ? 'No properties match your filters' : 'ማጣሪያዎቹን የሚያሟሉ ንብረቶች የሉም') : t.noProps}
+            </div>
+            <div style={{ fontSize: 16, color: '#6b7280', marginBottom: 28 }}>
+              {activeFilterCount > 0 ? (lang === 'EN' ? 'Try adjusting your filters' : 'ማጣሪያዎቹን ለማስተካከል ይሞክሩ') : (lang === 'EN' ? 'Check back soon or be the first to list' : 'በቅርቡ ይመለሱ ወይም የመጀመሪያው ይሁኑ')}
+            </div>
+            {(activeFilterCount > 0 || category !== 'all') ? (
               <button onClick={clearFilters} style={{ padding: '12px 28px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>{lang === 'EN' ? 'Clear Filters' : 'ማጣሪያዎችን አጽዳ'}</button>
             ) : (
               <Link href="/owner/listings/new" style={{ padding: '12px 28px', background: '#E8431A', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -423,7 +487,7 @@ export default function HomePage() {
                         </div>
                         {p.is_commercial && (
                           <div style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Building2 size={11} /> {lang === 'EN' ? 'Commercial' : 'ንግድ'}
+                            <Building2 size={11} /> {lang === 'EN' ? (p.commercial_type === 'hotel' ? 'Hotel' : 'Commercial') : (p.commercial_type === 'hotel' ? 'ሆቴል' : 'ንግድ')}
                           </div>
                         )}
                       </div>
@@ -468,75 +532,6 @@ export default function HomePage() {
           <AdCard placement="homepage" maxAds={3} />
         </div>
       )}
-
-      {/* Commercial Properties Teaser */}
-      <div style={{ background: '#f8faff', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
-        <div style={{ maxWidth: 1760, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40, flexWrap: 'wrap' as const, gap: 16 }}>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', borderRadius: 20, padding: '7px 16px', marginBottom: 14 }}>
-                <Building2 size={14} color="#006AFF" />
-                <span style={{ color: '#006AFF', fontSize: 13, fontWeight: 700, letterSpacing: '0.5px' }}>
-                  {lang === 'EN' ? 'COMMERCIAL REAL ESTATE' : 'የንግድ ሪል እስቴት'}
-                </span>
-              </div>
-              <h2 style={{ fontSize: 34, fontWeight: 900, color: '#111827', marginBottom: 10, letterSpacing: '-0.5px' }}>
-                {lang === 'EN' ? 'Find Commercial Space' : 'የንግድ ቦታ ያግኙ'}
-              </h2>
-              <p style={{ color: '#6b7280', fontSize: 18, lineHeight: 1.6 }}>
-                {lang === 'EN' ? 'Office spaces, retail, warehouses, event halls and more across Ethiopia' : 'ቢሮዎች፣ መደብሮች፣ መጋዘኖች፣ አዳራሾች እና ሌሎች በኢትዮጵያ'}
-              </p>
-            </div>
-            <Link href="/?commercial=true" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-              {lang === 'EN' ? 'Browse All Commercial' : 'ሁሉንም የንግድ ቤቶች ይሰሱ'} <ArrowRight size={17} />
-            </Link>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-            {[
-              { key: 'office', Icon: Building2, en: 'Office Space', am: 'ቢሮ ቦታ', color: '#dbeafe', iconColor: '#1d4ed8' },
-              { key: 'retail', Icon: ShoppingBag, en: 'Retail / Shop', am: 'መደብር / ሱቅ', color: '#d1fae5', iconColor: '#065f46' },
-              { key: 'warehouse', Icon: Warehouse, en: 'Warehouse', am: 'መጋዘን', color: '#fef3c7', iconColor: '#92400e' },
-              { key: 'event_hall', Icon: CalendarDays, en: 'Event Hall', am: 'አዳራሽ', color: '#fce7f3', iconColor: '#9d174d' },
-              { key: 'hotel', Icon: Hotel, en: 'Hotel / Guest', am: 'ሆቴል', color: '#ede9fe', iconColor: '#5b21b6' },
-              { key: 'commercial_land', Icon: MapPin, en: 'Commercial Land', am: 'የንግድ መሬት', color: '#d1fae5', iconColor: '#047857' },
-              { key: 'mixed_use', Icon: Layers, en: 'Mixed Use', am: 'ድብልቅ አጠቃቀም', color: '#fff7ed', iconColor: '#c2410c' },
-              { key: 'medical', Icon: Stethoscope, en: 'Medical / Clinic', am: 'የሕክምና ቦታ', color: '#fef2f2', iconColor: '#dc2626' },
-            ].map(({ key, Icon, en, am, color, iconColor }) => (
-              <Link key={key} href={`/?commercial_type=${key}`} style={{ textDecoration: 'none' }}>
-                <div style={{ background: 'white', borderRadius: 16, padding: '24px 16px', border: '1.5px solid #e5e7eb', textAlign: 'center' as const, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#006AFF'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,106,255,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                    <Icon size={26} color={iconColor} />
-                  </div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
-                    {lang === 'EN' ? en : am}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div style={{ marginTop: 32, padding: '24px 32px', background: 'linear-gradient(135deg, #1e293b, #0f3460)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Building2 size={24} color="white" />
-              </div>
-              <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: 'white', marginBottom: 4 }}>
-                  {lang === 'EN' ? 'Own a commercial space? List it on ቤታችን' : 'የንግድ ቦታ አለዎት? በቤታችን ላይ ይዘርዝሩ'}
-                </div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>
-                  {lang === 'EN' ? 'Reach businesses, investors and tenants' : 'ንግዶችን፣ ባለሀብቶችንና ተከራዮችን ይድረሱ'}
-                </div>
-              </div>
-            </div>
-            <Link href="/owner/listings/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 26px', background: '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-              {lang === 'EN' ? 'List Commercial Space' : 'የንግድ ቦታ ዘርዝር'} <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </div>
-
 
       {/* Advertisement Section */}
       <div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
