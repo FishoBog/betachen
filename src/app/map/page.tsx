@@ -4,23 +4,20 @@ import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { PropertyMap } from '@/components/map/PropertyMap';
 import { createBrowserClient } from '@/lib/supabase';
-import type { Property } from '@/types';
 
 export default function MapPage() {
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
 
   useEffect(() => {
-    // Fixes the previous 400:
-    //  - selected `location` (the real column) instead of `location_name`
-    //  - filtered on `status = 'active'` (the public/approved value) instead of
-    //    'published', which no row ever has.
-    // We no longer require latitude to be non-null here, because listings without
-    // GPS coordinates are still shown on the map at their city centre.
+    // Fixes the previous 400: select `location` (real column) not `location_name`,
+    // and filter on `status = 'active'` (the public/approved value) not 'published'
+    // (which no row has). Latitude is no longer required — listings without a GPS
+    // pin are shown at their city centre by the map component.
     createBrowserClient()
       .from('properties')
       .select('id,title,price,currency,latitude,longitude,type,location,city,subcity')
       .eq('status', 'active')
-      .then(({ data }) => setProperties((data as Property[]) ?? []));
+      .then(({ data }) => setProperties(data ?? []));
   }, []);
 
   return (
