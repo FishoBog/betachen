@@ -9,13 +9,12 @@ export default function MapPage() {
   const [properties, setProperties] = useState<any[]>([]);
 
   useEffect(() => {
-    // Fixes the previous 400: select `location` (real column) not `location_name`,
-    // and filter on `status = 'active'` (the public/approved value) not 'published'
-    // (which no row has). Latitude is no longer required — listings without a GPS
-    // pin are shown at their city centre by the map component.
+    // Note: `properties` has no `city` column (only `location` and `subcity`),
+    // so we select `location` and let the map derive the city from it for the
+    // centroid fallback. Filtering on status 'active' (the public/approved value).
     createBrowserClient()
       .from('properties')
-      .select('id,title,price,currency,latitude,longitude,type,location,city,subcity')
+      .select('id,title,price,currency,latitude,longitude,type,location,subcity')
       .eq('status', 'active')
       .then(({ data }) => setProperties(data ?? []));
   }, []);
