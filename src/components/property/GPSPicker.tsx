@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { MapPin } from 'lucide-react';
+import { CITY_COORDS } from '@/lib/ethiopia-locations';
 
 interface Props {
   lat: number | null;
@@ -10,25 +11,9 @@ interface Props {
   // a GPS reading: if the phone is >150km from the selected city, it's almost
   // certainly not at the property (e.g. listing a Hawassa house from Addis), so we
   // block the GPS capture and steer them to enter the location manually instead.
+  // If `city` is not passed, the distance check is simply skipped.
   city?: string | null;
 }
-
-// City centres for the distance check. Must stay in sync with the listing form's
-// ETHIOPIA_CITIES list and the map's CITY_COORDS.
-const CITY_COORDS: Record<string, [number, number]> = {
-  'Addis Ababa': [9.0192, 38.7525],
-  'Dire Dawa': [9.5931, 41.8661],
-  'Adama': [8.5400, 39.2700],
-  'Gondar': [12.6000, 37.4667],
-  'Hawassa': [7.0500, 38.4667],
-  'Bahir Dar': [11.5742, 37.3614],
-  'Mekelle': [13.4967, 39.4753],
-  'Jimma': [7.6667, 36.8333],
-  'Dessie': [11.1333, 39.6333],
-  'Shashemene': [7.2000, 38.6000],
-  'Bishoftu': [8.7500, 38.9833],
-  'Harar': [9.3133, 42.1180],
-};
 
 const MAX_KM_FROM_CITY = 150;
 
@@ -63,7 +48,7 @@ export function GPSPicker({ lat, lng, onChange, city }: Props) {
         const gLat = pos.coords.latitude;
         const gLng = pos.coords.longitude;
 
-        // Distance check against the selected city.
+        // Distance check against the selected city (skipped if no city passed).
         const c = city ? CITY_COORDS[city] : undefined;
         if (c) {
           const d = distanceKm(gLat, gLng, c[0], c[1]);
