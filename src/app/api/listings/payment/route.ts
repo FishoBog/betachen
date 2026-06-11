@@ -165,7 +165,7 @@ async function startChapa(
     callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/payment/verify`,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/owner/listings/${propertyId}/payment/success`,
     customization: {
-      title: isRenewal ? 'Betachen Listing Renewal' : 'Betachen Listing Fee',
+      title: isRenewal ? 'Renewal' : 'Listing Fee',
       description: isRenewal
         ? `Renewal 3 months - ${cleanTitle}`
         : `New listing - ${cleanTitle}`,
