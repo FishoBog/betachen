@@ -101,7 +101,7 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
     setGpsError(null);
     setGpsOk(false);
     if (!('geolocation' in navigator)) {
-      setGpsError('Your device does not support location. Use the manual method below.');
+      setGpsError(lang === 'EN' ? 'Your device does not support location. Use the manual method below.' : 'መሳሪያዎ አካባቢን አይደግፍም። ከታች ያለውን በእጅ የማስገቢያ ዘዴ ይጠቀሙ።');
       return;
     }
     setGpsLoading(true);
@@ -115,7 +115,7 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
           if (d > 150) {
             setGpsLoading(false);
             setGpsError(
-              `Your current location is about ${Math.round(d)} km from ${city}. If you are not at the property, please use the manual method below to set the location.`
+              (lang === 'EN' ? `Your current location is about ${Math.round(d)} km from ${city}. If you are not at the property, please use the manual method below to set the location.` : `የአሁኑ አካባቢዎ ከ${city} በግምት ${Math.round(d)} ኪ.ሜ ይርቃል። ንብረቱ ጋ ካልሆኑ፣ እባክዎ ከታች ያለውን በእጅ የማስገቢያ ዘዴ ይጠቀሙ።`)
             );
             return; // block clearly-wrong reading
           }
@@ -128,9 +128,9 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
       err => {
         setGpsLoading(false);
         if (err.code === err.PERMISSION_DENIED) {
-          setGpsError('Location permission denied. Use the manual method below.');
+          setGpsError(lang === 'EN' ? 'Location permission denied. Use the manual method below.' : 'የአካባቢ ፍቃድ ተከልክሏል። ከታች ያለውን በእጅ የማስገቢያ ዘዴ ይጠቀሙ።');
         } else {
-          setGpsError('Could not get your location. Use the manual method below.');
+          setGpsError(lang === 'EN' ? 'Could not get your location. Use the manual method below.' : 'አካባቢዎን ማግኘት አልተቻለም። ከታች ያለውን በእጅ የማስገቢያ ዘዴ ይጠቀሙ።');
         }
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -142,18 +142,18 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
       {/* Use my current location (best when the owner is AT the property) */}
       <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '16px 18px' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#065f46', marginBottom: 4 }}>
-          {t.gpsTitle || 'At the property right now?'}
+          {lang === 'EN' ? 'At the property right now?' : 'አሁን ንብረቱ ጋ ነዎት?'}
         </div>
         <div style={{ fontSize: 13, color: '#047857', marginBottom: 12, lineHeight: 1.5 }}>
-          {t.gpsDesc || 'Tap below to capture the exact location from your phone. This is the most accurate option — use it only while you are standing at the property.'}
+          {lang === 'EN' ? 'Tap below to capture the exact location from your phone. This is the most accurate option — use it only while you are standing at the property.' : 'ከስልክዎ ትክክለኛውን አካባቢ ለመውሰድ ከታች ይጫኑ። ይህ በጣም ትክክለኛው አማራጭ ነው — ንብረቱ ጋ ሆነው ብቻ ይጠቀሙበት።'}
         </div>
         <button type="button" onClick={useMyLocation} disabled={gpsLoading}
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', background: gpsLoading ? '#9ca3af' : '#059669', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700, border: 'none', cursor: gpsLoading ? 'not-allowed' : 'pointer' }}>
           <Navigation size={16} />
-          {gpsLoading ? (t.gpsLoading || 'Getting your location...') : (t.gpsButton || "I'm at the property — use my location")}
+          {gpsLoading ? (lang === 'EN' ? 'Getting your location...' : 'አካባቢዎን በማግኘት ላይ...') : (lang === 'EN' ? "I'm at the property — use my location" : 'ንብረቱ ጋ ነኝ — አካባቢዬን ተጠቀም')}
         </button>
         {gpsError && <div style={{ fontSize: 13, color: '#b45309', marginTop: 10 }}>⚠️ {gpsError}</div>}
-        {gpsOk && <div style={{ fontSize: 13, color: '#047857', marginTop: 10, fontWeight: 600 }}>✓ {t.gpsOk || 'Location captured.'}</div>}
+        {gpsOk && <div style={{ fontSize: 13, color: '#047857', marginTop: 10, fontWeight: 600 }}>✓ {lang === 'EN' ? 'Location captured.' : 'አካባቢ ተወስዷል።'}</div>}
       </div>
 
       {/* Manual method: paste coordinates from Google Maps (fallback for anyone
