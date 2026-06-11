@@ -1,6 +1,20 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import type { Property } from '@/types';
+
+// Self-contained type so this component does not depend on the shared `Property`
+// type (which may not list city/subcity/location). Only the fields the map uses.
+type MapProperty = {
+  id: string | number;
+  title: string;
+  price: number | string;
+  currency: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location?: string | null;
+  city?: string | null;
+  subcity?: string | null;
+  type?: string | null;
+};
 
 // City centre coordinates for every city in the listing form's ETHIOPIA_CITIES
 // list. Used to place an APPROXIMATE pin when a listing has no exact GPS
@@ -20,7 +34,7 @@ const CITY_COORDS: Record<string, [number, number]> = {
   'Harar': [9.3133, 42.1180],
 };
 
-interface Props { properties: Property[]; center?: [number, number]; zoom?: number; }
+interface Props { properties: MapProperty[]; center?: [number, number]; zoom?: number; }
 
 export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -78,8 +92,8 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
       const bounds: [number, number][] = [];
 
       properties.forEach(p => {
-        let lat = p.latitude as number | null;
-        let lng = p.longitude as number | null;
+        let lat = p.latitude as number | null | undefined;
+        let lng = p.longitude as number | null | undefined;
         let approximate = false;
 
         // Fall back to the city centre when there is no exact GPS pin.
@@ -96,13 +110,12 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
           ? `<br><span style="color:#b45309;font-size:11px">📍 Approximate area${p.subcity ? ` — ${p.subcity}` : ''}</span>`
           : '';
 
-        const marker = L.marker([lat, lng], approximate ? { opacity: 0.7 } : undefined)
+        const marker = L.marker([lat as number, lng as number], approximate ? { opacity: 0.7 } : undefined)
           .bindPopup(`<b>${p.title}</b><br>${price} ${p.currency}${landmark}${approxNote}`);
         layer.addLayer(marker);
-        bounds.push([lat, lng]);
+        bounds.push([lat as number, lng as number]);
       });
 
-      // Fit the view to the pins we actually have (nicer than a fixed centre).
       if (bounds.length === 1) {
         map.setView(bounds[0], 14);
       } else if (bounds.length > 1) {
