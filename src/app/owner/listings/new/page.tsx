@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
 import { useLang } from '@/context/LangContext';
-import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2 } from 'lucide-react';
+import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2, Navigation } from 'lucide-react';
 import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 
 const ETHIOPIA_CITIES = [
@@ -22,10 +22,10 @@ const ETHIOPIA_CITIES = [
   { cityEn: 'Bishoftu', cityAm: 'ቢሾፍቱ', subsEn: ['Kebele 01','Kebele 02','Kuriftu'], subsAm: ['ቀበሌ 01','ቀበሌ 02','ኩሪፍቱ'] },
   { cityEn: 'Harar', cityAm: 'ሐረር', subsEn: ['Jugol','Shenkor','Aboker'], subsAm: ['ጁጎል','ሸንኮር','አቦከር'] },
   { cityEn: 'Shaggar', cityAm: 'ሸገር', subsEn: ['Sebeta','Burayu','Sululta','Gelan','Holeta','Legetafo'], subsAm: ['ሰበታ','ቡራዩ','ሱሉልታ','ገላን','ሆለታ','ለገጣፎ'] },
-  { cityEn: 'Jigjiga', cityAm: 'ጅጅጋ', subsEn: ['Ayer Tena','Sheik Ali','Ycatib','24 Kebele'], subsAm: ['አየር ጤና','ሸይክ አሊ','ያቲብ','24 ቀበሌ'] },
+  { cityEn: 'Jigjiga', cityAm: 'ጅጅጋ', subsEn: ['Karamarda','Dudahidi','Garab\'asse','Qordere'], subsAm: ['ካራማርዳ','ዱዳሂዲ','ጋራብአሰ','ቆርዴሬ'] },
   { cityEn: 'Sodo', cityAm: 'ሶዶ', subsEn: ['Mehal','Arada','Sikela'], subsAm: ['መሀል','አራዳ','ሲቄላ'] },
   { cityEn: 'Arba Minch', cityAm: 'አርባ ምንጭ', subsEn: ['Secha','Sikela'], subsAm: ['ሰቻ','ሲቄላ'] },
-  { cityEn: 'Hosaena', cityAm: 'ሆሳዕና', subsEn: ['Addis Ketema','Sefer Selam','Lekemt'], subsAm: ['አዲስ ከተማ','ሰፈር ሰላም','ለቀምት'] },
+  { cityEn: 'Hosaena', cityAm: 'ሆሳዕና', subsEn: ['Bobicho','Arada','Sech-Duna','Lich-Amba','Jelo-Naremo','Heto'], subsAm: ['ቦቢቾ','አራዳ','ሰች-ዱና','ሊች-አምባ','ጀሎ-ናሬሞ','ሄቶ'] },
 ];
 
 const CITY_COORDS: Record<string, [number, number]> = {
@@ -73,6 +73,10 @@ function Toggle({ label, desc, value, onChange, color = '#006AFF', bg = '#f0f6ff
 function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string; onPick: (lat: number, lng: number) => void; city: string; t: any }) {
   const defaultCoords = CITY_COORDS[city] || [9.0192, 38.7525];
   const [coordText, setCoordText] = useState(lat && lng ? `${lat}, ${lng}` : '');
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [gpsOk, setGpsOk] = useState(false);
+
   const parseCoords = (text: string) => {
     const parts = text.split(',').map(s => s.trim());
     if (parts.length === 2) {
@@ -80,8 +84,80 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
       if (!isNaN(pLat) && !isNaN(pLng)) onPick(pLat, pLng);
     }
   };
+
+  // Haversine distance in km — used to block a GPS reading taken far from the
+  // selected city (e.g. listing a Hawassa property while standing in Addis).
+  const distanceKm = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+    const R = 6371;
+    const dLat = ((bLat - aLat) * Math.PI) / 180;
+    const dLng = ((bLng - aLng) * Math.PI) / 180;
+    const x =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  };
+
+  const useMyLocation = () => {
+    setGpsError(null);
+    setGpsOk(false);
+    if (!('geolocation' in navigator)) {
+      setGpsError('Your device does not support location. Use the manual method below.');
+      return;
+    }
+    setGpsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const gLat = pos.coords.latitude;
+        const gLng = pos.coords.longitude;
+        const c = city ? CITY_COORDS[city] : undefined;
+        if (c) {
+          const d = distanceKm(gLat, gLng, c[0], c[1]);
+          if (d > 150) {
+            setGpsLoading(false);
+            setGpsError(
+              `Your current location is about ${Math.round(d)} km from ${city}. If you are not at the property, please use the manual method below to set the location.`
+            );
+            return; // block clearly-wrong reading
+          }
+        }
+        onPick(gLat, gLng);
+        setCoordText(`${gLat.toFixed(6)}, ${gLng.toFixed(6)}`);
+        setGpsOk(true);
+        setGpsLoading(false);
+      },
+      err => {
+        setGpsLoading(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setGpsError('Location permission denied. Use the manual method below.');
+        } else {
+          setGpsError('Could not get your location. Use the manual method below.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div style={{ display: 'grid', gap: 14 }}>
+      {/* Use my current location (best when the owner is AT the property) */}
+      <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '16px 18px' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#065f46', marginBottom: 4 }}>
+          {t.gpsTitle || 'At the property right now?'}
+        </div>
+        <div style={{ fontSize: 13, color: '#047857', marginBottom: 12, lineHeight: 1.5 }}>
+          {t.gpsDesc || 'Tap below to capture the exact location from your phone. This is the most accurate option — use it only while you are standing at the property.'}
+        </div>
+        <button type="button" onClick={useMyLocation} disabled={gpsLoading}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 20px', background: gpsLoading ? '#9ca3af' : '#059669', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700, border: 'none', cursor: gpsLoading ? 'not-allowed' : 'pointer' }}>
+          <Navigation size={16} />
+          {gpsLoading ? (t.gpsLoading || 'Getting your location...') : (t.gpsButton || "I'm at the property — use my location")}
+        </button>
+        {gpsError && <div style={{ fontSize: 13, color: '#b45309', marginTop: 10 }}>⚠️ {gpsError}</div>}
+        {gpsOk && <div style={{ fontSize: 13, color: '#047857', marginTop: 10, fontWeight: 600 }}>✓ {t.gpsOk || 'Location captured.'}</div>}
+      </div>
+
+      {/* Manual method: paste coordinates from Google Maps (fallback for anyone
+          not at the property, e.g. brokers or diaspora owners) */}
       <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>{t.coordTitle}</div>
         <div style={{ display: 'grid', gap: 8 }}>
@@ -110,6 +186,7 @@ function MapPinPicker({ lat, lng, onPick, city, t }: { lat: string; lng: string;
     </div>
   );
 }
+
 
 export default function NewListingPage() {
   const { user, isSignedIn } = useUser();
