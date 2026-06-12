@@ -3,10 +3,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
 export default async function AdminListingsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { filter = "all" } = await searchParams;
-  // The properties table has `type`, `is_commercial`, `commercial_type` — NOT
-  // `property_type` or `listing_type`. Also fetch removed_at for the Removed view.
   let query = supabase.from("properties").select("id, title, type, is_commercial, commercial_type, price, currency, status, created_at, removed_at").order("created_at", { ascending: false });
-  // Status values: 'active', 'pending_review', 'rejected', 'removed', 'expired'.
   if (filter === "pending") query = query.in("status", ["pending", "pending_review"]);
   if (filter === "active") query = query.eq("status", "active");
   if (filter === "expired") query = query.eq("status", "expired");
@@ -59,21 +56,20 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
                     <div style={{display:"flex",gap:"0.5rem",alignItems:"center",flexWrap:"wrap"}}>
                       <a href={`/properties/${p.id}`} target="_blank" style={{padding:"4px 10px",fontSize:"0.75rem",background:"#f3f4f6",color:"#374151",borderRadius:"6px",textDecoration:"none"}}>View</a>
 
-                      {/* Approve / Reject — only for pending listings */}
                       {(p.status === "pending" || p.status === "pending_review") && (
                         <>
                           <form action="/api/admin/listings" method="POST" style={{display:"inline"}}>
                             <input type="hidden" name="listingId" value={p.id} />
                             <button name="action" value="approve" style={{padding:"4px 10px",fontSize:"0.75rem",background:"#dcfce7",color:"#15803d",borderRadius:"6px",border:"none",cursor:"pointer"}}>Approve</button>
                           </form>
-                          <form action="/api/admin/listings" method="POST" style={{display:"inline"}}>
+                          <form action="/api/admin/listings" method="POST" style={{display:"flex",gap:"4px",alignItems:"center"}}>
                             <input type="hidden" name="listingId" value={p.id} />
+                            <input type="text" name="reason" placeholder="Reason (optional)" style={{padding:"3px 8px",fontSize:"0.75rem",border:"1px solid #d1d5db",borderRadius:"6px",width:"140px"}} />
                             <button name="action" value="reject" style={{padding:"4px 10px",fontSize:"0.75rem",background:"#fee2e2",color:"#b91c1c",borderRadius:"6px",border:"none",cursor:"pointer"}}>Reject</button>
                           </form>
                         </>
                       )}
 
-                      {/* Remove (soft delete) — for any listing that is NOT already removed */}
                       {p.status !== "removed" && (
                         <form action="/api/admin/listings" method="POST" style={{display:"inline"}}>
                           <input type="hidden" name="listingId" value={p.id} />
@@ -81,7 +77,6 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
                         </form>
                       )}
 
-                      {/* Restore — only for removed listings */}
                       {p.status === "removed" && (
                         <form action="/api/admin/listings" method="POST" style={{display:"inline"}}>
                           <input type="hidden" name="listingId" value={p.id} />
@@ -89,7 +84,6 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
                         </form>
                       )}
 
-                      {/* Delete permanently (hard delete) — always available */}
                       <form action="/api/admin/listings" method="POST" style={{display:"inline"}}>
                         <input type="hidden" name="listingId" value={p.id} />
                         <button name="action" value="hard_delete" style={{padding:"4px 10px",fontSize:"0.75rem",background:"#7f1d1d",color:"white",borderRadius:"6px",border:"none",cursor:"pointer"}}>Delete</button>
@@ -104,7 +98,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
           </table>
         </div>
         <p style={{marginTop:"1rem",fontSize:"0.75rem",color:"#9ca3af"}}>
-          Remove = hide from site (reversible, shows under “removed”). Delete = permanent. Restore = bring a removed listing back to active.
+          Reject sends the owner an email (with your reason, if given). Remove = hide (reversible). Delete = permanent. Restore = bring back to active.
         </p>
       </main>
     </div>
