@@ -2,48 +2,27 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useParams } from 'next/navigation';
-import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
 
-export default function ListingPaymentPage() {
+export default function ListingRenewPage() {
   const { user } = useUser();
   const params = useParams();
   const propertyId = params.id as string;
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [verificationStatus, setVerificationStatus] = useState('loading');
   const [promoCode, setPromoCode] = useState('');
   const [showPromo, setShowPromo] = useState(false);
 
-  // Load the property by id REGARDLESS of sign-in state. Guests (email-verified,
-  // no Clerk account) must be able to reach and pay for the listing they just
-  // created, so this no longer gates on `user`. We only look up a profile /
-  // verification status when there actually is a signed-in user.
   useEffect(() => {
     if (!propertyId) return;
-    const supabase = createBrowserClient();
-
-    // Fetch the property server-side (service-role) so a guest's pending_review
-    // listing is readable. The anon browser client gets a 406 here because RLS
-    // only exposes 'active' rows or the owner's own rows.
     fetch(`/api/listings/get?id=${propertyId}`)
       .then(res => res.json())
       .then(data => { if (data.property) setProperty(data.property); })
       .catch(() => {});
+  }, [propertyId]);
 
-    if (user) {
-      supabase.from('profiles').select('verification_status')
-        .eq('clerk_id', user.id).single()
-        .then(({ data }) => setVerificationStatus(data?.verification_status ?? 'unverified'));
-    } else {
-      // Guests have no profile row; treat as unverified (ID verification happens
-      // after payment, exactly as the notice on this page describes).
-      setVerificationStatus('unverified');
-    }
-  }, [user, propertyId]);
-
-  const handlePay = async () => {
+  const handleRenew = async () => {
     if (!property) return;
     setLoading(true);
     setError('');
@@ -53,18 +32,13 @@ export default function ListingPaymentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           propertyId,
-          // For guests these come from the property row (owner_email / owner_name
-          // were saved at creation). For signed-in users we prefer the live
-          // Clerk values, falling back to the stored ones.
           ownerClerkId: user?.id || property.owner_id || null,
           ownerEmail: user?.primaryEmailAddress?.emailAddress || property.owner_email,
           ownerName: user?.fullName || user?.firstName || property.owner_name || 'Owner',
-          type: 'new',
+          type: 'renewal',
           discountCode: promoCode.trim() || null,
         }),
       });
-      // Guard against the route returning HTML (e.g. an auth redirect) instead
-      // of JSON, which would otherwise throw an opaque "Unexpected token" error.
       const text = await res.text();
       let data: any;
       try {
@@ -73,7 +47,7 @@ export default function ListingPaymentPage() {
         throw new Error('Payment service returned an unexpected response. Please try again.');
       }
       if (data.error) throw new Error(data.error);
-      // Free listing (100% promo) → go straight to success, no Chapa
+      // Free renewal (100% promo) → straight to success, no Chapa
       if (data.freeListing && data.redirectUrl) {
         window.location.href = data.redirectUrl;
         return;
@@ -85,8 +59,6 @@ export default function ListingPaymentPage() {
     }
   };
 
-  // Only wait on `property`. We no longer block on Clerk's isLoaded, because a
-  // guest will never have a user and that previously caused an infinite "Loading".
   if (!property) return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
@@ -96,15 +68,24 @@ export default function ListingPaymentPage() {
 
   const hasPromo = promoCode.trim().length > 0;
 
+  // Compute the new expiry the owner will get: 3 months from current expiry if
+  // still in the future, otherwise 3 months from today. Mirrors the API logic.
+  const base = property.expires_at && new Date(property.expires_at) > new Date()
+    ? new Date(property.expires_at) : new Date();
+  const newExpiry = new Date(base);
+  newExpiry.setMonth(newExpiry.getMonth() + 3);
+  const fmt = (d: Date) => d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  const currentExpiryLabel = property.expires_at ? fmt(new Date(property.expires_at)) : '—';
+
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       <Navbar />
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>💳</div>
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Complete Your Listing</h1>
-          <p style={{ fontSize: 15, color: '#6b7280' }}>One payment to publish your property on ቤታችን Homes</p>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🔄</div>
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Renew Your Listing</h1>
+          <p style={{ fontSize: 15, color: '#6b7280' }}>Keep your property active on ቤታችን Homes for another 3 months</p>
         </div>
 
         {/* Property summary */}
@@ -114,21 +95,33 @@ export default function ListingPaymentPage() {
           <div style={{ fontSize: 14, color: '#6b7280' }}>{property.location}</div>
         </div>
 
+        {/* Expiry change */}
+        <div style={{ background: 'white', borderRadius: 16, border: '1px solid #e5e7eb', padding: '18px 24px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 2 }}>Current expiry</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#374151' }}>{currentExpiryLabel}</div>
+          </div>
+          <div style={{ fontSize: 20, color: '#9ca3af' }}>→</div>
+          <div style={{ textAlign: 'right' as const }}>
+            <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 2 }}>New expiry</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#059669' }}>{fmt(newExpiry)}</div>
+          </div>
+        </div>
+
         {/* Payment details */}
         <div style={{ background: 'white', borderRadius: 16, border: '2px solid #006AFF', padding: '24px', marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid #f3f4f6' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Listing Fee</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Renewal Fee</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {hasPromo && <span style={{ fontSize: 16, fontWeight: 700, color: '#9ca3af', textDecoration: 'line-through' }}>ETB 500</span>}
-              <div style={{ fontSize: 28, fontWeight: 900, color: hasPromo ? '#059669' : '#006AFF' }}>{hasPromo ? 'FREE' : 'ETB 500'}</div>
+              {hasPromo && <span style={{ fontSize: 16, fontWeight: 700, color: '#9ca3af', textDecoration: 'line-through' }}>ETB 300</span>}
+              <div style={{ fontSize: 28, fontWeight: 900, color: hasPromo ? '#059669' : '#006AFF' }}>{hasPromo ? 'FREE' : 'ETB 300'}</div>
             </div>
           </div>
           <div style={{ display: 'grid', gap: 10 }}>
             {[
-              '✓ 3 months active listing',
-              '✓ Reviewed by admin within 24 hours',
-              '✓ Visible to all buyers on ቤታችን Homes',
-              '✓ Renewable after expiry for ETB 300',
+              '✓ 3 more months active',
+              '✓ Stays live immediately after payment',
+              '✓ Keeps all your views and details',
             ].map(item => (
               <div key={item} style={{ fontSize: 14, color: '#374151', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {item}
@@ -154,39 +147,11 @@ export default function ListingPaymentPage() {
               />
               {hasPromo && (
                 <div style={{ fontSize: 13, color: '#059669', fontWeight: 600, marginTop: 8 }}>
-                  ✓ Code will be applied — if valid, your listing is free for 3 months.
+                  ✓ Code will be applied — if valid, your renewal is free.
                 </div>
               )}
             </div>
           )}
-        </div>
-
-        {/* Verification notice */}
-        {verificationStatus !== 'verified' && (
-          <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>🛡️ ID Verification Required After Payment</div>
-            <div style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>
-              After completing payment, you will need to verify your identity. Your listing will go live once verified and approved by admin.
-            </div>
-          </div>
-        )}
-
-        {/* What happens next */}
-        <div style={{ background: '#f9fafb', borderRadius: 12, border: '1px solid #e5e7eb', padding: '16px 20px', marginBottom: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>📋 What happens next?</div>
-          <div style={{ display: 'grid', gap: 8 }}>
-            {[
-              { n: '1', t: hasPromo ? 'Apply your promo code' : 'Pay listing fee via Chapa' },
-              { n: '2', t: verificationStatus === 'verified' ? 'Admin reviews your listing within 24hrs' : 'Verify your identity (one-time)' },
-              { n: '3', t: verificationStatus === 'verified' ? 'Listing goes LIVE on ቤታችን Homes ✅' : 'Admin reviews your listing within 24hrs' },
-              { n: '4', t: verificationStatus === 'verified' ? '' : 'Listing goes LIVE on ቤታችን Homes ✅' },
-            ].filter(s => s.t).map(({ n, t }) => (
-              <div key={n} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
-                <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{t}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {error && (
@@ -196,10 +161,10 @@ export default function ListingPaymentPage() {
         )}
 
         <button
-          onClick={handlePay}
+          onClick={handleRenew}
           disabled={loading}
           style={{ width: '100%', padding: '16px', borderRadius: 12, background: loading ? '#9ca3af' : hasPromo ? '#059669' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          {loading ? 'Processing...' : hasPromo ? '🎟️ Apply Code & Publish Free' : '💳 Pay ETB 500 & Publish'}
+          {loading ? 'Processing...' : hasPromo ? '🎟️ Apply Code & Renew Free' : '💳 Pay ETB 300 & Renew'}
         </button>
 
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#9ca3af' }}>
