@@ -2,14 +2,29 @@ import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { sendListingApprovedEmail } from "@/lib/email";
-const ADMIN_USER_ID = "user_3BeYdNiwHjIpWA8iw63QXV5Yb6Y";
+
+const FOUNDER_ADMIN_ID = "user_3BeYdNiwHjIpWA8iw63QXV5Yb6Y";
+const ADMIN_ROLES = ["admin", "super_admin"];
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+// Inlined admin check (role-based, founder fallback).
+async function userIsAdmin(userId: string | null | undefined): Promise<boolean> {
+  if (!userId) return false;
+  if (userId === FOUNDER_ADMIN_ID) return true;
+  try {
+    const { data } = await supabase.from("profiles").select("role").eq("clerk_id", userId).single();
+    return !!data?.role && ADMIN_ROLES.includes(data.role);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
-  if (userId !== ADMIN_USER_ID) {
+  if (!(await userIsAdmin(userId))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   const formData = await req.formData();
@@ -26,9 +41,6 @@ export async function POST(req: NextRequest) {
   }
 
   // ── SOFT DELETE: hide from the site but keep the row. Reversible. ──
-  // Sets status to 'removed' and stamps removed_at (used later for an
-  // auto-hard-delete timer). The public site only shows status='active',
-  // so a 'removed' listing disappears from view immediately.
   if (action === "soft_delete") {
     await supabase
       .from("properties")
