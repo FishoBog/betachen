@@ -112,3 +112,55 @@ export async function sendReservationConfirmedEmail(to: string, propertyTitle: s
     `,
   });
 }
+
+export async function sendListingRejectedEmail(to: string, listingTitle: string, reason?: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'Update on your ቤታችን Homes listing',
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#ffffff">
+        <div style="text-align:center;margin-bottom:32px">
+          <h1 style="font-size:32px;font-weight:900;color:#006AFF;margin:0">ቤታችን Homes</h1>
+        </div>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center">
+          <div style="font-size:48px">📋</div>
+          <h2 style="color:#b91c1c;margin:8px 0">Your listing needs changes</h2>
+        </div>
+        <p style="color:#4b5563;line-height:1.7">Thank you for submitting <strong>${listingTitle}</strong>. After review, it was not approved in its current form, so it is not yet live on ቤታችን Homes.</p>
+        ${reason ? `<div style="background:#f9fafb;border-radius:12px;padding:16px 20px;margin:20px 0"><p style="color:#6b7280;font-size:13px;margin:0 0 4px">Reason</p><p style="color:#111827;margin:0;line-height:1.6">${reason}</p></div>` : ''}
+        <p style="color:#4b5563;line-height:1.7">You can update your listing and submit it again. Common reasons include unclear photos, missing details, or incorrect pricing.</p>
+        <div style="margin:32px 0">
+          <a href="https://www.betachen.com/owner/listings" style="background:#E8431A;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Edit & Resubmit ✏️</a>
+        </div>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0"/>
+        <p style="color:#9ca3af;font-size:13px;text-align:center">ቤታችን Homes · betachen.com · Addis Ababa, Ethiopia 🇪🇹</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendBadgeApprovedEmail(to: string, name: string) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '✅ You are now a Verified Owner on ቤታችን Homes!',
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 24px;background:#ffffff">
+        <div style="text-align:center;margin-bottom:32px">
+          <h1 style="font-size:32px;font-weight:900;color:#006AFF;margin:0">ቤታችን Homes</h1>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center">
+          <div style="font-size:48px">✅</div>
+          <h2 style="color:#15803d;margin:8px 0">You're Verified!</h2>
+        </div>
+        <p style="color:#4b5563;line-height:1.7">Congratulations${name ? `, ${name}` : ''}! Your identity has been verified and your account now carries the <strong>Verified Owner</strong> badge. This badge appears on your listings and helps buyers and renters trust you.</p>
+        <div style="margin:32px 0">
+          <a href="https://www.betachen.com/owner/listings" style="background:#E8431A;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to My Listings 🏠</a>
+        </div>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0"/>
+        <p style="color:#9ca3af;font-size:13px;text-align:center">ቤታችን Homes · betachen.com · Addis Ababa, Ethiopia 🇪🇹</p>
+      </div>
+    `,
+  });
+}
