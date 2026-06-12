@@ -8,6 +8,11 @@ import { useLang } from '@/context/LangContext';
 import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2, Navigation } from 'lucide-react';
 import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 
+// Key under which an in-progress listing draft is auto-saved to the browser.
+// This lets the form survive a refresh or the browser Back button instead of
+// starting over. Cleared once the listing is successfully created.
+const DRAFT_KEY = 'betachen_new_listing_draft_v1';
+
 const ETHIOPIA_CITIES = [
   { cityEn: 'Addis Ababa', cityAm: 'አዲስ አበባ', subsEn: ['Bole','Yeka','Kirkos','Lemi Kura','Nifas Silk-Lafto','Arada','Lideta','Gullele','Kolfe Keraniyo','Akaki-Kality','Addis Ketema'], subsAm: ['ቦሌ','የካ','ቂርቆስ','ለሚ ኩራ','ንፋስ ስልክ ላፍቶ','አራዳ','ልደታ','ጉለሌ','ኮልፌ ቀራኒዮ','አቃቂ ቃሊቲ','አዲስ ከተማ'] },
   { cityEn: 'Dire Dawa', cityAm: 'ድሬዳዋ', subsEn: ['Kezira','Magala','Melka Jebdu','Sabiyan','Gende Qore'], subsAm: ['ቀዚራ','መጋላ','መልካ ጀብዱ','ሳቢያን','ገንደ ቆሬ'] },
@@ -58,7 +63,6 @@ const subHeading: React.CSSProperties = {
   paddingBottom: 8, borderBottom: '1px solid #f3f4f6',
 };
 
-// Small red asterisk to mark required fields.
 const Req = () => <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>;
 
 function Toggle({ label, desc, value, onChange, color = '#006AFF', bg = '#f0f6ff' }: { label: string; desc?: string; value: boolean; onChange: () => void; color?: string; bg?: string }) {
@@ -85,8 +89,6 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
     }
   };
 
-  // Haversine distance in km — used to block a GPS reading taken far from the
-  // selected city (e.g. listing a Hawassa property while standing in Addis).
   const distanceKm = (aLat: number, aLng: number, bLat: number, bLng: number) => {
     const R = 6371;
     const dLat = ((bLat - aLat) * Math.PI) / 180;
@@ -117,7 +119,7 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
             setGpsError(
               (lang === 'EN' ? `Your current location is about ${Math.round(d)} km from ${city}. If you are not at the property, please use the manual method below to set the location.` : `የአሁኑ አካባቢዎ ከ${city} በግምት ${Math.round(d)} ኪ.ሜ ይርቃል። ንብረቱ ጋ ካልሆኑ፣ እባክዎ ከታች ያለውን በእጅ የማስገቢያ ዘዴ ይጠቀሙ።`)
             );
-            return; // block clearly-wrong reading
+            return;
           }
         }
         onPick(gLat, gLng);
@@ -139,7 +141,6 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
 
   return (
     <div style={{ display: 'grid', gap: 14 }}>
-      {/* Use my current location (best when the owner is AT the property) */}
       <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '16px 18px' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#065f46', marginBottom: 4 }}>
           {lang === 'EN' ? 'At the property right now?' : 'አሁን ንብረቱ ጋ ነዎት?'}
@@ -156,8 +157,6 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
         {gpsOk && <div style={{ fontSize: 13, color: '#047857', marginTop: 10, fontWeight: 600 }}>✓ {lang === 'EN' ? 'Location captured.' : 'አካባቢ ተወስዷል።'}</div>}
       </div>
 
-      {/* Manual method: paste coordinates from Google Maps (fallback for anyone
-          not at the property, e.g. brokers or diaspora owners) */}
       <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>{t.coordTitle}</div>
         <div style={{ display: 'grid', gap: 8 }}>
@@ -187,6 +186,29 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
   );
 }
 
+const EMPTY_FORM = {
+  title: '', description: '', type: 'sale', currency: 'ETB',
+  price: '', price_negotiable: false, condition: 'good',
+  bedrooms: '', bathrooms: '', total_rooms: '', area: '',
+  floor: '', total_floors: '', year_built: '',
+  bathroom_type: 'private', kitchen_type: 'none',
+  has_service_room: false, has_traditional_kitchen: false,
+  has_store_room: false, has_guard_room: false,
+  has_prayer_room: false, has_boys_quarter: false,
+  construction_stage: '', construction_material: '', roof_type: '',
+  plot_area_sqm: '', land_length_m: '', land_width_m: '',
+  land_slope: '', corner_plot: false,
+  bank_loan_eligible: false, bank_loan_amount: '', bank_loan_bank: '',
+  title_deed_type: '',
+  city: '', subcity: '', woreda: '', kebele: '', specific_location: '',
+  lat: '', lng: '',
+  parking_spaces: '', has_compound_wall: false, has_guard_house: false,
+  ground_water: false, water_tanker: false,
+  electricity_reliability: '24hr', internet_type: 'none',
+  road_type: 'asphalt', distance_to_road_m: '',
+  amenities: [] as string[], nearby_landmarks: [] as string[],
+  diaspora_friendly: false, managed_property: false,
+};
 
 export default function NewListingPage() {
   const { user, isSignedIn } = useUser();
@@ -203,7 +225,6 @@ export default function NewListingPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Email verification state
   const [ownerName, setOwnerName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPhone, setOwnerPhone] = useState('');
@@ -214,11 +235,54 @@ export default function NewListingPage() {
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeError, setCodeError] = useState('');
 
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  // Tracks whether we've finished trying to restore a saved draft, so the
+  // auto-save effect doesn't overwrite the draft with empty values on first paint.
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // ── RESTORE DRAFT ON MOUNT ──
+  // Reads any saved draft from localStorage and repopulates the form, photos,
+  // step, and owner contact fields. Runs once. Guarded for SSR + parse errors.
   useEffect(() => {
-    // If already signed in, pre-fill and skip verification
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = window.localStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          if (saved.form) setForm({ ...EMPTY_FORM, ...saved.form });
+          if (Array.isArray(saved.photoUrls)) setPhotoUrls(saved.photoUrls);
+          if (typeof saved.step === 'number') setStep(saved.step);
+          if (saved.ownerName) setOwnerName(saved.ownerName);
+          if (saved.ownerEmail) setOwnerEmail(saved.ownerEmail);
+          if (saved.ownerPhone) setOwnerPhone(saved.ownerPhone);
+        }
+      }
+    } catch {
+      // Corrupt/unavailable draft → ignore and start fresh.
+    }
+    setDraftLoaded(true);
+  }, []);
+
+  // ── AUTO-SAVE DRAFT ON CHANGE ──
+  // Persists the current progress whenever the form, photos, step, or owner
+  // fields change — so a refresh or the browser Back button never wipes work.
+  useEffect(() => {
+    if (!draftLoaded) return; // don't save until the initial restore has run
+    try {
+      if (typeof window !== 'undefined') {
+        const payload = JSON.stringify({ form, photoUrls, step, ownerName, ownerEmail, ownerPhone });
+        window.localStorage.setItem(DRAFT_KEY, payload);
+      }
+    } catch {
+      // Storage full or unavailable → fail silently, form still works in-memory.
+    }
+  }, [form, photoUrls, step, ownerName, ownerEmail, ownerPhone, draftLoaded]);
+
+  useEffect(() => {
     if (isSignedIn && user) {
-      setOwnerEmail(user.primaryEmailAddress?.emailAddress || '');
-      setOwnerName(user.firstName || '');
+      setOwnerEmail(prev => prev || user.primaryEmailAddress?.emailAddress || '');
+      setOwnerName(prev => prev || user.firstName || '');
       setVerified(true);
     }
   }, [isSignedIn, user]);
@@ -228,30 +292,6 @@ export default function NewListingPage() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
-
-  const [form, setForm] = useState({
-    title: '', description: '', type: 'sale', currency: 'ETB',
-    price: '', price_negotiable: false, condition: 'good',
-    bedrooms: '', bathrooms: '', total_rooms: '', area: '',
-    floor: '', total_floors: '', year_built: '',
-    bathroom_type: 'private', kitchen_type: 'none',
-    has_service_room: false, has_traditional_kitchen: false,
-    has_store_room: false, has_guard_room: false,
-    has_prayer_room: false, has_boys_quarter: false,
-    construction_stage: '', construction_material: '', roof_type: '',
-    plot_area_sqm: '', land_length_m: '', land_width_m: '',
-    land_slope: '', corner_plot: false,
-    bank_loan_eligible: false, bank_loan_amount: '', bank_loan_bank: '',
-    title_deed_type: '',
-    city: '', subcity: '', woreda: '', kebele: '', specific_location: '',
-    lat: '', lng: '',
-    parking_spaces: '', has_compound_wall: false, has_guard_house: false,
-    ground_water: false, water_tanker: false,
-    electricity_reliability: '24hr', internet_type: 'none',
-    road_type: 'asphalt', distance_to_road_m: '',
-    amenities: [] as string[], nearby_landmarks: [] as string[],
-    diaspora_friendly: false, managed_property: false,
-  });
 
   const set = (field: string, value: any) => setForm(p => ({ ...p, [field]: value }));
   const selectedCity = ETHIOPIA_CITIES.find(c => c.cityEn === form.city);
@@ -323,10 +363,6 @@ export default function NewListingPage() {
     if (!verified) return;
     setLoading(true); setError('');
     try {
-      // Insert is now done server-side via /api/listings/create, which uses the
-      // service-role key and bypasses the RLS INSERT policy. This is what fixes
-      // the "new row violates row-level security policy for table properties"
-      // error — the guest flow has no auth.jwt() sub to satisfy the old policy.
       const res = await fetch('/api/listings/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -343,6 +379,9 @@ export default function NewListingPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Could not create listing.');
       }
+      // Listing created successfully → clear the saved draft so the next new
+      // listing starts blank instead of reloading this one's data.
+      try { if (typeof window !== 'undefined') window.localStorage.removeItem(DRAFT_KEY); } catch {}
       router.push(`/owner/listings/${data.id}/payment`);
     } catch (err: any) { setError(err.message); setLoading(false); }
   };
@@ -377,7 +416,6 @@ export default function NewListingPage() {
           <p style={{ color: '#6b7280', fontSize: 16 }}>{t.formSubtitle}</p>
         </div>
 
-        {/* ── EMAIL VERIFICATION GATE ── */}
         {!verified && (
           <div style={sectionStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -469,7 +507,6 @@ export default function NewListingPage() {
           </div>
         )}
 
-        {/* ── VERIFIED BADGE ── */}
         {verified && (
           <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 12, padding: '14px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
             <CheckCircle size={22} color="#059669" />
@@ -484,7 +521,6 @@ export default function NewListingPage() {
           </div>
         )}
 
-        {/* ── FORM STEPS (only shown after verification) ── */}
         {verified && (
           <>
             <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
@@ -496,7 +532,6 @@ export default function NewListingPage() {
               ))}
             </div>
 
-            {/* STEP 1 */}
             {step === 1 && (
               <div>
                 <div style={sectionStyle}>
@@ -670,7 +705,6 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {/* STEP 2 */}
             {step === 2 && (
               <div>
                 <div style={sectionStyle}>
@@ -725,7 +759,6 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {/* STEP 3 */}
             {step === 3 && (
               <div>
                 <div style={sectionStyle}>
@@ -833,7 +866,6 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {/* STEP 4 */}
             {step === 4 && (
               <div>
                 <div style={sectionStyle}>
@@ -863,9 +895,7 @@ export default function NewListingPage() {
                       </>
                     )}
                   </div>
-                  {/* Camera input — opens camera directly on phones */}
                   <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-                  {/* Gallery / file picker — allows choosing existing photos (multiple) */}
                   <input ref={galleryInputRef} type="file" multiple accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
                   {photoUrls.length > 0 && (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 20 }}>
@@ -886,7 +916,6 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {/* STEP 5 */}
             {step === 5 && (
               <div>
                 <div style={{ marginBottom: 20 }}>
