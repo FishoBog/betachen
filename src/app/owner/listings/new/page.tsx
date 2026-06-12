@@ -279,6 +279,38 @@ export default function NewListingPage() {
     }
   }, [form, photoUrls, step, ownerName, ownerEmail, ownerPhone, draftLoaded]);
 
+  // ── BROWSER BACK/FORWARD MOVES BETWEEN STEPS ──
+  // Each step is on the same URL, so without this the browser Back button would
+  // leave the whole form. We mirror `step` into history state and the ?step=
+  // query param, and listen for popstate to move the step instead of exiting.
+  const goToStep = (next: number) => {
+    setStep(next);
+    try {
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ step: next }, '', `?step=${next}`);
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // On first load, honour a ?step= in the URL (e.g. after a refresh).
+    const params = new URLSearchParams(window.location.search);
+    const urlStep = parseInt(params.get('step') || '', 10);
+    if (!isNaN(urlStep) && urlStep >= 1 && urlStep <= 5) {
+      setStep(urlStep);
+    }
+    // Seed a history entry for the current step so the first Back has somewhere to go.
+    try { window.history.replaceState({ step: urlStep || 1 }, '', window.location.search || '?step=1'); } catch {}
+
+    const onPop = (e: PopStateEvent) => {
+      const st = (e.state && typeof e.state.step === 'number') ? e.state.step : 1;
+      setStep(st >= 1 && st <= 5 ? st : 1);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   useEffect(() => {
     if (isSignedIn && user) {
       setOwnerEmail(prev => prev || user.primaryEmailAddress?.emailAddress || '');
@@ -524,12 +556,18 @@ export default function NewListingPage() {
         {verified && (
           <>
             <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
-              {steps.map((s, i) => (
-                <div key={s} style={{ flex: 1, minWidth: 80 }}>
-                  <div style={{ height: 4, borderRadius: 2, background: step >= i + 1 ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
-                  <div style={{ fontSize: 12, color: step >= i + 1 ? '#006AFF' : '#9ca3af', fontWeight: step === i + 1 ? 700 : 400, whiteSpace: 'nowrap' as const }}>{i + 1}. {s}</div>
-                </div>
-              ))}
+              {steps.map((s, i) => {
+                // Allow jumping to any step already reached (<= the highest seen).
+                // We treat any step <= current `step` as visited and clickable.
+                const target = i + 1;
+                const reachable = target <= step;
+                return (
+                  <div key={s} onClick={() => { if (reachable) goToStep(target); }} style={{ flex: 1, minWidth: 80, cursor: reachable ? 'pointer' : 'default' }}>
+                    <div style={{ height: 4, borderRadius: 2, background: step >= target ? '#006AFF' : '#e5e7eb', marginBottom: 6 }} />
+                    <div style={{ fontSize: 12, color: step >= target ? '#006AFF' : '#9ca3af', fontWeight: step === target ? 700 : 400, whiteSpace: 'nowrap' as const, textDecoration: reachable && step !== target ? 'underline' : 'none' }}>{target}. {s}</div>
+                  </div>
+                );
+              })}
             </div>
 
             {step === 1 && (
@@ -695,7 +733,7 @@ export default function NewListingPage() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); setStep(2); }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); goToStep(2); }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   {t.nextLocation} <ArrowRight size={18} />
                 </button>
                 <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
@@ -749,8 +787,8 @@ export default function NewListingPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); setStep(3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
+                  <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(1); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); goToStep(3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
                 </div>
                 <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
                   <Req /> {lang === 'EN' ? 'Required fields' : 'የግዴታ መስኮች'}
@@ -860,8 +898,8 @@ export default function NewListingPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => setStep(4)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
+                  <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(2); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => goToStep(4)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextPhotos} <ArrowRight size={18} /></button>
                 </div>
               </div>
             )}
@@ -910,8 +948,8 @@ export default function NewListingPage() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(3)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => setStep(5)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
+                  <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(3); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => goToStep(5)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
                 </div>
               </div>
             )}
@@ -928,22 +966,27 @@ export default function NewListingPage() {
                   </div>
                   <div style={{ display: 'grid', gap: 0 }}>
                     {[
-                      [lang === 'EN' ? 'Owner Name' : 'ባለቤት ስም', ownerName],
-                      [lang === 'EN' ? 'Owner Email' : 'ኢሜይል', ownerEmail],
-                      [lang === 'EN' ? 'Owner Phone' : 'ስልክ', ownerPhone || '—'],
-                      [lang === 'EN' ? 'Title' : 'ርዕስ', form.title],
-                      [lang === 'EN' ? 'Type' : 'አይነት', form.type],
-                      [lang === 'EN' ? 'Price' : 'ዋጋ', form.price_negotiable ? 'Negotiable' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`],
-                      [lang === 'EN' ? 'City' : 'ከተማ', form.city || '—'],
-                      [lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ', form.subcity || '—'],
-                      [t.bedrooms, form.bedrooms || '—'],
-                      [t.bathrooms, form.bathrooms || '—'],
-                      [t.houseArea, form.area ? `${form.area} m²` : '—'],
-                      [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`],
-                    ].map(([label, value]) => (
-                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderBottom: '1px solid #f3f4f6' }}>
+                      [lang === 'EN' ? 'Owner Name' : 'ባለቤት ስም', ownerName, 0],
+                      [lang === 'EN' ? 'Owner Email' : 'ኢሜይል', ownerEmail, 0],
+                      [lang === 'EN' ? 'Owner Phone' : 'ስልክ', ownerPhone || '—', 0],
+                      [lang === 'EN' ? 'Title' : 'ርዕስ', form.title, 1],
+                      [lang === 'EN' ? 'Type' : 'አይነት', form.type, 1],
+                      [lang === 'EN' ? 'Price' : 'ዋጋ', form.price_negotiable ? 'Negotiable' : `${form.currency} ${parseFloat(form.price || '0').toLocaleString()}`, 1],
+                      [lang === 'EN' ? 'City' : 'ከተማ', form.city || '—', 2],
+                      [lang === 'EN' ? 'Subcity' : 'ክፍለ ከተማ', form.subcity || '—', 2],
+                      [t.bedrooms, form.bedrooms || '—', 1],
+                      [t.bathrooms, form.bathrooms || '—', 1],
+                      [t.houseArea, form.area ? `${form.area} m²` : '—', 1],
+                      [lang === 'EN' ? 'Photos' : 'ፎቶዎች', `${photoUrls.length}`, 4],
+                    ].map(([label, value, editStep]) => (
+                      <div key={label as string} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: '1px solid #f3f4f6', gap: 10 }}>
                         <span style={{ fontSize: 14, color: '#6b7280', fontWeight: 600 }}>{label}</span>
-                        <span style={{ fontSize: 14, color: '#111827', fontWeight: 500, textAlign: 'right' as const, maxWidth: '60%' }}>{value}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, maxWidth: '60%' }}>
+                          <span style={{ fontSize: 14, color: '#111827', fontWeight: 500, textAlign: 'right' as const }}>{value}</span>
+                          <button type="button" onClick={() => goToStep((editStep as number) === 0 ? 1 : (editStep as number))} style={{ fontSize: 12, color: '#006AFF', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+                            {lang === 'EN' ? 'Edit' : 'አስተካክል'}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -954,7 +997,7 @@ export default function NewListingPage() {
                 </div>
                 {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => setStep(4)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => goToStep(4)} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
                   <button onClick={handleSubmit} disabled={loading} style={{ flex: 2, padding: '15px', borderRadius: 12, background: loading ? '#9ca3af' : '#E8431A', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     {loading ? t.submitting : t.submitPay}
                   </button>
