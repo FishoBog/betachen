@@ -2,16 +2,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, List, Users, BadgeCheck, CreditCard, Tag } from 'lucide-react';
+
+// Each link carries the permission section it belongs to. When the sidebar is
+// given an `allowedSections` list, only links whose section is included render.
+// If `allowedSections` is omitted, ALL links show (safe default = old behaviour).
 const links = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Overview' },
-  { href: '/admin/listings', icon: List, label: 'Listings' },
-  { href: '/admin/verifications', icon: BadgeCheck, label: 'Badges' },
-  { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
-  { href: '/admin/discounts', icon: Tag, label: 'Discount Codes' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Overview', section: 'overview' },
+  { href: '/admin/listings', icon: List, label: 'Listings', section: 'listings' },
+  { href: '/admin/verifications', icon: BadgeCheck, label: 'Badges', section: 'badges' },
+  { href: '/admin/users', icon: Users, label: 'Users', section: 'users' },
+  { href: '/admin/payments', icon: CreditCard, label: 'Payments', section: 'payments' },
+  { href: '/admin/discounts', icon: Tag, label: 'Discount Codes', section: 'discounts' },
 ];
-export function AdminSidebar() {
+
+export function AdminSidebar({ allowedSections }: { allowedSections?: string[] }) {
   const pathname = usePathname();
+  const visibleLinks = allowedSections
+    ? links.filter((l) => allowedSections.includes(l.section))
+    : links;
   return (
     <aside style={{width:"240px",minHeight:"100vh",borderRight:"1px solid #e5e7eb",background:"white",display:"flex",flexDirection:"column"}}>
       <div style={{padding:"1.25rem 1.5rem",borderBottom:"1px solid #f3f4f6",display:"flex",alignItems:"center",gap:"0.75rem"}}>
@@ -22,7 +30,7 @@ export function AdminSidebar() {
         </div>
       </div>
       <nav style={{flex:1,padding:"1rem"}}>
-        {links.map(({ href, icon: Icon, label }) => {
+        {visibleLinks.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || (href !== '/admin' && pathname.startsWith(href));
           return (
             <Link key={href} href={href} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.625rem 0.75rem",borderRadius:"8px",fontSize:"0.875rem",fontWeight:"500",marginBottom:"4px",textDecoration:"none",background:active?"#111827":"transparent",color:active?"white":"#4b5563"}}>
