@@ -3,8 +3,13 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
 export default async function AdminListingsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { filter = "all" } = await searchParams;
-  let query = supabase.from("properties").select("id, title, property_type, listing_type, type, price, currency, status, created_at").order("created_at", { ascending: false });
-  if (filter === "pending") query = query.eq("status", "pending");
+  // NOTE: the properties table has `type`, `is_commercial`, `commercial_type` —
+  // it does NOT have `property_type` or `listing_type`. Selecting non-existent
+  // columns makes the whole query fail and return nothing (which is why this
+  // page showed "No listings found" while the Overview counted 28).
+  let query = supabase.from("properties").select("id, title, type, is_commercial, commercial_type, price, currency, status, created_at").order("created_at", { ascending: false });
+  // Status values in this DB are 'active' and 'pending_review' (not 'pending').
+  if (filter === "pending") query = query.in("status", ["pending", "pending_review"]);
   if (filter === "active") query = query.eq("status", "active");
   if (filter === "expired") query = query.eq("status", "expired");
   const { data: listings } = await query.limit(50);
@@ -44,7 +49,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
               {listings && listings.length > 0 ? listings.map((p: any) => (
                 <tr key={p.id} style={{borderTop:"1px solid #f3f4f6"}}>
                   <td style={{padding:"0.75rem 1rem",fontWeight:"500",color:"#111827",maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title || "Untitled"}</td>
-                  <td style={{padding:"0.75rem 1rem",color:"#6b7280",textTransform:"capitalize"}}>{p.type || p.listing_type || p.property_type}</td>
+                  <td style={{padding:"0.75rem 1rem",color:"#6b7280",textTransform:"capitalize"}}>{p.is_commercial ? (p.commercial_type ? p.commercial_type.replace(/_/g, " ") : "commercial") : (p.type || "—")}</td>
                   <td style={{padding:"0.75rem 1rem",fontWeight:"600"}}>{p.currency} {p.price?.toLocaleString()}</td>
                   <td style={{padding:"0.75rem 1rem"}}>
                     <span style={{padding:"2px 10px",borderRadius:"9999px",fontSize:"0.75rem",fontWeight:"500",background:statusColors[p.status]?.bg??"#f3f4f6",color:statusColors[p.status]?.color??"#6b7280"}}>{p.status}</span>
