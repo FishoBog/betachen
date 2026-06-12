@@ -1,16 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { auth } from '@clerk/nextjs/server';
+import { canAccessSection } from '@/lib/permissions';
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-// POST /api/discount — validate a code
-// POST /api/discount/create — create a new code (admin)
-// POST /api/discount/use — mark code as used
+
+// POST /api/discount               — validate a code (PUBLIC, used at checkout)
+// POST /api/discount?action=create — create a new code (ADMIN: 'discounts' permission)
+// POST /api/discount?action=use    — mark code as used (PUBLIC, used at checkout)
+// GET  /api/discount               — list all codes (ADMIN: 'discounts' permission)
+
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action');
+
   if (action === 'create') {
+    // Creating codes is an admin action — require the 'discounts' permission
+    // (super_admin, admin, payments_admin). Customer-facing validate/use below
+    // stay public so checkout keeps working.
+    const { userId } = await auth();
+    if (!(await canAccessSection(userId, 'discounts'))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
     const { code, discount_percent, customer_name, customer_email, note, expires_days } = await req.json();
     const expiresAt = expires_days
       ? new Date(Date.now() + expires_days * 86400000).toISOString()
@@ -26,7 +40,9 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ success: true, data });
   }
+
   if (action === 'use') {
+    // PUBLIC: called at checkout when a customer redeems a code.
     const { code, email } = await req.json();
     const { error } = await supabase.from('discount_codes')
       .update({ used: true, used_by_email: email, used_at: new Date().toISOString() })
@@ -35,7 +51,8 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ success: true });
   }
-  // Default: validate a code
+
+  // PUBLIC default: validate a code at checkout.
   const { code } = await req.json();
   if (!code) return NextResponse.json({ error: 'Code required' }, { status: 400 });
   const { data, error } = await supabase
@@ -54,7 +71,13 @@ export async function POST(req: NextRequest) {
     customer_name: data.customer_name,
   });
 }
+
 export async function GET() {
+  // Listing all codes is admin-only — previously this was open to anyone.
+  const { userId } = await auth();
+  if (!(await canAccessSection(userId, 'discounts'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
   const { data, error } = await supabase
     .from('discount_codes')
     .select('*')
@@ -62,4 +85,3 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ codes: data });
 }
-
