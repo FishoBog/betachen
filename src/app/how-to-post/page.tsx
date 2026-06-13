@@ -27,25 +27,25 @@ export default function HowToPostPage() {
       icon: MapPin, color: '#065f46', bg: '#d1fae5',
       titleEN: 'Step 2 — Location', titleAM: 'ደረጃ 2 — አካባቢ',
       bodyEN: 'Choose your city and subcity, then add woreda, kebele and a nearby landmark so buyers can find it. For the map pin you can use your phone\u2019s location while at the property, or open Google Maps, copy the coordinates and paste them in.',
-      bodyAM: 'ከተማዎንና ክፍለ ከተማዎን ይምረጡ፣ ከዚያ ወረዳ፣ ቀበሌ እና በአቅራቢያ ያለ ምልክት ይጨምሩ። ለካርታ ምልክት ንብረቱ ጋ ሆነው የስልክዎን አካባቢ መጠቀም ይችላሉ፣ ወይም ጉግል ካርታ ከፍተው መጋጠሚያዎቹን ቅዳ እና ይለጥፉ።',
+      bodyAM: 'ከተማዎንና ክፍለ ከተማዎን ይምረጡ፣ ከዚያ ወረዳ፣ ቀበሌ እና በአቅራቢያ ያለ ምልክት ይጨምሩ። ለካርታ ምልክት ንብረቱ ጋ ሆነው የስልክዎን አካባቢ መጠቀም ይችላሉ፣ ወይም ጉግል ካርታ ከፍተው የGPS አድራሻውን ኮፒ አድርገው ያስገቡ።',
     },
     {
       icon: ListChecks, color: '#7c3aed', bg: '#ede9fe', saleOnly: true,
       titleEN: 'Step 3 — Features & details (for properties for sale)', titleAM: 'ደረጃ 3 — ባህሪያትና ዝርዝሮች (ለሽያጭ ንብረቶች)',
       bodyEN: 'This step appears only when your property is For Sale. Add plot size, parking, water (well water, water tanker), electricity and internet, security (fence, guard), construction stage, deed type, nearby services and amenities like WiFi, generator, water heater or elevator. Rentals, short stay, hotels and guest houses skip this step.',
-      bodyAM: 'ይህ ደረጃ ንብረትዎ ለሽያጭ ሲሆን ብቻ ይታያል። የቦታ ስፋት፣ ማቆሚያ፣ ውሃ (የጉድጓድ ውሃ፣ የውሃ ታንከር)፣ ኤሌክትሪክና ኢንተርኔት፣ ደህንነት (አጥር፣ ጠባቂ)፣ የግንባታ ደረጃ፣ የሰነድ አይነት፣ በአቅራቢያ ያሉ አገልግሎቶችና እንደ ዋይፋይ፣ ጀነሬተር፣ ውሃ ማሞቂያ ያሉ መገልገያዎችን ይጨምሩ። ኪራይ፣ የአጭር ጊዜ ቆይታ፣ ሆቴልና የእንግዳ ማረፊያ ይህን ደረጃ ይዘላሉ።',
+      bodyAM: 'ይህ ደረጃ ንብረትዎ ለሽያጭ ሲሆን ብቻ ይታያል። የቦታ ስፋት፣ የመኪና ማቆሚያ፣ ውሃ (የጉድጓድ ውሃ፣ የውሃ ታንከር)፣ ኤሌክትሪክና ኢንተርኔት፣ ደህንነት (አጥር፣ ጠባቂ)፣ የግንባታ ደረጃ፣ የሰነድ አይነት፣ በአቅራቢያ ያሉ አገልግሎቶችና እንደ ዋይፋይ፣ ጀነሬተር፣ ውሃ ማሞቂያ ያሉ መገልገያዎችን ይጨምሩ። ኪራይ፣ የአጭር ጊዜ ቆይታ፣ ሆቴልና የእንግዳ ማረፊያ ይህን ደረጃ ይዘላሉ።',
     },
     {
       icon: Upload, color: '#92400e', bg: '#fef3c7',
       titleEN: 'Step — Photos', titleAM: 'ደረጃ — ፎቶዎች',
-      bodyEN: 'Upload clear photos — up to 10. The first photo becomes the cover, so make it your best one. Bright, wide shots of each room work best. Listings with good photos get far more messages.',
-      bodyAM: 'ግልጽ ፎቶዎችን ይስቀሉ — እስከ 10 ድረስ። የመጀመሪያው ፎቶ ሽፋን ይሆናል፣ ስለዚህ ምርጡን ያድርጉት። ብሩህ፣ ሰፊ ፎቶዎች ይሻላሉ። ጥሩ ፎቶ ያላቸው ማስታወቂያዎች ብዙ መልዕክት ያገኛሉ።',
+      bodyEN: 'Upload clear photos — up to 10. You can either upload photos from your device or take them directly with your phone’s camera. The first photo becomes the cover, so make it your best one. Bright, wide shots of each room work best. Listings with good photos get far more messages.',
+      bodyAM: 'ግልጽ ፎቶዎችን ያስገቡ — እስከ 10 ድረስ። ፎቶዎችን ከስልክዎ ፋይል መምረጥ ወይም በቀጥታ በሞባይልዎ ካሜራ አንስተው ማስገባት ይችላሉ። የመጀመሪያው ፎቶ ሽፋን ይሆናል፣ ስለዚህ ምርጡን ያድርጉት። ብሩህ፣ ሰፊ ፎቶዎች ይሻላሉ። ጥሩ ፎቶ ያላቸው ማስታወቂያዎች ብዙ መልዕክት ያገኛሉ።',
     },
     {
       icon: CheckCircle, color: '#059669', bg: '#d1fae5',
       titleEN: 'Step — Review & publish', titleAM: 'ደረጃ — ይገምግሙ እና ያትሙ',
       bodyEN: 'Check the summary of everything you entered — you can tap Edit on any item to fix it. When it looks right, submit. You will be taken to the payment page to pay the listing fee. After payment your listing is reviewed and then goes live.',
-      bodyAM: 'ያስገቡትን ሁሉ ማጠቃለያ ይመልከቱ — ማንኛውንም ለማስተካከል «አስተካክል» ይጫኑ። ትክክል ከሆነ ያስገቡ። የማስታወቂያ ክፍያ ለመክፈል ወደ ክፍያ ገጽ ይወሰዳሉ። ከክፍያ በኋላ ማስታወቂያዎ ተገምግሞ ይታተማል።',
+      bodyAM: 'ያስገቡት መረጃ ትክክል መሆኑን ያረጋግጡ — ማንኛውንም የተሳሳተ መረጃ ለማስተካከል «አስተካክል» የሚለውን ይጫኑ። ትክክል ከሆነ ያስገቡ። የማስታወቂያ ክፍያ ለመክፈል ወደ ክፍያ ገጽ ይወሰዳሉ። ከክፍያ በኋላ ማስታወቂያዎ ተገምግሞ ለእይታ ዝግጁ ይሆናል።',
     },
   ];
 
