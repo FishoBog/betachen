@@ -31,7 +31,6 @@ export function Navbar() {
 
   const links = [
     { href: '/',                              label: lang === 'EN' ? 'Properties' : 'ንብረቶች',     icon: Building2, authOnly: false, external: false, adminOnly: false },
-    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise your property' : 'ንብረትዎን ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false, adminOnly: false },
     { href: '/how-to-post',                   label: lang === 'EN' ? 'to advertise your property' : 'ንብረትዎን ለማስተዋወቅ', icon: Sparkles,  authOnly: false, external: false, adminOnly: false },
     { href: '/advertise',                     label: lang === 'EN' ? 'Advertise your business' : 'ድርጅትዎን ያስተዋውቁ',   icon: Building2, authOnly: false, external: false, adminOnly: false },
     { href: '/market',                        label: lang === 'EN' ? 'Market News' : 'የገበያ ዜና',  icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
