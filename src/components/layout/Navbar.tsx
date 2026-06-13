@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, UserButton, SignInButton, SignOutButton } from '@clerk/nextjs';
-import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks, LogOut, LogIn } from 'lucide-react';
+import { PlusCircle, Heart, Menu, X, FileText, Shield, Send, Home, Key, Map, TrendingUp, Globe, Building2, Megaphone, ListChecks, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLang } from '@/context/LangContext';
 
@@ -25,13 +25,18 @@ export function Navbar() {
 
   const isAdmin = user?.id === ADMIN_CLERK_ID;
 
+  // Label for the primary orange call-to-action button. It now points users to
+  // the /advertise page (rather than straight to the listing form).
+  const advertisePropertyLabel = lang === 'EN' ? 'Advertise your property' : 'ንብረትዎን ያስተዋውቁ';
+
   const links = [
     { href: '/',                              label: lang === 'EN' ? 'Properties' : 'ንብረቶች',     icon: Building2, authOnly: false, external: false, adminOnly: false },
-    { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false, adminOnly: false },
-    { href: '/market',                        label: lang === 'EN' ? 'Market'     : 'ገበያ',        icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
+    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise your property' : 'ንብረትዎን ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false, adminOnly: false },
+    { href: '/how-to-post',                   label: lang === 'EN' ? 'to advertise your property' : 'ንብረትዎን ለማስተዋወቅ', icon: Sparkles,  authOnly: false, external: false, adminOnly: false },
+    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise your business' : 'ድርጅትዎን ያስተዋውቁ',   icon: Building2, authOnly: false, external: false, adminOnly: false },
+    { href: '/market',                        label: lang === 'EN' ? 'Market News' : 'የገበያ ዜና',  icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false, adminOnly: false },
-    { href: '/advertise',                     label: lang === 'EN' ? 'Advertise'  : 'ያስተዋውቁ',   icon: Megaphone, authOnly: false, external: false, adminOnly: false },
-    { href: '/how-to-post',                   label: lang === 'EN' ? 'How to Post': 'እንዴት መለጠፍ', icon: ListChecks,authOnly: false, external: false, adminOnly: false },
+    { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false, adminOnly: false },
     { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true,  adminOnly: false },
     { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false, adminOnly: false },
     { href: '/messages',                      label: lang === 'EN' ? 'Messages'   : 'መልዕክቶች',   icon: Send,      authOnly: true,  external: false, adminOnly: false },
@@ -74,14 +79,14 @@ export function Navbar() {
                 </span>
               );
               return link.external ? (
-                <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer"
+                <a key={link.href + link.label} href={link.href} target="_blank" rel="noopener noreferrer"
                   style={navLinkStyle(false, true)}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f0f9ff'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; }}>
                   {content}
                 </a>
               ) : (
-                <Link key={link.href} href={link.href} style={navLinkStyle(active)}
+                <Link key={link.href + link.label} href={link.href} style={navLinkStyle(active)}
                   onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#f9fafb'; (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; } }}
                   onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'transparent'; } }}>
                   {content}
@@ -106,8 +111,8 @@ export function Navbar() {
             <>
               {isSignedIn ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-                    <PlusCircle size={14} />{t.navPostListing}
+                  <Link href="/advertise" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                    <Megaphone size={14} />{advertisePropertyLabel}
                   </Link>
                   <Link href="/favorites" title="Favorites" style={{ padding: 8, borderRadius: 8, color: '#6b7280', display: 'flex', textDecoration: 'none' }}>
                     <Heart size={20} />
@@ -130,8 +135,8 @@ export function Navbar() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-                    <PlusCircle size={14} />{t.navPostListing}
+                  <Link href="/advertise" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                    <Megaphone size={14} />{advertisePropertyLabel}
                   </Link>
                   <SignInButton mode="modal">
                     <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, border: '1.5px solid #d1d5db', background: 'white', color: '#374151', fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
@@ -149,8 +154,8 @@ export function Navbar() {
           {/* ── MOBILE RIGHT SIDE ── */}
           {isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Link href="/owner/listings/new" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
-                <PlusCircle size={14} /> Post
+              <Link href="/advertise" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '8px 12px', borderRadius: 8, background: '#E8431A', color: 'white', fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                <Megaphone size={14} /> {lang === 'EN' ? 'Advertise' : 'ያስተዋውቁ'}
               </Link>
               <button onClick={() => setMenuOpen(o => !o)} style={{ padding: 8, borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>
                 {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -201,12 +206,12 @@ export function Navbar() {
             if (link.adminOnly && !isAdmin) return null;
             const Icon = link.icon;
             return link.external ? (
-              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}
+              <a key={link.href + link.label} href={link.href} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#0088cc', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Icon size={16} />{link.label}
               </a>
             ) : (
-              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
+              <Link key={link.href + link.label} href={link.href} onClick={() => setMenuOpen(false)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: pathname === link.href ? '#E8431A' : '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Icon size={16} color={pathname === link.href ? '#E8431A' : '#6b7280'} />{link.label}
               </Link>
@@ -218,8 +223,8 @@ export function Navbar() {
               <Link href="/favorites" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 600, color: '#374151', textDecoration: 'none', borderBottom: '1px solid #f3f4f6' }}>
                 <Heart size={16} color="#6b7280" />{lang === 'EN' ? 'Favorites' : 'ተወዳጆች'}
               </Link>
-              <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
-                <PlusCircle size={18} />{t.navPostListing}
+              <Link href="/advertise" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
+                <Megaphone size={18} />{advertisePropertyLabel}
               </Link>
               <SignOutButton>
                 <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, width: '100%', padding: '12px 16px', borderRadius: 10, border: '1.5px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
@@ -229,8 +234,8 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/owner/listings/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
-                <PlusCircle size={18} />{t.navPostListing}
+              <Link href="/advertise" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '12px 16px', borderRadius: 10, background: '#E8431A', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', justifyContent: 'center' }}>
+                <Megaphone size={18} />{advertisePropertyLabel}
               </Link>
               <SignInButton mode="modal">
                 <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, width: '100%', padding: 12, borderRadius: 8, background: 'white', border: '1.5px solid #d1d5db', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
