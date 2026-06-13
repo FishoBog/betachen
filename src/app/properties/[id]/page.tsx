@@ -340,7 +340,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
 
       {/* Sticky bottom contact bar — Message Owner always; Call/WhatsApp when a
           phone exists on the listing. Defers to ContactOwnerCard for messaging. */}
-      <StickyContactBar phone={ownerPhone} priceLabel={priceLabel} subLabel={priceSub} />
+      <StickyContactBar phone={ownerPhone} priceLabel={priceLabel} />
 
       {/* Responsive: collapse to single column on mobile (matches the phone
           screenshots), 2-column from 900px up. Scoped class selectors. */}
