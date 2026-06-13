@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
 import { Navbar } from '@/components/layout/Navbar';
 import { useLang } from '@/context/LangContext';
-import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2, Navigation } from 'lucide-react';
+import { Upload, MapPin, Home, CheckCircle, ArrowRight, ArrowLeft, X, ChevronDown, Mail, Phone, User, PlusCircle, Building2, Navigation, Tag, KeyRound, CalendarClock, Hotel, BedDouble, Store } from 'lucide-react';
 import { PriceSuggestion } from '@/components/property/PriceSuggestion';
 
 // Key under which an in-progress listing draft is auto-saved to the browser.
@@ -209,6 +209,17 @@ const EMPTY_FORM = {
   amenities: [] as string[], nearby_landmarks: [] as string[],
   diaspora_friendly: false, managed_property: false,
 };
+
+// Listing types shown as selectable cards in Step 1. Each has its own icon and
+// accent color. Labels are resolved per-language at render time.
+const PROPERTY_TYPES: { value: string; en: string; am: string; Icon: any; color: string; bg: string }[] = [
+  { value: 'sale',        en: 'For Sale',    am: 'ለሽያጭ',          Icon: Tag,           color: '#006AFF', bg: '#f0f6ff' },
+  { value: 'long_rent',   en: 'Long Rent',   am: 'የረዥም ጊዜ ኪራይ',  Icon: KeyRound,      color: '#059669', bg: '#ecfdf5' },
+  { value: 'short_rent',  en: 'Short Rent',  am: 'የአጭር ጊዜ ኪራይ',  Icon: CalendarClock, color: '#7c3aed', bg: '#ede9fe' },
+  { value: 'hotel',       en: 'Hotel',       am: 'ሆቴል',           Icon: Hotel,         color: '#E8431A', bg: '#fef2ee' },
+  { value: 'guest_house', en: 'Guest House', am: 'የእንግዳ ማረፊያ',   Icon: BedDouble,     color: '#d97706', bg: '#fffbeb' },
+  { value: 'commercial',  en: 'Commercial',  am: 'የንግድ / ቢዝነስ',   Icon: Store,         color: '#0891b2', bg: '#cffafe' },
+];
 
 export default function NewListingPage() {
   const { user, isSignedIn } = useUser();
@@ -586,15 +597,23 @@ export default function NewListingPage() {
                       <label style={labelStyle}>{t.description}</label>
                       <textarea style={{ ...inputStyle, height: 110, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={labelStyle}>{t.listingType}</label>
-                        <select style={inputStyle} value={form.type} onChange={e => set('type', e.target.value)}>
-                          <option value="sale">{t.forSaleOpt}</option>
-                          <option value="long_rent">{t.longRentOpt}</option>
-                          <option value="short_rent">{t.shortRentOpt}</option>
-                        </select>
+                    <div>
+                      <label style={labelStyle}>{t.listingType}</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginTop: 4 }}>
+                        {PROPERTY_TYPES.map(pt => {
+                          const active = form.type === pt.value;
+                          const Icon = pt.Icon;
+                          return (
+                            <div key={pt.value} onClick={() => set('type', pt.value)} style={{ padding: '16px 12px', borderRadius: 12, border: `2px solid ${active ? pt.color : '#e5e7eb'}`, background: active ? pt.bg : 'white', cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' }}>
+                              <Icon size={26} color={active ? pt.color : '#9ca3af'} style={{ marginBottom: 6 }} />
+                              <div style={{ fontSize: 14, fontWeight: 700, color: active ? pt.color : '#374151' }}>{lang === 'EN' ? pt.en : pt.am}</div>
+                              <div style={{ fontSize: 12, color: active ? pt.color : '#9ca3af', opacity: active ? 0.85 : 1, marginTop: 1 }}>{lang === 'EN' ? pt.am : pt.en}</div>
+                            </div>
+                          );
+                        })}
                       </div>
+                    </div>
+                    <div>
                       <div>
                         <label style={labelStyle}>{t.condition}</label>
                         <select style={inputStyle} value={form.condition} onChange={e => set('condition', e.target.value)}>
