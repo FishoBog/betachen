@@ -176,7 +176,7 @@ export const translations = {
     // Navbar
     navBuy: "ግዛ", navRent: "ተከራይ", navMap: "ካርታ", navCompare: "አወዳድር",
     navMyListings: "ማስታወቂያዎቼ", navMessages: "መልዕክቶች",
-    navPostListing: "ማስታወቂያ ለጥፍ", navSignIn: "ግባ", navJoin: "ተመዝገብ",
+    navPostListing: "ማስታወቂያ ለጥፍ", navSignIn: "ይግቡ", navJoin: "ይመዝገቡ",
     navContracts: "ውሎች", navListings: "ዝርዝሮች", navTelegram: "ቴሌግራም",
     bd: "መኝታ", ba: "መታጠቢያ",
 
