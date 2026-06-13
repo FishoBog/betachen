@@ -459,7 +459,6 @@ export default function NewListingPage() {
     { key: 'gym', label: lang === 'EN' ? 'Gym' : 'ጂም' },
     { key: 'pool', label: lang === 'EN' ? 'Pool' : 'መዋኛ' },
     { key: 'elevator', label: lang === 'EN' ? 'Elevator' : 'አሳንሶር' },
-    { key: 'furnished', label: lang === 'EN' ? 'Furnished' : 'የታጠቀ' },
     { key: 'ac', label: lang === 'EN' ? 'Air Conditioning' : 'ኤ.ሲ' },
     { key: 'solar', label: lang === 'EN' ? 'Solar Panel' : 'ሶላር' },
     { key: 'garden', label: lang === 'EN' ? 'Garden' : 'የአትክልት ቦታ' },
@@ -469,8 +468,8 @@ export default function NewListingPage() {
     { key: 'water_heater', label: lang === 'EN' ? 'Water Heater' : 'ውሃ ማሞቂያ' },
   ];
 
-  const LANDMARKS_EN = ['School','University','Hospital','Clinic','Market','Supermarket','Mosque','Church','Bank','ATM','Bus Stop','Main Road','Shopping Mall','Restaurant','Hotel','Police Station'];
-  const LANDMARKS_AM = ['ትምህርት ቤት','ዩኒቨርሲቲ','ሆስፒታል','ክሊኒክ','ገበያ','ሱፐርማርኬት','መስጊድ','ቤተክርስቲያን','ባንክ','ኤቲኤም','የባስ ማቆሚያ','ዋና መንገድ','ሸሞንግ ሞል','ሬስቶራንት','ሆቴል','ፖሊስ ጣቢያ'];
+  const LANDMARKS_EN = ['School','University','Hospital','Clinic','Market','Supermarket','Mosque','Church','Bank','ATM','Bus Stop / Taxi','Main Road','Restaurant','Hotel','Police Station'];
+  const LANDMARKS_AM = ['ትምህርት ቤት','ዩኒቨርሲቲ','ሆስፒታል','ክሊኒክ','ገበያ','ሱፐርማርኬት','መስጊድ','ቤተክርስቲያን','ባንክ','ኤቲኤም','የባስ ማቆሚያ / ታክሲ','ዋና መንገድ','ሬስቶራንት','ሆቴል','ፖሊስ ጣቢያ'];
   const steps = [t.step1, t.step2, t.step3, t.step4, t.step5];
 
   return (
@@ -948,10 +947,6 @@ export default function NewListingPage() {
                           <option value="both">{t.bothInternet}</option>
                         </select>
                       </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      <Toggle label={lang === 'EN' ? 'Diaspora Friendly' : 'ዲያስፖራ ተስማሚ'} value={form.diaspora_friendly} onChange={() => set('diaspora_friendly', !form.diaspora_friendly)} color="#7c3aed" bg="#ede9fe" />
-                      <Toggle label={lang === 'EN' ? 'Managed Property' : 'የሚተዳደር ንብረት'} value={form.managed_property} onChange={() => set('managed_property', !form.managed_property)} color="#0891b2" bg="#cffafe" />
                     </div>
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Nearby Services' : 'በአቅራቢያ ያሉ አገልግሎቶች'}</div>
