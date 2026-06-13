@@ -190,7 +190,7 @@ const EMPTY_FORM = {
   title: '', description: '', property_kind: '', deal: '', type: 'sale', currency: 'ETB',
   price: '', price_negotiable: false, condition: 'good',
   bedrooms: '', bathrooms: '', total_rooms: '', area: '',
-  floor: '', total_floors: '', year_built: '',
+  floor: '', year_built: '',
   bathroom_type: 'private', kitchen_type: 'none',
   has_service_room: false, has_traditional_kitchen: false,
   has_store_room: false, has_guard_room: false,
@@ -347,6 +347,18 @@ export default function NewListingPage() {
   }, []);
 
   const set = (field: string, value: any) => setForm(p => ({ ...p, [field]: value }));
+
+  // True only for residential/commercial listings marked For Sale. Drives which
+  // sale-specific sections (deed, construction, bank debt, full details) appear.
+  const isSale = form.deal === 'sale';
+  // Non-sale types (rentals, short stay, hotel, guest house) skip the Details step.
+  const skipDetails = !isSale;
+
+  // Safety: if the listing becomes non-sale while sitting on the Details step
+  // (e.g. user went back and switched to a rental), move them off step 3.
+  useEffect(() => {
+    if (skipDetails && step === 3) setStep(4);
+  }, [skipDetails, step]);
   const selectedCity = ETHIOPIA_CITIES.find(c => c.cityEn === form.city);
   const filteredCities = ETHIOPIA_CITIES.filter(c => citySearch === '' || c.cityEn.toLowerCase().includes(citySearch.toLowerCase()) || c.cityAm.includes(citySearch));
   const toggleAmenity = (key: string) => setForm(p => ({ ...p, amenities: p.amenities.includes(key) ? p.amenities.filter(a => a !== key) : [...p.amenities, key] }));
@@ -442,7 +454,7 @@ export default function NewListingPage() {
   const AMENITIES = [
     { key: 'wifi', label: lang === 'EN' ? 'WiFi' : 'ዋይፋይ' },
     { key: 'generator', label: lang === 'EN' ? 'Generator' : 'ጀነሬተር' },
-    { key: 'water_tank', label: lang === 'EN' ? 'Water Tank' : 'የውሃ ታንክ' },
+    { key: 'water_tank', label: lang === 'EN' ? 'Water Tanker' : 'የውሃ ታንክር' },
     { key: 'cctv', label: 'CCTV' },
     { key: 'gym', label: lang === 'EN' ? 'Gym' : 'ጂም' },
     { key: 'pool', label: lang === 'EN' ? 'Pool' : 'መዋኛ' },
@@ -453,7 +465,8 @@ export default function NewListingPage() {
     { key: 'garden', label: lang === 'EN' ? 'Garden' : 'የአትክልት ቦታ' },
     { key: 'balcony', label: lang === 'EN' ? 'Balcony' : 'በረንዳ' },
     { key: 'intercom', label: lang === 'EN' ? 'Intercom' : 'ኢንተርኮም' },
-    { key: 'borehole', label: lang === 'EN' ? 'Borehole' : 'ቦሪሆል' },
+    { key: 'borehole', label: lang === 'EN' ? 'Well Water' : 'የጉድጓድ ውሃ' },
+    { key: 'water_heater', label: lang === 'EN' ? 'Water Heater' : 'ውሃ ማሞቂያ' },
   ];
 
   const LANDMARKS_EN = ['School','University','Hospital','Clinic','Market','Supermarket','Mosque','Church','Bank','ATM','Bus Stop','Main Road','Shopping Mall','Restaurant','Hotel','Police Station'];
@@ -578,9 +591,9 @@ export default function NewListingPage() {
           <>
             <div style={{ display: 'flex', gap: 6, marginBottom: 32, overflowX: 'auto' as const }}>
               {steps.map((s, i) => {
-                // Allow jumping to any step already reached (<= the highest seen).
-                // We treat any step <= current `step` as visited and clickable.
                 const target = i + 1;
+                // For non-sale listings the Details step (3) is skipped entirely.
+                if (skipDetails && target === 3) return null;
                 const reachable = target <= step;
                 return (
                   <div key={s} onClick={() => { if (reachable) goToStep(target); }} style={{ flex: 1, minWidth: 80, cursor: reachable ? 'pointer' : 'default' }}>
@@ -685,44 +698,64 @@ export default function NewListingPage() {
                             </select>
                           </div>
                           <div>
-                            <label style={labelStyle}>{t.amount}</label>
+                            <label style={labelStyle}>{lang === 'EN' ? 'Price' : 'ዋጋ'}</label>
                             <input style={inputStyle} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder={form.type === 'sale' ? 'e.g. 5000000' : 'e.g. 15000'} />
                           </div>
                         </div>
                       )}
                     </div>
+                    {isSale && (
                     <div>
                       <label style={labelStyle}>{lang === 'EN' ? 'Title Deed Type' : 'የቦታ ሰነድ አይነት'}</label>
                       <select style={inputStyle} value={form.title_deed_type} onChange={e => set('title_deed_type', e.target.value)}>
                         <option value="">{lang === 'EN' ? '— Select deed type —' : '— ይምረጡ —'}</option>
                         <option value="leasehold">{lang === 'EN' ? 'Leasehold (ሊዝ)' : 'ሊዝ ይዞታ'}</option>
-                        <option value="freehold">{lang === 'EN' ? 'Freehold / ወረቀት' : 'ፍሪሆልድ / ወረቀት'}</option>
+                        <option value="freehold">{lang === 'EN' ? 'Freehold / Legal Map' : 'ህጋዊ ካርታ'}</option>
                         <option value="condominium">{lang === 'EN' ? 'Condominium' : 'ኮንዶሚኒየም'}</option>
                         <option value="cooperative">{lang === 'EN' ? 'Cooperative / ህብረት ስራ' : 'ህብረት ስራ'}</option>
                       </select>
+                    </div>
+                    )}
+                    {/* Bathroom & Kitchen type — generic to ALL property types */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={labelStyle}>{t.bathroomType}</label>
+                        <select style={inputStyle} value={form.bathroom_type} onChange={e => set('bathroom_type', e.target.value)}>
+                          <option value="private">{t.privateBath}</option>
+                          <option value="shared">{t.sharedBath}</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={labelStyle}>{t.kitchenType}</label>
+                        <select style={inputStyle} value={form.kitchen_type} onChange={e => set('kitchen_type', e.target.value)}>
+                          <option value="none">{t.noKitchen}</option>
+                          <option value="private">{t.privateKitchen}</option>
+                          <option value="shared">{t.sharedKitchen}</option>
+                        </select>
+                      </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.bedrooms}</label><input style={inputStyle} type="number" min="0" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} placeholder="e.g. 3" /></div>
                       <div><label style={labelStyle}>{t.bathrooms}</label><input style={inputStyle} type="number" min="0" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="e.g. 2" /></div>
                       <div><label style={labelStyle}>{t.totalRooms}</label><input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" /></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.houseArea}</label><input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" /></div>
-                      <div><label style={labelStyle}>{t.floorNumber}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
-                      <div><label style={labelStyle}>{t.totalFloors}</label><input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 10" /></div>
+                      <div><label style={labelStyle}>{lang === 'EN' ? 'Floor Number' : 'የወለል ብዛት'}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
                     </div>
                     <div><label style={labelStyle}>{t.yearBuilt}</label><input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" /></div>
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Additional Rooms' : 'ተጨማሪ ክፍሎች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
                         <Toggle label={lang === 'EN' ? 'Service / Maid Room' : 'የሰራተኛ ክፍል'} value={form.has_service_room} onChange={() => set('has_service_room', !form.has_service_room)} />
-                        <Toggle label={lang === 'EN' ? 'Traditional Kitchen' : 'ጭስ ወጥ ቤት'} value={form.has_traditional_kitchen} onChange={() => set('has_traditional_kitchen', !form.has_traditional_kitchen)} color="#d97706" bg="#fffbeb" />
-                        <Toggle label={lang === 'EN' ? 'Store Room / ጎተራ' : 'ጎተራ / መጋዘን'} value={form.has_store_room} onChange={() => set('has_store_room', !form.has_store_room)} color="#7c3aed" bg="#ede9fe" />
+                        <Toggle label={lang === 'EN' ? 'Traditional Kitchen' : 'ባህላዊ ኩሽና'} value={form.has_traditional_kitchen} onChange={() => set('has_traditional_kitchen', !form.has_traditional_kitchen)} color="#d97706" bg="#fffbeb" />
+                        <Toggle label={lang === 'EN' ? 'Store Room' : 'የእቃ ማስቀመጫ'} value={form.has_store_room} onChange={() => set('has_store_room', !form.has_store_room)} color="#7c3aed" bg="#ede9fe" />
                         <Toggle label={lang === 'EN' ? 'Guard Room' : 'የጠባቂ ክፍል'} value={form.has_guard_room} onChange={() => set('has_guard_room', !form.has_guard_room)} color="#059669" bg="#ecfdf5" />
                         <Toggle label={lang === 'EN' ? 'Prayer Room' : 'የጸሎት ክፍል'} value={form.has_prayer_room} onChange={() => set('has_prayer_room', !form.has_prayer_room)} color="#0891b2" bg="#cffafe" />
-                        <Toggle label={lang === 'EN' ? "Boy's Quarter / BQ" : 'ቦይስ ኳርተር'} value={form.has_boys_quarter} onChange={() => set('has_boys_quarter', !form.has_boys_quarter)} color="#E8431A" bg="#fef2ee" />
+                        <Toggle label={lang === 'EN' ? 'Family Room' : 'የቤተሰብ ክፍል'} value={form.has_boys_quarter} onChange={() => set('has_boys_quarter', !form.has_boys_quarter)} color="#E8431A" bg="#fef2ee" />
                       </div>
                     </div>
+                    {isSale && (<>
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Construction Stage' : 'የግንባታ ደረጃ'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -731,11 +764,10 @@ export default function NewListingPage() {
                           <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
                             <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
                             <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>
-                            <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት ተቆፍሯል'}</option>
-                            <option value="columns_erected">{lang === 'EN' ? 'Columns Erected' : 'ምሰሶዎች ቆምቷል'}</option>
-                            <option value="shell_only">{lang === 'EN' ? 'Shell / Guwada' : 'ጉዋዳ ብቻ'}</option>
-                            <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
-                            <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ'}</option>
+                            <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት የወጣለት'}</option>
+                            <option value="columns_erected">{lang === 'EN' ? 'Structure Done' : 'እስትራክቸር ያለቀ'}</option>
+                                                        <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
+                            <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ የቀረው'}</option>
                             <option value="completed">{lang === 'EN' ? 'Completed' : 'ተጠናቋል'}</option>
                           </select>
                         </div>
@@ -756,7 +788,7 @@ export default function NewListingPage() {
                             <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
                             <option value="concrete_slab">{lang === 'EN' ? 'Concrete Slab' : 'ስላብ'}</option>
                             <option value="corrugated_iron">{lang === 'EN' ? 'Corrugated Iron (EGA)' : 'ቆርቆሮ'}</option>
-                            <option value="tile">{lang === 'EN' ? 'Tile' : 'ፋይናሳ'}</option>
+                            <option value="tile">{lang === 'EN' ? 'Tile' : 'ታይል'}</option>
                             <option value="flat_roof">{lang === 'EN' ? 'Flat Roof' : 'ጠፍጣፋ ጣሪያ'}</option>
                           </select>
                         </div>
@@ -788,6 +820,7 @@ export default function NewListingPage() {
                         </div>
                       )}
                     </div>
+                    </>)}
                   </div>
                 </div>
                 <button onClick={() => {
@@ -850,7 +883,7 @@ export default function NewListingPage() {
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(1); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
-                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); goToStep(3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
+                  <button onClick={() => { if (!form.city) { setError(t.selectCity); return; } setError(''); goToStep(skipDetails ? 4 : 3); }} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextDetails} <ArrowRight size={18} /></button>
                 </div>
                 <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
                   <Req /> {lang === 'EN' ? 'Required fields' : 'የግዴታ መስኮች'}
@@ -859,7 +892,7 @@ export default function NewListingPage() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 3 && isSale && (
               <div>
                 <div style={sectionStyle}>
                   <div style={{ fontSize: 19, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
@@ -869,23 +902,8 @@ export default function NewListingPage() {
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Length (m)' : 'ርዝመት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_length_m} onChange={e => set('land_length_m', e.target.value)} placeholder="e.g. 20" /></div>
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 15" /></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.parkingSpaces}</label><input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 2" /></div>
-                      <div>
-                        <label style={labelStyle}>{t.bathroomType}</label>
-                        <select style={inputStyle} value={form.bathroom_type} onChange={e => set('bathroom_type', e.target.value)}>
-                          <option value="private">{t.privateBath}</option>
-                          <option value="shared">{t.sharedBath}</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={labelStyle}>{t.kitchenType}</label>
-                        <select style={inputStyle} value={form.kitchen_type} onChange={e => set('kitchen_type', e.target.value)}>
-                          <option value="none">{t.noKitchen}</option>
-                          <option value="private">{t.privateKitchen}</option>
-                          <option value="shared">{t.sharedKitchen}</option>
-                        </select>
-                      </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.distRoad}</label><input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" /></div>
@@ -901,15 +919,15 @@ export default function NewListingPage() {
                     <div>
                       <div style={subHeading}>{t.securityLabel}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <Toggle label={t.compoundWall} desc={t.compoundWallDesc} value={form.has_compound_wall} onChange={() => set('has_compound_wall', !form.has_compound_wall)} />
+                        <Toggle label={lang === 'EN' ? 'Has Fence' : 'አጥር አለው'} value={form.has_compound_wall} onChange={() => set('has_compound_wall', !form.has_compound_wall)} />
                         <Toggle label={t.guardHouse} desc={t.guardHouseDesc} value={form.has_guard_house} onChange={() => set('has_guard_house', !form.has_guard_house)} />
                       </div>
                     </div>
                     <div>
                       <div style={subHeading}>{t.waterSupply}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <Toggle label={t.groundWater} desc={t.groundWaterDesc} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
-                        <Toggle label={t.waterTanker} desc={t.waterTankerDesc} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
+                        <Toggle label={lang === 'EN' ? 'Well Water' : 'የጉድጓድ ውሃ'} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
+                        <Toggle label={lang === 'EN' ? 'Water Tanker' : 'የውሃ ታንከር'} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
                       </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -936,7 +954,7 @@ export default function NewListingPage() {
                       <Toggle label={lang === 'EN' ? 'Managed Property' : 'የሚተዳደር ንብረት'} value={form.managed_property} onChange={() => set('managed_property', !form.managed_property)} color="#0891b2" bg="#cffafe" />
                     </div>
                     <div>
-                      <div style={subHeading}>{t.nearbyLandmarks}</div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Nearby Services' : 'በአቅራቢያ ያሉ አገልግሎቶች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
                         {LANDMARKS_EN.map((enKey, idx) => (
                           <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '9px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
@@ -1010,7 +1028,7 @@ export default function NewListingPage() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(3); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
+                  <button onClick={() => { if (typeof window!=='undefined') window.history.back(); else setStep(skipDetails ? 2 : 3); }} style={{ flex: 1, padding: '15px', borderRadius: 12, border: '1.5px solid #e5e7eb', background: 'white', color: '#374151', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><ArrowLeft size={18} /> {t.back}</button>
                   <button onClick={() => goToStep(5)} style={{ flex: 2, padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{t.nextReview} <ArrowRight size={18} /></button>
                 </div>
               </div>
@@ -1019,7 +1037,7 @@ export default function NewListingPage() {
             {step === 5 && (
               <div>
                 <div style={{ marginBottom: 20 }}>
-                  <PriceSuggestion propertyData={{ type: form.type, title: form.title, description: form.description, region: '', city: form.city, subcity: form.subcity, woreda: form.woreda, specific_location: form.specific_location, bedrooms: form.bedrooms, bathrooms: form.bathrooms, area: form.area, floor: form.floor, total_floors: form.total_floors, year_built: form.year_built, amenities: form.amenities }} imageUrls={photoUrls} onUsePrice={(price) => set('price', price.toString())} />
+                  <PriceSuggestion propertyData={{ type: form.type, title: form.title, description: form.description, region: '', city: form.city, subcity: form.subcity, woreda: form.woreda, specific_location: form.specific_location, bedrooms: form.bedrooms, bathrooms: form.bathrooms, area: form.area, floor: form.floor, year_built: form.year_built, amenities: form.amenities }} imageUrls={photoUrls} onUsePrice={(price) => set('price', price.toString())} />
                 </div>
                 <div style={sectionStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
