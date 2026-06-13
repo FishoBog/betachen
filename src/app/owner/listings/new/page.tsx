@@ -187,7 +187,7 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
 }
 
 const EMPTY_FORM = {
-  title: '', description: '', type: 'sale', currency: 'ETB',
+  title: '', description: '', property_kind: '', deal: '', type: 'sale', currency: 'ETB',
   price: '', price_negotiable: false, condition: 'good',
   bedrooms: '', bathrooms: '', total_rooms: '', area: '',
   floor: '', total_floors: '', year_built: '',
@@ -210,16 +210,26 @@ const EMPTY_FORM = {
   diaspora_friendly: false, managed_property: false,
 };
 
-// Listing types shown as selectable cards in Step 1. Each has its own icon and
-// accent color. Labels are resolved per-language at render time.
-const PROPERTY_TYPES: { value: string; en: string; am: string; Icon: any; color: string; bg: string }[] = [
-  { value: 'sale',        en: 'For Sale',    am: 'ለሽያጭ',          Icon: Tag,           color: '#006AFF', bg: '#f0f6ff' },
-  { value: 'long_rent',   en: 'Long Rent',   am: 'የረዥም ጊዜ ኪራይ',  Icon: KeyRound,      color: '#059669', bg: '#ecfdf5' },
-  { value: 'short_rent',  en: 'Short Rent',  am: 'የአጭር ጊዜ ኪራይ',  Icon: CalendarClock, color: '#7c3aed', bg: '#ede9fe' },
-  { value: 'hotel',       en: 'Hotel',       am: 'ሆቴል',           Icon: Hotel,         color: '#E8431A', bg: '#fef2ee' },
-  { value: 'guest_house', en: 'Guest House', am: 'የእንግዳ ማረፊያ',   Icon: BedDouble,     color: '#d97706', bg: '#fffbeb' },
-  { value: 'commercial',  en: 'Commercial',  am: 'የንግድ / ቢዝነስ',   Icon: Store,         color: '#0891b2', bg: '#cffafe' },
+// Property KINDS shown as selectable cards in Step 1. Each has its own icon and
+// accent color. Residential & Commercial then ask a Sale/Rent deal; the other
+// kinds are inherently stay/rental based and skip that question.
+const PROPERTY_KINDS: { value: string; en: string; am: string; Icon: any; color: string; bg: string; asksDeal: boolean }[] = [
+  { value: 'residential', en: 'Residential', am: 'መኖሪያ',           Icon: Home,        color: '#006AFF', bg: '#f0f6ff', asksDeal: true },
+  { value: 'short_stay',  en: 'Short Stay',  am: 'የአጭር ጊዜ ቆይታ',   Icon: CalendarClock, color: '#7c3aed', bg: '#ede9fe', asksDeal: false },
+  { value: 'commercial',  en: 'Commercial',  am: 'የንግድ / ቢዝነስ',    Icon: Store,       color: '#0891b2', bg: '#cffafe', asksDeal: true },
+  { value: 'hotel',       en: 'Hotel',       am: 'ሆቴል',            Icon: Hotel,       color: '#E8431A', bg: '#fef2ee', asksDeal: false },
+  { value: 'guest_house', en: 'Guest House', am: 'የእንግዳ ማረፊያ',    Icon: BedDouble,   color: '#d97706', bg: '#fffbeb', asksDeal: false },
 ];
+
+// Maps a chosen kind (+ deal for the two that ask) to the underlying `type`
+// column the rest of the app already understands.
+function deriveType(kind: string, deal: string): string {
+  if (kind === 'residential' || kind === 'commercial') {
+    return deal === 'rent' ? 'long_rent' : 'sale';
+  }
+  // short_stay, hotel, guest_house are all short-stay style listings.
+  return 'short_rent';
+}
 
 export default function NewListingPage() {
   const { user, isSignedIn } = useUser();
@@ -598,21 +608,49 @@ export default function NewListingPage() {
                       <textarea style={{ ...inputStyle, height: 110, resize: 'vertical' as const }} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t.descPlaceholder} />
                     </div>
                     <div>
-                      <label style={labelStyle}>{t.listingType}</label>
+                      <label style={labelStyle}>{lang === 'EN' ? 'Property Type' : 'የንብረቱ አይነት'}<Req /></label>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginTop: 4 }}>
-                        {PROPERTY_TYPES.map(pt => {
-                          const active = form.type === pt.value;
-                          const Icon = pt.Icon;
+                        {PROPERTY_KINDS.map(pk => {
+                          const active = form.property_kind === pk.value;
+                          const Icon = pk.Icon;
                           return (
-                            <div key={pt.value} onClick={() => set('type', pt.value)} style={{ padding: '16px 12px', borderRadius: 12, border: `2px solid ${active ? pt.color : '#e5e7eb'}`, background: active ? pt.bg : 'white', cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' }}>
-                              <Icon size={26} color={active ? pt.color : '#9ca3af'} style={{ marginBottom: 6 }} />
-                              <div style={{ fontSize: 14, fontWeight: 700, color: active ? pt.color : '#374151' }}>{lang === 'EN' ? pt.en : pt.am}</div>
-                              <div style={{ fontSize: 12, color: active ? pt.color : '#9ca3af', opacity: active ? 0.85 : 1, marginTop: 1 }}>{lang === 'EN' ? pt.am : pt.en}</div>
+                            <div key={pk.value} onClick={() => {
+                              // Set the kind; reset deal; derive the underlying type.
+                              const nextDeal = pk.asksDeal ? (form.deal || 'sale') : '';
+                              setForm(prev => ({ ...prev, property_kind: pk.value, deal: nextDeal, type: deriveType(pk.value, nextDeal) }));
+                            }} style={{ padding: '18px 12px', borderRadius: 14, border: `2px solid ${active ? pk.color : '#e5e7eb'}`, background: active ? pk.bg : 'white', cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s', boxShadow: active ? `0 2px 10px ${pk.color}22` : 'none' }}>
+                              <div style={{ width: 46, height: 46, borderRadius: '50%', background: pk.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' }}>
+                                <Icon size={24} color={pk.color} />
+                              </div>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: active ? pk.color : '#374151' }}>{lang === 'EN' ? pk.en : pk.am}</div>
+                              <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 1 }}>{lang === 'EN' ? pk.am : pk.en}</div>
                             </div>
                           );
                         })}
                       </div>
                     </div>
+
+                    {/* Sale / Rent toggle — only for Residential & Commercial */}
+                    {(form.property_kind === 'residential' || form.property_kind === 'commercial') && (
+                      <div>
+                        <label style={labelStyle}>{lang === 'EN' ? 'Sale or Rent?' : 'ሽያጭ ወይስ ኪራይ?'}<Req /></label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
+                          {[
+                            { v: 'sale', en: 'For Sale', am: 'ለሽያጭ', Icon: Tag, color: '#006AFF', bg: '#f0f6ff' },
+                            { v: 'rent', en: 'For Rent', am: 'ለኪራይ', Icon: KeyRound, color: '#059669', bg: '#ecfdf5' },
+                          ].map(d => {
+                            const active = form.deal === d.v;
+                            const Icon = d.Icon;
+                            return (
+                              <div key={d.v} onClick={() => setForm(prev => ({ ...prev, deal: d.v, type: deriveType(prev.property_kind, d.v) }))} style={{ padding: '14px 16px', borderRadius: 12, border: `2px solid ${active ? d.color : '#e5e7eb'}`, background: active ? d.bg : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                <Icon size={20} color={active ? d.color : '#9ca3af'} />
+                                <span style={{ fontSize: 15, fontWeight: 700, color: active ? d.color : '#374151' }}>{lang === 'EN' ? d.en : d.am}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <div>
                         <label style={labelStyle}>{t.condition}</label>
@@ -752,7 +790,12 @@ export default function NewListingPage() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => { if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; } setError(''); goToStep(2); }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <button onClick={() => {
+                  if (!form.property_kind) { setError(lang === 'EN' ? 'Please choose a property type.' : 'እባክዎ የንብረት አይነት ይምረጡ።'); return; }
+                  if ((form.property_kind === 'residential' || form.property_kind === 'commercial') && !form.deal) { setError(lang === 'EN' ? 'Please choose Sale or Rent.' : 'እባክዎ ሽያጭ ወይም ኪራይ ይምረጡ።'); return; }
+                  if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; }
+                  setError(''); goToStep(2);
+                }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   {t.nextLocation} <ArrowRight size={18} />
                 </button>
                 <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 10, textAlign: 'center' }}>
