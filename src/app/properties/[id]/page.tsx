@@ -8,6 +8,8 @@ import { PropertyReviews } from '@/components/reviews/PropertyReviews';
 import { ViewTracker } from '@/components/property/ViewTracker';
 import { ListingActions } from '@/components/property/ListingActions';
 import { AdCard } from '@/components/ads/AdCard';
+import { PropertyDescription } from '@/components/property/PropertyDescription';
+import { StickyContactBar } from '@/components/property/StickyContactBar';
 import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
 import Link from 'next/link';
@@ -104,7 +106,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
       <Navbar />
       <ViewTracker propertyId={id} />
 
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 16px' }}>
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 16px 110px' }}>
 
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#9ca3af', marginBottom: 16, flexWrap: 'wrap' as const }}>
@@ -234,6 +236,9 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
               <BlurredMap lat={property.latitude} lng={property.longitude} />
             )}
 
+            {/* Auto-generated description (built from submitted fields, bilingual) */}
+            <PropertyDescription property={propertyWithImages} />
+
             {/* Property info */}
             <div style={{ background: 'white', borderRadius: 16, padding: '28px', border: '1px solid #e5e7eb' }}>
               <PropertyInfo property={propertyWithImages as unknown as Property} />
@@ -326,6 +331,14 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           </div>
         )}
       </main>
+
+      {/* Sticky bottom contact bar (mobile-first, appears on scroll).
+          NOTE: phone/email fields — adjust if your columns differ. */}
+      <StickyContactBar
+        phone={p.owner_phone ?? p.phone ?? null}
+        email={p.owner_email ?? p.email ?? null}
+        priceLabel={isNegotiable ? 'Negotiable' : formatPrice(property.price, property.currency)}
+      />
     </div>
   );
 }
