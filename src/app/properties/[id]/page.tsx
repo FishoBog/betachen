@@ -184,34 +184,30 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
             <span>{[p.subcity, p.location, 'Ethiopia'].filter(Boolean).join(', ')}</span>
           </div>
 
-          {/* Stat strip */}
-          <div style={{ display: 'flex', gap: 0, paddingTop: 18, borderTop: `1px solid ${C.lineSoft}`, flexWrap: 'wrap' as const }}>
+          {/* Stat strip — icon chips */}
+          <div style={{ display: 'flex', gap: 10, paddingTop: 18, borderTop: `1px solid ${C.lineSoft}`, flexWrap: 'wrap' as const }}>
             {property.bedrooms != null && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingRight: 22, marginRight: 22, borderRight: `1px solid ${C.lineSoft}` }}>
-                <Bed size={17} color={C.muted} />
-                <span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.bedrooms}</span>
-                <span style={{ fontSize: 14, color: C.muted }}>bed{property.bedrooms !== 1 ? 's' : ''}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#eaf2ff', borderRadius: 12, padding: '8px 14px' }}>
+                <Bed size={18} color={C.blue} />
+                <span><span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.bedrooms}</span> <span style={{ fontSize: 13.5, color: C.body }}>bed{property.bedrooms !== 1 ? 's' : ''}</span></span>
               </div>
             )}
             {property.bathrooms != null && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingRight: 22, marginRight: 22, borderRight: `1px solid ${C.lineSoft}` }}>
-                <Bath size={17} color={C.muted} />
-                <span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.bathrooms}</span>
-                <span style={{ fontSize: 14, color: C.muted }}>bath{property.bathrooms !== 1 ? 's' : ''}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#e0f7fb', borderRadius: 12, padding: '8px 14px' }}>
+                <Bath size={18} color="#0891b2" />
+                <span><span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.bathrooms}</span> <span style={{ fontSize: 13.5, color: C.body }}>bath{property.bathrooms !== 1 ? 's' : ''}</span></span>
               </div>
             )}
             {property.area_sqm && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingRight: 22, marginRight: 22, borderRight: `1px solid ${C.lineSoft}` }}>
-                <Maximize size={17} color={C.muted} />
-                <span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.area_sqm}</span>
-                <span style={{ fontSize: 14, color: C.muted }}>m²</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#f0eafe', borderRadius: 12, padding: '8px 14px' }}>
+                <Maximize size={18} color="#7c3aed" />
+                <span><span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{property.area_sqm}</span> <span style={{ fontSize: 13.5, color: C.body }}>m²</span></span>
               </div>
             )}
             {p.floor != null && p.floor !== '' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingRight: 22, marginRight: 22 }}>
-                <Layers size={17} color={C.muted} />
-                <span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{p.floor}</span>
-                <span style={{ fontSize: 14, color: C.muted }}>floor</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#fff4e0', borderRadius: 12, padding: '8px 14px' }}>
+                <Layers size={18} color="#d97706" />
+                <span><span style={{ fontSize: 15, fontWeight: 800, color: C.ink }}>{p.floor}</span> <span style={{ fontSize: 13.5, color: C.body }}>floor</span></span>
               </div>
             )}
           </div>
@@ -340,7 +336,7 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
 
       {/* Sticky bottom contact bar — Message Owner always; Call/WhatsApp when a
           phone exists on the listing. Defers to ContactOwnerCard for messaging. */}
-      <StickyContactBar phone={ownerPhone} priceLabel={priceLabel} />
+      <StickyContactBar phone={ownerPhone} priceLabel={priceLabel} subLabel={priceSub} />
 
       {/* Responsive: collapse to single column on mobile (matches the phone
           screenshots), 2-column from 900px up. Scoped class selectors. */}
