@@ -171,11 +171,6 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
           {t.openMaps}
         </button>
       </div>
-      <div>
-        <label style={{ fontSize: 14, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>{t.coordPaste}</label>
-        <input type="text" value={coordText} onChange={e => { setCoordText(e.target.value); parseCoords(e.target.value); }} placeholder={`e.g. ${defaultCoords[0].toFixed(4)}, ${defaultCoords[1].toFixed(4)}`} style={{ ...inputStyle, fontSize: 16 }} />
-        <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{t.coordHint}</div>
-      </div>
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>{t.coordSet}</div>
@@ -187,10 +182,10 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
 }
 
 const EMPTY_FORM = {
-  title: '', description: '', property_kind: '', deal: '', type: 'sale', currency: 'ETB',
+  title: '', description: '', property_kind: '', residential_type: '', deal: '', type: 'sale', currency: 'ETB',
   price: '', price_negotiable: false, condition: 'good',
   bedrooms: '', bathrooms: '', total_rooms: '', area: '',
-  floor: '', year_built: '',
+  floor: '', year_built: '', total_floors: '',
   bathroom_type: 'private', kitchen_type: 'none',
   has_service_room: false, has_traditional_kitchen: false,
   has_store_room: false, has_guard_room: false,
@@ -375,6 +370,22 @@ export default function NewListingPage() {
   const showBuildingDetails = !earlyStage;
   // Year built: hidden only for land-only; shown for foundation & structure.
   const showYearBuilt = !landOnly;
+
+  // ── RESIDENTIAL SUB-TYPE LOGIC ──
+  // Residential listings choose a sub-type that controls which fields appear:
+  //   condo  = Condominium/Apartment → asks unit floor; no additional rooms; no material/roof
+  //   villa  = Villa → keeps additional rooms + material/roof; plot fields if sale
+  //   gplus  = G+ → asks total floors; keeps additional rooms + material/roof; plot fields if sale
+  const isResidential = form.property_kind === 'residential';
+  const resType = form.residential_type;
+  const isCondo = isResidential && resType === 'condo';
+  const isVilla = isResidential && resType === 'villa';
+  const isGplus = isResidential && resType === 'gplus';
+  // Additional rooms + material/roof: shown for villa & G+, hidden for condo/apartment.
+  // (Also still gated by showBuildingDetails so early construction stages hide them.)
+  const showRoomsAndConstruction = !isCondo;
+  // Plot area / length / width in step 1: villa & G+ that are for sale.
+  const showPlotInStep1 = (isVilla || isGplus) && isSale;
 
   // Safety: if the listing becomes non-sale while sitting on the Details step
   // (e.g. user went back and switched to a rental), move them off step 3.
@@ -761,6 +772,28 @@ export default function NewListingPage() {
                         </div>
                       </div>
                     )}
+
+                    {/* Residential sub-type — Condominium/Apartment, Villa, or G+ */}
+                    {isResidential && (
+                      <div>
+                        <label style={labelStyle}>{lang === 'EN' ? 'Residential Type' : 'የመኖሪያ አይነት'}<Req /></label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 4 }}>
+                          {[
+                            { v: 'condo', en: 'Condo / Apartment', am: 'ኮንዶ / አፓርትማ' },
+                            { v: 'villa', en: 'Villa', am: 'ቪላ' },
+                            { v: 'gplus', en: 'G+', am: 'ጂ+' },
+                          ].map(rt => {
+                            const active = form.residential_type === rt.v;
+                            return (
+                              <div key={rt.v} onClick={() => set('residential_type', rt.v)} style={{ padding: '14px 10px', borderRadius: 12, border: `2px solid ${active ? '#006AFF' : '#e5e7eb'}`, background: active ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
+                                <span style={{ fontSize: 14, fontWeight: 700, color: active ? '#006AFF' : '#374151' }}>{lang === 'EN' ? rt.en : rt.am}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <div>
                         <label style={labelStyle}>{t.condition}</label>
@@ -867,16 +900,42 @@ export default function NewListingPage() {
                       <div><label style={labelStyle}>{t.totalRooms}</label><input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" /></div>
                     </div>
                     )}
-                    <div style={{ display: 'grid', gridTemplateColumns: showYearBuilt ? '1fr 1fr' : '1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.houseArea}</label><input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" /></div>
-                      {showBuildingDetails && (
-                      <div><label style={labelStyle}>{lang === 'EN' ? 'Floor Number' : 'የወለል ብዛት'}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
+                      {isCondo && (
+                      <div><label style={labelStyle}>{lang === 'EN' ? 'Which floor is the unit on?' : 'ዩኒቱ በስንተኛ ፎቅ ነው?'}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
+                      )}
+                      {isGplus && (
+                      <div><label style={labelStyle}>{lang === 'EN' ? 'Total floors in building' : 'ጠቅላላ የፎቅ ብዛት'}</label><input style={inputStyle} type="number" value={form.total_floors} onChange={e => set('total_floors', e.target.value)} placeholder="e.g. 4" /></div>
                       )}
                     </div>
                     {showYearBuilt && (
                     <div><label style={labelStyle}>{t.yearBuilt}</label><input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" /></div>
                     )}
-                    {showBuildingDetails && (
+
+                    {/* Plot area / length / width — villa & G+ for sale only. */}
+                    {showPlotInStep1 && (
+                    <div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Plot (Land)' : 'ቦታ (መሬት)'}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                        <div><label style={labelStyle}>{lang === 'EN' ? 'Plot Area (m²)' : 'የቦታ ስፋት (m²)'}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 250" /></div>
+                        <div><label style={labelStyle}>{lang === 'EN' ? 'Length (m)' : 'ርዝመት (m)'}</label><input style={inputStyle} type="number" value={form.land_length_m} onChange={e => set('land_length_m', e.target.value)} placeholder="e.g. 25" /></div>
+                        <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (m)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 10" /></div>
+                      </div>
+                    </div>
+                    )}
+
+                    {/* Water supply — all residential, in step 1. */}
+                    {isResidential && (
+                    <div>
+                      <div style={subHeading}>{t.waterSupply}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <Toggle label={lang === 'EN' ? 'Well Water' : 'የጉድጓድ ውሃ'} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
+                        <Toggle label={lang === 'EN' ? 'Water Tanker' : 'የውሃ ታንከር'} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
+                      </div>
+                    </div>
+                    )}
+                    {showBuildingDetails && showRoomsAndConstruction && (
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Additional Rooms' : 'ተጨማሪ ክፍሎች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
@@ -889,7 +948,7 @@ export default function NewListingPage() {
                       </div>
                     </div>
                     )}
-                    {isSale && showBuildingDetails && (<>
+                    {isSale && showBuildingDetails && showRoomsAndConstruction && (<>
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Construction Details' : 'የግንባታ ዝርዝሮች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -950,6 +1009,7 @@ export default function NewListingPage() {
                 <button onClick={() => {
                   if (!form.property_kind) { setError(lang === 'EN' ? 'Please choose a property type.' : 'እባክዎ የንብረት አይነት ይምረጡ።'); return; }
                   if ((form.property_kind === 'residential' || form.property_kind === 'commercial') && !form.deal) { setError(lang === 'EN' ? 'Please choose Sale or Rent.' : 'እባክዎ ሽያጭ ወይም ኪራይ ይምረጡ።'); return; }
+                  if (form.property_kind === 'residential' && !form.residential_type) { setError(lang === 'EN' ? 'Please choose a residential type (Condo, Villa, or G+).' : 'እባክዎ የመኖሪያ አይነት ይምረጡ (ኮንዶ፣ ቪላ ወይም ጂ+)።'); return; }
                   if (!form.title || (!form.price && !form.price_negotiable)) { setError(t.fillTitlePrice); return; }
                   setError(''); goToStep(2);
                 }} style={{ width: '100%', padding: '15px', borderRadius: 12, background: '#006AFF', color: 'white', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
@@ -1021,6 +1081,7 @@ export default function NewListingPage() {
                 <div style={sectionStyle}>
                   <div style={{ fontSize: 19, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
                   <div style={{ display: 'grid', gap: 16 }}>
+                    {!showPlotInStep1 && (
                     <div style={{ display: 'grid', gridTemplateColumns: landOnly ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
                       {!landOnly && (<>
@@ -1028,6 +1089,7 @@ export default function NewListingPage() {
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 15" /></div>
                       </>)}
                     </div>
+                    )}
                     {showBuildingDetails && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.parkingSpaces}</label><input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 2" /></div>
@@ -1043,65 +1105,6 @@ export default function NewListingPage() {
                           <option value="cobblestone">{t.cobblestone}</option>
                           <option value="dirt">{t.dirtRoad}</option>
                         </select>
-                      </div>
-                    </div>
-                    )}
-                    {showBuildingDetails && (
-                    <div>
-                      <div style={subHeading}>{t.securityLabel}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <Toggle label={lang === 'EN' ? 'Has Fence' : 'አጥር አለው'} value={form.has_compound_wall} onChange={() => set('has_compound_wall', !form.has_compound_wall)} />
-                        <Toggle label={t.guardHouse} desc={t.guardHouseDesc} value={form.has_guard_house} onChange={() => set('has_guard_house', !form.has_guard_house)} />
-                      </div>
-                    </div>
-                    )}
-                    <div>
-                      <div style={subHeading}>{t.waterSupply}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <Toggle label={lang === 'EN' ? 'Well Water' : 'የጉድጓድ ውሃ'} value={form.ground_water} onChange={() => set('ground_water', !form.ground_water)} color="#059669" bg="#ecfdf5" />
-                        <Toggle label={lang === 'EN' ? 'Water Tanker' : 'የውሃ ታንከር'} value={form.water_tanker} onChange={() => set('water_tanker', !form.water_tanker)} color="#2563eb" bg="#eff6ff" />
-                      </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={labelStyle}>{t.electricity}</label>
-                        <select style={inputStyle} value={form.electricity_reliability} onChange={e => set('electricity_reliability', e.target.value)}>
-                          <option value="24hr">{t.elec24hr}</option>
-                          <option value="frequent_cuts">{t.elecCuts}</option>
-                          <option value="solar_only">{t.elecSolar}</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={labelStyle}>{t.internet}</label>
-                        <select style={inputStyle} value={form.internet_type} onChange={e => set('internet_type', e.target.value)}>
-                          <option value="none">{t.noInternet}</option>
-                          <option value="mobile">{t.mobileData}</option>
-                          <option value="fiber">{t.fiberInternet}</option>
-                          <option value="both">{t.bothInternet}</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <div style={subHeading}>{lang === 'EN' ? 'Nearby Services' : 'በአቅራቢያ ያሉ አገልግሎቶች'}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
-                        {LANDMARKS_EN.map((enKey, idx) => (
-                          <div key={enKey} onClick={() => toggleLandmark(enKey)} style={{ padding: '9px 12px', borderRadius: 8, border: `2px solid ${form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#e5e7eb'}`, background: form.nearby_landmarks.includes(enKey) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: form.nearby_landmarks.includes(enKey) ? '#006AFF' : '#374151' }}>
-                              {form.nearby_landmarks.includes(enKey) ? '✓ ' : ''}{lang === 'EN' ? LANDMARKS_EN[idx] : LANDMARKS_AM[idx]}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {showBuildingDetails && (
-                    <div>
-                      <div style={subHeading}>{t.amenities}</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
-                        {AMENITIES.map(a => (
-                          <div key={a.key} onClick={() => toggleAmenity(a.key)} style={{ padding: '11px 14px', borderRadius: 10, border: `2px solid ${form.amenities.includes(a.key) ? '#006AFF' : '#e5e7eb'}`, background: form.amenities.includes(a.key) ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: form.amenities.includes(a.key) ? '#006AFF' : '#374151' }}>{form.amenities.includes(a.key) ? '✓ ' : ''}{a.label}</div>
-                          </div>
-                        ))}
                       </div>
                     </div>
                     )}
