@@ -97,6 +97,27 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
   };
   const tc = typeConfig[property.type] ?? typeConfig.sale;
   const propertyWithImages = JSON.parse(JSON.stringify({ ...property, property_images: propertyImages ?? [] }));
+
+  // Photos are stored on the property's own `images` column (an array of URL
+  // strings) — NOT in the separate `property_images` table (which is unused).
+  // Normalize that into the { id, image_url } shape PropertyGallery expects,
+  // tolerating either a real array or a JSON-encoded string array.
+  const rawImages: any = (property as any).images;
+  let imageUrls: string[] = [];
+  if (Array.isArray(rawImages)) {
+    imageUrls = rawImages.filter((u: any) => typeof u === 'string' && u.length > 0);
+  } else if (typeof rawImages === 'string' && rawImages.trim()) {
+    try {
+      const parsed = JSON.parse(rawImages);
+      if (Array.isArray(parsed)) imageUrls = parsed.filter((u: any) => typeof u === 'string' && u.length > 0);
+      else if (typeof parsed === 'string') imageUrls = [parsed];
+    } catch {
+      // Not JSON — treat the whole string as a single URL.
+      imageUrls = [rawImages];
+    }
+  }
+  const galleryImages = imageUrls.map((url, i) => ({ id: `${id}-${i}`, image_url: url }));
+
   const isNegotiable = property.price_negotiable;
   const p = property as any;
 
@@ -219,8 +240,8 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
           <div style={{ display: 'grid', gap: 20 }}>
 
             {/* Gallery */}
-            {propertyImages && propertyImages.length > 0 ? (
-              <PropertyGallery images={propertyWithImages.property_images} />
+            {galleryImages.length > 0 ? (
+              <PropertyGallery images={galleryImages} />
             ) : (
               <div style={{ background: 'white', borderRadius: 18, border: `1px solid ${C.line}`, padding: '48px 24px', textAlign: 'center' as const }}>
                 <MapPin size={36} color="#d1d5db" style={{ marginBottom: 12 }} />
