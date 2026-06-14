@@ -57,17 +57,22 @@ export function StickyContactBar({ phone, priceLabel, subLabel }: Props) {
         .bc-btn:active { transform: translateY(2px); }
         .bc-msg { padding: 15px 14px; background: #E8431A; color: #fff; border-bottom: 4px solid #a8300f; }
         .bc-msg:active { border-bottom-width: 1px; }
-        .bc-call { padding: 15px 0; background: #fff; color: #E8431A; border: 1.5px solid #E8431A; border-bottom: 4px solid #c2360f; }
+        .bc-call { padding: 15px 0; background: #006AFF; color: #fff; border-bottom: 4px solid #0047b3; }
         .bc-call:active { border-bottom-width: 1px; }
         .bc-wa { padding: 15px 0; background: #25D366; color: #fff; border-bottom: 4px solid #128c3f; }
         .bc-wa:active { border-bottom-width: 1px; }
-        /* Proportional widths: message takes ~3 parts, call & whatsapp ~1 each,
-           so the three read as a balanced, harmonious group rather than one
-           giant bar with two tiny squares. When no phone, message fills alone. */
-        .bc-actions { display: flex; gap: 10px; flex: 1; }
-        .bc-actions .bc-msg { flex: 3; }
-        .bc-actions .bc-call { flex: 1; }
-        .bc-actions .bc-wa { flex: 1; }
+        /* Proportional widths: message 2 parts, call & whatsapp 1 each — a
+           balanced trio rather than one giant bar. Message fills alone if no phone. */
+        .bc-actions { display: flex; gap: 10px; flex: 1; min-width: 0; }
+        .bc-actions .bc-msg { flex: 2; min-width: 0; overflow: hidden; }
+        .bc-actions .bc-msg .bc-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .bc-actions .bc-call { flex: 1; min-width: 48px; }
+        .bc-actions .bc-wa { flex: 1; min-width: 48px; }
+        /* On narrow phones, drop the price so the three buttons always fit and
+           never push Call/WhatsApp off-screen. */
+        @media (max-width: 560px) {
+          .sticky-price { display: none !important; }
+        }
       `}</style>
       <div
         style={{
@@ -86,7 +91,7 @@ export function StickyContactBar({ phone, priceLabel, subLabel }: Props) {
           </div>
           <div className="bc-actions">
             <button onClick={goToContact} className="bc-btn bc-msg">
-              <MessageSquare size={18} /> {en ? 'Message Owner' : 'ባለቤቱን ያግኙ'}
+              <MessageSquare size={18} /> <span className="bc-label">{en ? 'Message Owner' : 'ባለቤቱን ያግኙ'}</span>
             </button>
             {hasPhone && (
               <a href={`tel:${phone}`} className="bc-btn bc-call" aria-label={en ? 'Call' : 'ይደውሉ'}>
