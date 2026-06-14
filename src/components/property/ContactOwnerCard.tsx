@@ -90,6 +90,24 @@ export function ContactOwnerCard({ property }: { property: Property }) {
 
   return (
     <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e5e7eb', padding: '20px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+      {/* 3D raised-lip button styles — darker bottom border reads as thickness,
+          lifts on hover, presses down on click. No drop shadow (crisp). */}
+      <style>{`
+        .coc-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; border: none; cursor: pointer; border-radius: 12px; transition: transform 0.08s ease, filter 0.12s ease; }
+        .coc-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+        .coc-btn:active { transform: translateY(2px); }
+        .coc-btn:disabled { cursor: not-allowed; filter: none; transform: none; }
+        .coc-msg { width: 100%; padding: 15px; font-size: 15px; background: #006AFF; color: #fff; border-bottom: 4px solid #0047b3; }
+        .coc-msg:active { border-bottom-width: 1px; }
+        .coc-msg:disabled { background: #9ca3af; border-bottom: 4px solid #6b7280; }
+        .coc-send { flex: 1; padding: 12px; font-size: 14px; background: #006AFF; color: #fff; border-bottom: 4px solid #0047b3; }
+        .coc-send:active { border-bottom-width: 1px; }
+        .coc-send:disabled { background: #9ca3af; border-bottom: 4px solid #6b7280; }
+        .coc-share { width: 100%; padding: 13px; font-size: 14px; background: #eef4ff; color: #0047b3; border: 1.5px solid #c7dbff; border-bottom: 4px solid #9bbdf5; }
+        .coc-share:active { border-bottom-width: 1px; }
+        .coc-share-done { width: 100%; padding: 13px; font-size: 14px; background: #ecfdf5; color: #047857; border: 1.5px solid #a7f3d0; border-bottom: 4px solid #6ee7b7; }
+        .coc-share-done:active { border-bottom-width: 1px; }
+      `}</style>
 
       {/* Price */}
       <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid #f3f4f6' }}>
@@ -187,13 +205,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
               <button
                 onClick={isSignedIn ? handleSendLoggedIn : handleSendGuest}
                 disabled={sending || !message.trim() || (!isSignedIn && (!guestName.trim() || !guestContact.trim()))}
-                style={{
-                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  padding: '11px', borderRadius: 8, fontSize: 14, fontWeight: 700, border: 'none',
-                  cursor: sending ? 'not-allowed' : 'pointer',
-                  background: (sending || !message.trim() || (!isSignedIn && (!guestName.trim() || !guestContact.trim()))) ? '#9ca3af' : '#006AFF',
-                  color: 'white',
-                }}>
+                className="coc-btn coc-send">
                 <Send size={15} />
                 {sending ? 'Sending...' : 'Send Message'}
               </button>
@@ -211,7 +223,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
           <button
             onClick={openCompose}
             disabled={!isLoaded}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px', borderRadius: 12, background: !isLoaded ? '#9ca3af' : '#006AFF', color: 'white', fontSize: 15, fontWeight: 700, border: 'none', cursor: !isLoaded ? 'wait' : 'pointer', width: '100%' }}>
+            className="coc-btn coc-msg">
             <MessageSquare size={18} />
             {isNegotiable ? 'Message to Negotiate' : 'Message Owner'}
           </button>
@@ -227,7 +239,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
             </div>
           )}
 
-          <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 12, background: shared ? '#ecfdf5' : '#f9fafb', color: shared ? '#059669' : '#6b7280', fontSize: 14, fontWeight: 600, border: '1px solid #e5e7eb', cursor: 'pointer', width: '100%' }}>
+          <button onClick={handleShare} className={shared ? 'coc-btn coc-share-done' : 'coc-btn coc-share'}>
             {shared ? <><CheckCircle size={16} /> Link Copied!</> : <><Share2 size={16} /> Share Property</>}
           </button>
         </div>
