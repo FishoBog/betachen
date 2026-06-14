@@ -779,27 +779,29 @@ export default function NewListingPage() {
                       </div>
                     )}
 
-                    {/* Residential sub-type — compact colored tabs; when G+ is
-                        selected the floors dropdown joins the same row. */}
+                    {/* Residential sub-type — solid colored tabs; selected one is
+                        marked with a darker ring + checkmark. G+ reveals the floors
+                        dropdown on the same row. */}
                     {isResidential && (
                       <div>
                         <label style={labelStyle}>{lang === 'EN' ? 'Residential Type' : 'የመኖሪያ አይነት'}<Req /></label>
-                        <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' as const, alignItems: 'stretch' }}>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' as const, alignItems: 'center' }}>
                           {[
-                            { v: 'condo', en: 'Condo / Apt', am: 'ኮንዶ', color: '#006AFF', bg: '#eaf2ff' },
-                            { v: 'villa', en: 'Villa', am: 'ቪላ', color: '#E8431A', bg: '#fdeee9' },
-                            { v: 'gplus', en: 'G+', am: 'ጂ+', color: '#7c3aed', bg: '#f3eefe' },
+                            { v: 'condo', en: 'Condo / Apt', am: 'ኮንዶ', color: '#006AFF', ring: '#003a8c' },
+                            { v: 'villa', en: 'Villa', am: 'ቪላ', color: '#E8431A', ring: '#9e2a0f' },
+                            { v: 'gplus', en: 'G+', am: 'ጂ+', color: '#7c3aed', ring: '#4c1d95' },
                           ].map(rt => {
                             const active = form.residential_type === rt.v;
                             return (
-                              <div key={rt.v} onClick={() => set('residential_type', rt.v)} style={{ flex: rt.v === 'gplus' ? '0 0 auto' : '1 1 0', minWidth: 72, padding: '11px 14px', borderRadius: 10, border: `2px solid ${active ? rt.color : '#e5e7eb'}`, background: active ? rt.color : rt.bg, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: active ? 'white' : rt.color }}>{lang === 'EN' ? rt.en : rt.am}</span>
+                              <div key={rt.v} onClick={() => set('residential_type', rt.v)} style={{ padding: '9px 16px', borderRadius: 9, border: `3px solid ${active ? rt.ring : 'transparent'}`, background: rt.color, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: active ? '0 2px 8px rgba(0,0,0,0.18)' : 'none' }}>
+                                {active && <span style={{ fontSize: 13, color: 'white', fontWeight: 900 }}>✓</span>}
+                                <span style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{lang === 'EN' ? rt.en : rt.am}</span>
                               </div>
                             );
                           })}
-                          {/* G+ floors dropdown — same row, only when G+ is active */}
+                          {/* G+ floors dropdown — same row, compact, only when G+ active */}
                           {isGplus && (
-                            <select value={form.total_floors} onChange={e => set('total_floors', e.target.value)} style={{ flex: '1 1 120px', minWidth: 120, padding: '11px 12px', border: '2px solid #7c3aed', borderRadius: 10, fontSize: 15, color: '#111827', outline: 'none', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
+                            <select value={form.total_floors} onChange={e => set('total_floors', e.target.value)} style={{ width: 110, padding: '10px 10px', border: '2px solid #7c3aed', borderRadius: 9, fontSize: 14, color: '#111827', outline: 'none', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
                               <option value="">{lang === 'EN' ? 'Floors…' : 'ወለል…'}</option>
                               {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
                                 <option key={n} value={String(n)}>{`G+${n}`}</option>
@@ -882,7 +884,7 @@ export default function NewListingPage() {
                     {!isSale && showBuildingDetails && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div>
-                        <label style={labelStyle}>{t.bathroomType}</label>
+                        <label style={labelStyle}>{lang === 'EN' ? 'Bathroom / Toilet' : 'መታጠቢያ/ መፀዳጃ ክፍል'}</label>
                         <select style={inputStyle} value={form.bathroom_type} onChange={e => set('bathroom_type', e.target.value)}>
                           <option value="private">{t.privateBath}</option>
                           <option value="shared">{t.sharedBath}</option>
