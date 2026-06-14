@@ -36,7 +36,7 @@ export function Navbar() {
     { href: '/market',                        label: lang === 'EN' ? 'Market News' : 'የገበያ ዜና',  icon: TrendingUp,authOnly: false, external: false, adminOnly: false },
     { href: '/diaspora',                      label: lang === 'EN' ? 'Diaspora'   : 'ዲያስፖራ',    icon: Globe,     authOnly: false, external: false, adminOnly: false },
     { href: '/map',                           label: lang === 'EN' ? 'Map'        : 'ካርታ',       icon: Map,       authOnly: false, external: false, adminOnly: false },
-    { href: 'https://t.me/BETACHENEthiopiaBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true,  adminOnly: false },
+    { href: 'https://t.me/BetachenBot', label: 'Telegram',                icon: Send,      authOnly: false, external: true,  adminOnly: false },
     { href: '/owner/dashboard',               label: lang === 'EN' ? 'Listings'   : 'ዝርዝሮች',    icon: Home,      authOnly: true,  external: false, adminOnly: false },
     { href: '/messages',                      label: lang === 'EN' ? 'Messages'   : 'መልዕክቶች',   icon: Send,      authOnly: true,  external: false, adminOnly: false },
     { href: '/admin',                         label: lang === 'EN' ? 'Admin'      : 'አስተዳዳሪ',   icon: Shield,    authOnly: true,  external: false, adminOnly: true  },
