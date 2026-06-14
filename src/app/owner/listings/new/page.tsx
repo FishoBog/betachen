@@ -354,6 +354,20 @@ export default function NewListingPage() {
   // Non-sale types (rentals, short stay, hotel, guest house) skip the Details step.
   const skipDetails = !isSale;
 
+  // ── CONSTRUCTION-STAGE-DRIVEN FIELD VISIBILITY (sale listings) ──
+  // When a sale's construction stage is an early one, building-detail fields are
+  // irrelevant and are hidden so the lister can't fill in meaningless data.
+  //   earlyStage = land only / foundation / structure (columns erected)
+  //   landOnly   = land only (also hides year built + plot dimensions + road)
+  // Until a stage is chosen (empty), everything shows normally.
+  const stage = form.construction_stage;
+  const earlyStage = stage === 'land_only' || stage === 'foundation' || stage === 'columns_erected';
+  const landOnly = stage === 'land_only';
+  // Show building/room detail fields unless an early stage is selected.
+  const showBuildingDetails = !earlyStage;
+  // Year built: hidden only for land-only; shown for foundation & structure.
+  const showYearBuilt = !landOnly;
+
   // Safety: if the listing becomes non-sale while sitting on the Details step
   // (e.g. user went back and switched to a rental), move them off step 3.
   useEffect(() => {
@@ -458,7 +472,7 @@ export default function NewListingPage() {
     { key: 'cctv', label: 'CCTV' },
     { key: 'gym', label: lang === 'EN' ? 'Gym' : 'ጂም' },
     { key: 'pool', label: lang === 'EN' ? 'Pool' : 'መዋኛ' },
-    { key: 'elevator', label: lang === 'EN' ? 'Elevator' : 'አሳንሶር' },
+    { key: 'elevator', label: lang === 'EN' ? 'Elevator' : 'አሳንሰር' },
     { key: 'ac', label: lang === 'EN' ? 'Air Conditioning' : 'ኤ.ሲ' },
     { key: 'solar', label: lang === 'EN' ? 'Solar Panel' : 'ሶላር' },
     { key: 'garden', label: lang === 'EN' ? 'Garden' : 'የአትክልት ቦታ' },
@@ -715,7 +729,35 @@ export default function NewListingPage() {
                       </select>
                     </div>
                     )}
-                    {/* Bathroom & Kitchen type — generic to ALL property types */}
+                    {/* Construction Stage — for sale listings. Moved up here so its value
+                        can drive which building-detail fields appear below. */}
+                    {isSale && (
+                    <div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Construction Stage' : 'የግንባታ ደረጃ'}</div>
+                      <div>
+                        <label style={labelStyle}>{lang === 'EN' ? 'Current Stage' : 'የአሁኑ ደረጃ'}</label>
+                        <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
+                          <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
+                          <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>
+                          <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት የወጣለት'}</option>
+                          <option value="columns_erected">{lang === 'EN' ? 'Structure Done' : 'እስትራክቸር ያለቀ'}</option>
+                          <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
+                          <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ የቀረው'}</option>
+                          <option value="completed">{lang === 'EN' ? 'Completed' : 'ተጠናቋል'}</option>
+                        </select>
+                        {earlyStage && (
+                          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>
+                            {lang === 'EN'
+                              ? 'Building details (rooms, finishes, amenities) are hidden for this stage since they do not apply yet.'
+                              : 'ለዚህ ደረጃ የሕንፃ ዝርዝሮች (ክፍሎች፣ ፊኒሺንግ፣ አገልግሎቶች) ገና ስለማይመለከቱ ተደብቀዋል።'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    )}
+                    {/* Bathroom & Kitchen type — generic to ALL property types,
+                        but hidden when an early construction stage is selected. */}
+                    {showBuildingDetails && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div>
                         <label style={labelStyle}>{t.bathroomType}</label>
@@ -733,16 +775,24 @@ export default function NewListingPage() {
                         </select>
                       </div>
                     </div>
+                    )}
+                    {showBuildingDetails && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.bedrooms}</label><input style={inputStyle} type="number" min="0" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} placeholder="e.g. 3" /></div>
                       <div><label style={labelStyle}>{t.bathrooms}</label><input style={inputStyle} type="number" min="0" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="e.g. 2" /></div>
                       <div><label style={labelStyle}>{t.totalRooms}</label><input style={inputStyle} type="number" min="0" value={form.total_rooms} onChange={e => set('total_rooms', e.target.value)} placeholder="e.g. 6" /></div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: showYearBuilt ? '1fr 1fr' : '1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.houseArea}</label><input style={inputStyle} type="number" value={form.area} onChange={e => set('area', e.target.value)} placeholder="e.g. 120" /></div>
+                      {showBuildingDetails && (
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Floor Number' : 'የወለል ብዛት'}</label><input style={inputStyle} type="number" value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 3" /></div>
+                      )}
                     </div>
+                    {showYearBuilt && (
                     <div><label style={labelStyle}>{t.yearBuilt}</label><input style={inputStyle} type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} placeholder="e.g. 2020" /></div>
+                    )}
+                    {showBuildingDetails && (
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Additional Rooms' : 'ተጨማሪ ክፍሎች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
@@ -754,22 +804,11 @@ export default function NewListingPage() {
                         <Toggle label={lang === 'EN' ? 'Family Room' : 'የቤተሰብ ክፍል'} value={form.has_boys_quarter} onChange={() => set('has_boys_quarter', !form.has_boys_quarter)} color="#E8431A" bg="#fef2ee" />
                       </div>
                     </div>
-                    {isSale && (<>
+                    )}
+                    {isSale && showBuildingDetails && (<>
                     <div>
-                      <div style={subHeading}>{lang === 'EN' ? 'Construction Stage' : 'የግንባታ ደረጃ'}</div>
+                      <div style={subHeading}>{lang === 'EN' ? 'Construction Details' : 'የግንባታ ዝርዝሮች'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <div>
-                          <label style={labelStyle}>{lang === 'EN' ? 'Current Stage' : 'የአሁኑ ደረጃ'}</label>
-                          <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
-                            <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
-                            <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>
-                            <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት የወጣለት'}</option>
-                            <option value="columns_erected">{lang === 'EN' ? 'Structure Done' : 'እስትራክቸር ያለቀ'}</option>
-                                                        <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
-                            <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ የቀረው'}</option>
-                            <option value="completed">{lang === 'EN' ? 'Completed' : 'ተጠናቋል'}</option>
-                          </select>
-                        </div>
                         <div>
                           <label style={labelStyle}>{lang === 'EN' ? 'Material' : 'ቁሳቁስ'}</label>
                           <select style={inputStyle} value={form.construction_material} onChange={e => set('construction_material', e.target.value)}>
@@ -793,6 +832,8 @@ export default function NewListingPage() {
                         </div>
                       </div>
                     </div>
+                    </>)}
+                    {isSale && (
                     <div>
                       <div style={subHeading}>{lang === 'EN' ? 'Existing Bank Debt / Mortgage' : 'ያለ የባንክ ዕዳ'}</div>
                       <Toggle label={lang === 'EN' ? 'This property has an existing bank debt' : 'ይህ ንብረት የባንክ ዕዳ አለበት'} desc={lang === 'EN' ? 'Debt transfers to the new owner' : 'ዕዳው ወደ አዲሱ ባለቤት ይተላለፋል'} value={form.bank_loan_eligible} onChange={() => set('bank_loan_eligible', !form.bank_loan_eligible)} color="#c2410c" bg="#fff7ed" />
@@ -819,7 +860,7 @@ export default function NewListingPage() {
                         </div>
                       )}
                     </div>
-                    </>)}
+                    )}
                   </div>
                 </div>
                 <button onClick={() => {
@@ -896,14 +937,19 @@ export default function NewListingPage() {
                 <div style={sectionStyle}>
                   <div style={{ fontSize: 19, fontWeight: 800, color: '#111827', marginBottom: 20 }}>{t.step3}</div>
                   <div style={{ display: 'grid', gap: 16 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: landOnly ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
+                      {!landOnly && (<>
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Length (m)' : 'ርዝመት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_length_m} onChange={e => set('land_length_m', e.target.value)} placeholder="e.g. 20" /></div>
                       <div><label style={labelStyle}>{lang === 'EN' ? 'Width (m)' : 'ስፋት (ሜ)'}</label><input style={inputStyle} type="number" value={form.land_width_m} onChange={e => set('land_width_m', e.target.value)} placeholder="e.g. 15" /></div>
+                      </>)}
                     </div>
+                    {showBuildingDetails && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.parkingSpaces}</label><input style={inputStyle} type="number" min="0" value={form.parking_spaces} onChange={e => set('parking_spaces', e.target.value)} placeholder="e.g. 2" /></div>
                     </div>
+                    )}
+                    {!landOnly && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.distRoad}</label><input style={inputStyle} type="number" min="0" value={form.distance_to_road_m} onChange={e => set('distance_to_road_m', e.target.value)} placeholder="e.g. 50" /></div>
                       <div>
@@ -915,6 +961,8 @@ export default function NewListingPage() {
                         </select>
                       </div>
                     </div>
+                    )}
+                    {showBuildingDetails && (
                     <div>
                       <div style={subHeading}>{t.securityLabel}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -922,6 +970,7 @@ export default function NewListingPage() {
                         <Toggle label={t.guardHouse} desc={t.guardHouseDesc} value={form.has_guard_house} onChange={() => set('has_guard_house', !form.has_guard_house)} />
                       </div>
                     </div>
+                    )}
                     <div>
                       <div style={subHeading}>{t.waterSupply}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -960,6 +1009,7 @@ export default function NewListingPage() {
                         ))}
                       </div>
                     </div>
+                    {showBuildingDetails && (
                     <div>
                       <div style={subHeading}>{t.amenities}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
@@ -970,6 +1020,7 @@ export default function NewListingPage() {
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
