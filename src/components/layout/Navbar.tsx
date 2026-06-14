@@ -97,12 +97,38 @@ export function Navbar() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
 
-          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 8, padding: 3, gap: 2 }}>
-            {(['EN', 'AM'] as const).map(l => (
-              <button key={l} onClick={() => setLang(l)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', background: lang === l ? 'white' : 'transparent', color: lang === l ? '#006AFF' : '#6b7280', boxShadow: lang === l ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
-                {l === 'EN' ? 'EN' : 'አማ'}
-              </button>
-            ))}
+          {/* ── LANGUAGE TOGGLE (connected pill, active = solid filled blue) ── */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', background: '#eef1f6', borderRadius: 10, padding: 3, gap: 3, border: '1px solid #e2e6ee' }}>
+            {(['EN', 'AM'] as const).map(l => {
+              const on = lang === l;
+              return (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  aria-pressed={on}
+                  style={{
+                    minWidth: 44,
+                    padding: '7px 14px',
+                    borderRadius: 8,
+                    // Amharic glyphs render taller, so give it a slightly smaller
+                    // size to look visually balanced against the Latin "EN".
+                    fontSize: l === 'AM' ? 14 : 14.5,
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: on ? '#006AFF' : 'transparent',
+                    color: on ? '#ffffff' : '#5b6472',
+                    boxShadow: on ? '0 2px 6px rgba(0,106,255,0.35)' : 'none',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { if (!on) (e.currentTarget as HTMLElement).style.color = '#1a1830'; }}
+                  onMouseLeave={e => { if (!on) (e.currentTarget as HTMLElement).style.color = '#5b6472'; }}
+                >
+                  {l === 'EN' ? 'EN' : 'አማ'}
+                </button>
+              );
+            })}
           </div>
 
           {/* ── DESKTOP AUTH ── */}
