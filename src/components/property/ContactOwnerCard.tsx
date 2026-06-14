@@ -103,7 +103,7 @@ export function ContactOwnerCard({ property }: { property: Property }) {
         .coc-send { flex: 1; padding: 12px; font-size: 14px; background: #006AFF; color: #fff; border-bottom: 4px solid #0047b3; }
         .coc-send:active { border-bottom-width: 1px; }
         .coc-send:disabled { background: #9ca3af; border-bottom: 4px solid #6b7280; }
-        .coc-share { width: 100%; padding: 14px; font-size: 14px; background: #1d4ed8; color: #fff; border-bottom: 4px solid #14328c; }
+        .coc-share { width: 100%; padding: 14px; font-size: 14px; background: #006AFF; color: #fff; border-bottom: 4px solid #0047b3; }
         .coc-share:active { border-bottom-width: 1px; }
         .coc-share-done { width: 100%; padding: 14px; font-size: 14px; background: #059669; color: #fff; border-bottom: 4px solid #047048; }
         .coc-share-done:active { border-bottom-width: 1px; }
