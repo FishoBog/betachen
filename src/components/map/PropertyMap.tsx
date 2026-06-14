@@ -130,9 +130,12 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
         { attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd' }
       );
       // Satellite imagery via Esri World Imagery — shows actual buildings/plots.
+      // maxNativeZoom caps at the level Esri reliably has imagery (esp. in smaller
+      // towns); maxZoom lets the layer upscale that last good tile slightly rather
+      // than showing grey "no data" placeholder tiles when the user zooms further.
       satTileRef.current = L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        { attribution: 'Imagery © Esri', maxZoom: 19 }
+        { attribution: 'Imagery © Esri', maxNativeZoom: 17, maxZoom: 20 }
       );
 
       // Start in street mode.
