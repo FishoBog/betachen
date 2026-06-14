@@ -106,10 +106,10 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
     return `${currency} ${price.toLocaleString()}`;
   };
 
-  // Phone for the optional Call/WhatsApp buttons. Checks the likely column
-  // names; falls back to none (bar then shows Message Owner only).
-  // NOTE: confirm against your create route — adjust if your column differs.
-  const ownerPhone: string | null = p.owner_phone ?? p.phone ?? p.contact_phone ?? null;
+  // Phone for the optional Call/WhatsApp buttons. The listing form's phone is
+  // stored on the `owner_whatsapp` column (see /api/listings/create). Falls back
+  // to a couple of alternates just in case, then null (bar shows Message Owner only).
+  const ownerPhone: string | null = p.owner_whatsapp ?? p.owner_phone ?? p.phone ?? null;
 
   const priceLabel = isNegotiable ? 'Negotiable' : formatPrice(property.price, property.currency);
   const priceSub = (!isNegotiable && property.type !== 'sale')
