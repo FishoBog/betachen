@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Self-contained type so this component does not depend on the shared `Property`
 // type. Note: there is no `city` column on properties — the city is derived from
@@ -52,6 +52,45 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerLayerRef = useRef<any>(null);
+  const searchMarkerRef = useRef<any>(null);
+
+  // ── Place search (geocoding) ──
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [searchMsg, setSearchMsg] = useState<string | null>(null);
+
+  // Fly the map to a typed place name using the free OpenStreetMap Nominatim
+  // geocoder. Drops a temporary marker at the result. No API key required.
+  const runSearch = async () => {
+    const q = query.trim();
+    if (!q) return;
+    setSearching(true);
+    setSearchMsg(null);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=et&q=${encodeURIComponent(q)}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        const map = mapInstanceRef.current;
+        if (map && !isNaN(lat) && !isNaN(lng)) {
+          const L = (await import('leaflet')).default;
+          map.setView([lat, lng], 15);
+          if (searchMarkerRef.current) { map.removeLayer(searchMarkerRef.current); }
+          searchMarkerRef.current = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>${data[0].display_name?.split(',')[0] || q}</b>`).openPopup();
+        }
+      } else {
+        setSearchMsg('No place found. Try a city or neighborhood name.');
+      }
+    } catch {
+      setSearchMsg('Search failed. Please try again.');
+    }
+    setSearching(false);
+  };
 
   // 1) Initialise the map once.
   useEffect(() => {
@@ -116,9 +155,10 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
         const approxNote = approximate
           ? `<br><span style="color:#b45309;font-size:11px">📍 Approximate area${p.subcity ? ` — ${p.subcity}` : ''}</span>`
           : '';
+        const viewLink = `<br><a href="/properties/${p.id}" style="display:inline-block;margin-top:8px;padding:6px 12px;background:#006AFF;color:#fff;border-radius:8px;font-weight:700;text-decoration:none;font-size:12px">View Property →</a>`;
 
         const marker = L.marker([lat as number, lng as number], approximate ? { opacity: 0.7 } : undefined)
-          .bindPopup(`<b>${p.title}</b><br>${price} ${p.currency}${landmark}${approxNote}`);
+          .bindPopup(`<b>${p.title}</b><br>${price} ${p.currency}${landmark}${approxNote}${viewLink}`);
         layer.addLayer(marker);
         bounds.push([lat as number, lng as number]);
       });
@@ -132,5 +172,28 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
     draw();
   }, [properties]);
 
-  return <div ref={mapRef} style={{ height: '500px', width: '100%', borderRadius: '16px' }} />;
+  return (
+    <div style={{ display: 'grid', gap: 12 }}>
+      {/* Place search bar */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+        <div style={{ flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 8, background: 'white', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '4px 6px 4px 14px' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
+            placeholder="Search a place — e.g. Bole, Addis Ababa"
+            style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, color: '#1a1830', background: 'transparent', padding: '9px 0' }}
+          />
+          <button onClick={runSearch} disabled={searching}
+            style={{ padding: '10px 20px', background: searching ? '#9ca3af' : '#006AFF', color: 'white', border: 'none', borderBottom: searching ? 'none' : '4px solid #0047b3', borderRadius: 9, fontWeight: 800, fontSize: 14, cursor: searching ? 'not-allowed' : 'pointer' }}>
+            {searching ? 'Searching…' : 'Search'}
+          </button>
+        </div>
+      </div>
+      {searchMsg && <div style={{ fontSize: 13, color: '#b45309' }}>{searchMsg}</div>}
+
+      <div ref={mapRef} style={{ height: 'calc(100vh - 230px)', minHeight: 440, width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e7e5ee' }} />
+    </div>
+  );
 }
