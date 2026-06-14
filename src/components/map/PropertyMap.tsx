@@ -53,6 +53,11 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
   const mapInstanceRef = useRef<any>(null);
   const markerLayerRef = useRef<any>(null);
   const searchMarkerRef = useRef<any>(null);
+  const streetTileRef = useRef<any>(null);
+  const satTileRef = useRef<any>(null);
+
+  // Map view mode: 'street' (clean road map) or 'satellite' (aerial imagery).
+  const [mapMode, setMapMode] = useState<'street' | 'satellite'>('street');
 
   // ── Place search (geocoding) ──
   const [query, setQuery] = useState('');
@@ -118,13 +123,39 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
       mapInstanceRef.current = map;
       markerLayerRef.current = L.layerGroup().addTo(map);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(map);
+      // Street tiles via CartoDB Voyager — cleaner and far more reliable than
+      // OSM's throttled public servers (which caused the grey tile gaps).
+      streetTileRef.current = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        { attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd' }
+      );
+      // Satellite imagery via Esri World Imagery — shows actual buildings/plots.
+      satTileRef.current = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { attribution: 'Imagery © Esri', maxZoom: 19 }
+      );
+
+      // Start in street mode.
+      streetTileRef.current.addTo(map);
     })();
 
     return () => { cancelled = true; mapInstanceRef.current?.remove(); mapInstanceRef.current = null; };
   }, []);
+
+  // Swap the active tile layer when the user toggles street/satellite.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const street = streetTileRef.current;
+    const sat = satTileRef.current;
+    if (!map || !street || !sat) return;
+    if (mapMode === 'satellite') {
+      if (map.hasLayer(street)) map.removeLayer(street);
+      if (!map.hasLayer(sat)) sat.addTo(map);
+    } else {
+      if (map.hasLayer(sat)) map.removeLayer(sat);
+      if (!map.hasLayer(street)) street.addTo(map);
+    }
+  }, [mapMode]);
 
   // 2) Draw / redraw markers whenever properties change.
   useEffect(() => {
@@ -189,6 +220,18 @@ export function PropertyMap({ properties, center = [9.0254, 38.7469], zoom = 12 
             style={{ padding: '10px 20px', background: searching ? '#9ca3af' : '#006AFF', color: 'white', border: 'none', borderBottom: searching ? 'none' : '4px solid #0047b3', borderRadius: 9, fontWeight: 800, fontSize: 14, cursor: searching ? 'not-allowed' : 'pointer' }}>
             {searching ? 'Searching…' : 'Search'}
           </button>
+        </div>
+        {/* Street / Satellite toggle */}
+        <div style={{ display: 'inline-flex', background: '#eef1f6', borderRadius: 11, padding: 3, border: '1px solid #e2e6ee' }}>
+          {(['street', 'satellite'] as const).map(m => {
+            const on = mapMode === m;
+            return (
+              <button key={m} onClick={() => setMapMode(m)}
+                style={{ padding: '9px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13.5, fontWeight: 800, background: on ? '#006AFF' : 'transparent', color: on ? '#fff' : '#5b6472', boxShadow: on ? '0 2px 6px rgba(0,106,255,0.35)' : 'none', transition: 'all 0.15s' }}>
+                {m === 'street' ? 'Street' : 'Satellite'}
+              </button>
+            );
+          })}
         </div>
       </div>
       {searchMsg && <div style={{ fontSize: 13, color: '#b45309' }}>{searchMsg}</div>}
