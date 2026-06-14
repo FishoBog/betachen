@@ -779,37 +779,34 @@ export default function NewListingPage() {
                       </div>
                     )}
 
-                    {/* Residential sub-type — Condominium/Apartment, Villa, or G+ */}
+                    {/* Residential sub-type — compact colored tabs; when G+ is
+                        selected the floors dropdown joins the same row. */}
                     {isResidential && (
                       <div>
                         <label style={labelStyle}>{lang === 'EN' ? 'Residential Type' : 'የመኖሪያ አይነት'}<Req /></label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 4 }}>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' as const, alignItems: 'stretch' }}>
                           {[
-                            { v: 'condo', en: 'Condo / Apartment', am: 'ኮንዶ / አፓርትማ' },
-                            { v: 'villa', en: 'Villa', am: 'ቪላ' },
-                            { v: 'gplus', en: 'G+', am: 'ጂ+' },
+                            { v: 'condo', en: 'Condo / Apt', am: 'ኮንዶ', color: '#006AFF', bg: '#eaf2ff' },
+                            { v: 'villa', en: 'Villa', am: 'ቪላ', color: '#E8431A', bg: '#fdeee9' },
+                            { v: 'gplus', en: 'G+', am: 'ጂ+', color: '#7c3aed', bg: '#f3eefe' },
                           ].map(rt => {
                             const active = form.residential_type === rt.v;
                             return (
-                              <div key={rt.v} onClick={() => set('residential_type', rt.v)} style={{ padding: '14px 10px', borderRadius: 12, border: `2px solid ${active ? '#006AFF' : '#e5e7eb'}`, background: active ? '#f0f6ff' : 'white', cursor: 'pointer', textAlign: 'center' as const }}>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: active ? '#006AFF' : '#374151' }}>{lang === 'EN' ? rt.en : rt.am}</span>
+                              <div key={rt.v} onClick={() => set('residential_type', rt.v)} style={{ flex: rt.v === 'gplus' ? '0 0 auto' : '1 1 0', minWidth: 72, padding: '11px 14px', borderRadius: 10, border: `2px solid ${active ? rt.color : '#e5e7eb'}`, background: active ? rt.color : rt.bg, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: 14, fontWeight: 700, color: active ? 'white' : rt.color }}>{lang === 'EN' ? rt.en : rt.am}</span>
                               </div>
                             );
                           })}
+                          {/* G+ floors dropdown — same row, only when G+ is active */}
+                          {isGplus && (
+                            <select value={form.total_floors} onChange={e => set('total_floors', e.target.value)} style={{ flex: '1 1 120px', minWidth: 120, padding: '11px 12px', border: '2px solid #7c3aed', borderRadius: 10, fontSize: 15, color: '#111827', outline: 'none', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
+                              <option value="">{lang === 'EN' ? 'Floors…' : 'ወለል…'}</option>
+                              {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                                <option key={n} value={String(n)}>{`G+${n}`}</option>
+                              ))}
+                            </select>
+                          )}
                         </div>
-                      </div>
-                    )}
-
-                    {/* G+ "Number of frames" — total floors, dropdown G+1..G+10, right after the type. */}
-                    {isGplus && (
-                      <div>
-                        <label style={labelStyle}>{lang === 'EN' ? 'Number of frames' : 'የፍሬም ብዛት'}<Req /></label>
-                        <select style={inputStyle} value={form.total_floors} onChange={e => set('total_floors', e.target.value)}>
-                          <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
-                          {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-                            <option key={n} value={String(n)}>{`G+${n}`}</option>
-                          ))}
-                        </select>
                       </div>
                     )}
 
