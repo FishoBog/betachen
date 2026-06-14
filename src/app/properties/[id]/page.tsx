@@ -116,7 +116,13 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
       imageUrls = [rawImages];
     }
   }
-  const galleryImages = imageUrls.map((url, i) => ({ id: `${id}-${i}`, image_url: url }));
+  const galleryImages = imageUrls.map((url, i) => ({
+    id: `${id}-${i}`,
+    image_url: url,
+    property_id: id,
+    is_main: i === 0,
+    sort_order: i,
+  }));
 
   const isNegotiable = property.price_negotiable;
   const p = property as any;
