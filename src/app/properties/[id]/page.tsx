@@ -8,7 +8,6 @@ import { PropertyReviews } from '@/components/reviews/PropertyReviews';
 import { ViewTracker } from '@/components/property/ViewTracker';
 import { ListingActions } from '@/components/property/ListingActions';
 import { AdCard } from '@/components/ads/AdCard';
-import { PropertyDescription } from '@/components/property/PropertyDescription';
 import { StickyContactBar } from '@/components/property/StickyContactBar';
 import { typeLabel } from '@/lib/utils';
 import type { Property } from '@/types';
@@ -229,9 +228,6 @@ export default async function PropertyDetailPage({ params: paramsPromise }: Prop
                 <div style={{ fontSize: 13, color: C.muted }}>The owner has not uploaded photos for this listing</div>
               </div>
             )}
-
-            {/* Auto-generated description (built from submitted fields, bilingual) */}
-            <PropertyDescription property={propertyWithImages} />
 
             {/* Map */}
             {property.latitude && property.longitude && (
