@@ -55,12 +55,19 @@ export function StickyContactBar({ phone, priceLabel, subLabel }: Props) {
         .bc-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 15px; line-height: 1; border: none; cursor: pointer; text-decoration: none; border-radius: 13px; transition: transform 0.08s ease, filter 0.12s ease; }
         .bc-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
         .bc-btn:active { transform: translateY(2px); }
-        .bc-msg { flex: 1; padding: 15px 14px; background: #E8431A; color: #fff; border-bottom: 4px solid #a8300f; }
+        .bc-msg { padding: 15px 14px; background: #E8431A; color: #fff; border-bottom: 4px solid #a8300f; }
         .bc-msg:active { border-bottom-width: 1px; }
-        .bc-call { flex: 0 0 auto; width: 54px; padding: 15px 0; background: #fff; color: #E8431A; border: 1.5px solid #E8431A; border-bottom: 4px solid #c2360f; }
+        .bc-call { padding: 15px 0; background: #fff; color: #E8431A; border: 1.5px solid #E8431A; border-bottom: 4px solid #c2360f; }
         .bc-call:active { border-bottom-width: 1px; }
-        .bc-wa { flex: 0 0 auto; width: 54px; padding: 15px 0; background: #25D366; color: #fff; border-bottom: 4px solid #128c3f; }
+        .bc-wa { padding: 15px 0; background: #25D366; color: #fff; border-bottom: 4px solid #128c3f; }
         .bc-wa:active { border-bottom-width: 1px; }
+        /* Proportional widths: message takes ~3 parts, call & whatsapp ~1 each,
+           so the three read as a balanced, harmonious group rather than one
+           giant bar with two tiny squares. When no phone, message fills alone. */
+        .bc-actions { display: flex; gap: 10px; flex: 1; }
+        .bc-actions .bc-msg { flex: 3; }
+        .bc-actions .bc-call { flex: 1; }
+        .bc-actions .bc-wa { flex: 1; }
       `}</style>
       <div
         style={{
@@ -77,7 +84,7 @@ export function StickyContactBar({ phone, priceLabel, subLabel }: Props) {
             {subLabel && <div style={{ fontSize: 11, color: '#8b8a9c', fontWeight: 600 }}>{subLabel}</div>}
             <div style={{ fontSize: 19, fontWeight: 900, color: '#1a1830', lineHeight: 1.1 }}>{priceLabel}</div>
           </div>
-          <div style={{ display: 'flex', gap: 10, flex: 1 }}>
+          <div className="bc-actions">
             <button onClick={goToContact} className="bc-btn bc-msg">
               <MessageSquare size={18} /> {en ? 'Message Owner' : 'ባለቤቱን ያግኙ'}
             </button>
