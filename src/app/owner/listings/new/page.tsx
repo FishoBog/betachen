@@ -256,6 +256,14 @@ export default function NewListingPage() {
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeError, setCodeError] = useState('');
 
+  // ── Telegram verification (alternative to email) ──
+  // method: which verification the user is doing. 'telegram' opens the bot via a
+  // deep link carrying a one-time token; we then poll until the bot marks it done.
+  const [verifyMethod, setVerifyMethod] = useState<'email' | 'telegram'>('email');
+  const [tgToken, setTgToken] = useState('');
+  const [tgWaiting, setTgWaiting] = useState(false);
+  const [tgError, setTgError] = useState('');
+
   const [form, setForm] = useState(EMPTY_FORM);
 
   // Tracks whether we've finished trying to restore a saved draft, so the
@@ -423,6 +431,46 @@ export default function NewListingPage() {
     setVerifyingCode(false);
   };
 
+  // Start Telegram verification: ask the server for a one-time token, open the
+  // bot deep link, then poll until the bot marks the token verified.
+  const handleTelegramStart = async () => {
+    setTgError(''); setTgWaiting(true);
+    try {
+      const res = await fetch('/api/verify/telegram-start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      const data = await res.json();
+      if (!data.success || !data.token) {
+        setTgError(lang === 'EN' ? 'Could not start Telegram verification. Try again.' : 'በቴሌግራም ማረጋገጥ አልተቻለም። እንደገና ይሞክሩ።');
+        setTgWaiting(false);
+        return;
+      }
+      setTgToken(data.token);
+      // Open the bot with the token. The user presses Start; the webhook verifies.
+      if (typeof window !== 'undefined') {
+        window.open(`https://t.me/BetachenBot?start=${data.token}`, '_blank');
+      }
+    } catch {
+      setTgError(lang === 'EN' ? 'Could not start Telegram verification. Try again.' : 'በቴሌግራም ማረጋገጥ አልተቻለም።');
+      setTgWaiting(false);
+    }
+  };
+
+  // While a Telegram token is pending, poll the check route every few seconds.
+  useEffect(() => {
+    if (!tgToken || verified) return;
+    let stop = false;
+    const poll = async () => {
+      try {
+        const res = await fetch('/api/verify/telegram-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tgToken }) });
+        const data = await res.json();
+        if (data.verified) { setVerified(true); setTgWaiting(false); return; }
+        if (data.expired) { setTgError(lang === 'EN' ? 'The link expired. Please try again.' : 'ሊንኩ ጊዜው አልፏል። እንደገና ይሞክሩ።'); setTgWaiting(false); setTgToken(''); return; }
+      } catch {}
+      if (!stop) setTimeout(poll, 3000);
+    };
+    const id = setTimeout(poll, 3000);
+    return () => { stop = true; clearTimeout(id); };
+  }, [tgToken, verified, lang]);
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -506,12 +554,48 @@ export default function NewListingPage() {
                   {lang === 'EN' ? 'Verify your email to continue' : 'ለመቀጠል ኢሜይልዎን ያረጋግጡ'}
                 </div>
                 <div style={{ fontSize: 14, color: '#6b7280' }}>
-                  {lang === 'EN' ? 'No account needed — just verify your email' : 'መለያ አያስፈልግም — ኢሜይልዎን ብቻ ያረጋግጡ'}
+                  {lang === 'EN' ? 'No account needed — verify by email or Telegram' : 'መለያ አያስፈልግም — በኢሜይል ወይም በቴሌግራም ያረጋግጡ'}
                 </div>
               </div>
             </div>
 
-            {!codeSent ? (
+            {/* Method toggle: Email or Telegram */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+              {([['email', lang === 'EN' ? 'Email' : 'ኢሜይል'], ['telegram', 'Telegram']] as const).map(([m, label]) => {
+                const on = verifyMethod === m;
+                return (
+                  <button key={m} onClick={() => { setVerifyMethod(m as 'email' | 'telegram'); setCodeError(''); setTgError(''); }}
+                    style={{ flex: 1, padding: '11px', borderRadius: 10, border: `2px solid ${on ? '#006AFF' : '#e5e7eb'}`, background: on ? '#006AFF' : 'white', color: on ? '#fff' : '#374151', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {verifyMethod === 'telegram' ? (
+              <div style={{ display: 'grid', gap: 14 }}>
+                <div style={{ background: '#eaf3ff', border: '1px solid #c7e0ff', borderRadius: 12, padding: '16px 18px' }}>
+                  <div style={{ fontSize: 14, color: '#1a1830', lineHeight: 1.6 }}>
+                    {lang === 'EN'
+                      ? 'Tap the button below to open the Betachen bot on Telegram and press Start. This page will continue automatically once you do.'
+                      : 'ከታች ያለውን ይጫኑ — የቤታችን ቦት በቴሌግራም ይከፈታል፣ Start ይጫኑ። እንዳደረጉ ይህ ገጽ በራሱ ይቀጥላል።'}
+                  </div>
+                </div>
+                <button onClick={handleTelegramStart} disabled={tgWaiting}
+                  style={{ padding: '14px', borderRadius: 10, background: tgWaiting ? '#9ca3af' : '#229ED9', color: 'white', fontWeight: 800, fontSize: 16, border: 'none', cursor: tgWaiting ? 'not-allowed' : 'pointer' }}>
+                  {tgWaiting
+                    ? (lang === 'EN' ? 'Waiting for Telegram… press Start in the bot' : 'ቴሌግራምን በመጠበቅ ላይ… በቦቱ Start ይጫኑ')
+                    : (lang === 'EN' ? 'Verify with Telegram' : 'በቴሌግራም አረጋግጥ')}
+                </button>
+                {tgWaiting && (
+                  <button onClick={handleTelegramStart}
+                    style={{ padding: '11px', borderRadius: 10, background: 'white', border: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+                    {lang === 'EN' ? 'Re-open Telegram' : 'ቴሌግራምን እንደገና ክፈት'}
+                  </button>
+                )}
+                {tgError && <div style={{ color: '#dc2626', fontSize: 13 }}>{tgError}</div>}
+              </div>
+            ) : !codeSent ? (
               <div style={{ display: 'grid', gap: 14 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
