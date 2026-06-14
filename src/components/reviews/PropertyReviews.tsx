@@ -92,14 +92,32 @@ export function PropertyReviews({ propertyId }: { propertyId: string }) {
           <button
             onClick={submit}
             disabled={loading || !comment.trim()}
-            style={{ marginTop: 10, padding: '10px 24px', background: loading || !comment.trim() ? '#9ca3af' : '#006AFF', color: 'white', borderRadius: 10, fontWeight: 700, fontSize: 14, border: 'none', cursor: loading || !comment.trim() ? 'not-allowed' : 'pointer' }}>
+            style={{ marginTop: 10, padding: '12px 26px', background: loading || !comment.trim() ? '#9ca3af' : '#006AFF', color: 'white', borderRadius: 12, fontWeight: 800, fontSize: 14, border: 'none', borderBottom: loading || !comment.trim() ? '4px solid #6b7280' : '4px solid #0047b3', cursor: loading || !comment.trim() ? 'not-allowed' : 'pointer', transition: 'transform 0.08s ease' }}
+            onMouseDown={e => { if (!(loading || !comment.trim())) { const t = e.currentTarget; t.style.transform = 'translateY(2px)'; t.style.borderBottomWidth = '1px'; } }}
+            onMouseUp={e => { const t = e.currentTarget; t.style.transform = ''; t.style.borderBottomWidth = '4px'; }}
+            onMouseLeave={e => { const t = e.currentTarget; t.style.transform = ''; t.style.borderBottomWidth = '4px'; }}>
             {loading ? (am ? 'በመላክ...' : 'Submitting...') : (am ? 'ላክ' : 'Submit Review')}
           </button>
         </div>
       ) : (
-        <div style={{ background: '#f9fafb', borderRadius: 14, padding: '16px 20px', border: '1px solid #e5e7eb', textAlign: 'center' as const, color: '#6b7280', fontSize: 14 }}>
+        <a
+          href="/sign-in"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', boxSizing: 'border-box' as const,
+            padding: '15px', borderRadius: 12,
+            background: '#059669', color: 'white',
+            fontWeight: 800, fontSize: 15, textDecoration: 'none',
+            border: 'none', borderBottom: '4px solid #047048',
+            cursor: 'pointer', transition: 'transform 0.08s ease, filter 0.12s ease',
+          }}
+          onMouseDown={e => { const t = e.currentTarget as HTMLAnchorElement; t.style.transform = 'translateY(2px)'; t.style.borderBottomWidth = '1px'; }}
+          onMouseUp={e => { const t = e.currentTarget as HTMLAnchorElement; t.style.transform = ''; t.style.borderBottomWidth = '4px'; }}
+          onMouseLeave={e => { const t = e.currentTarget as HTMLAnchorElement; t.style.transform = ''; t.style.borderBottomWidth = '4px'; }}
+        >
+          <Star size={18} fill="white" color="white" />
           {am ? 'ግምገማ ለመፃፍ ይግቡ' : 'Sign in to write a review'}
-        </div>
+        </a>
       )}
 
       {/* Reviews list */}
