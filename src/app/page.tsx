@@ -429,6 +429,7 @@ export default function HomePage() {
       </div>
 
       {/* Property Grid */}
+      <div style={{ background: '#f7f6fb' }}>
       <div style={{ maxWidth: 1760, margin: '0 auto', padding: '40px 24px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
@@ -466,9 +467,9 @@ export default function HomePage() {
               const tc = TYPE_COLORS[p.type] || TYPE_COLORS.sale;
               const isFav = favorites.includes(p.id);
               return (
-                <div key={p.id} style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #e5e7eb', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+                <div key={p.id} style={{ background: 'white', borderRadius: 18, overflow: 'hidden', border: '1px solid #e7e5ee', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 2px rgba(26,24,48,0.04), 0 6px 18px rgba(26,24,48,0.04)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 36px rgba(26,24,48,0.13)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 2px rgba(26,24,48,0.04), 0 6px 18px rgba(26,24,48,0.04)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                   <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none' }}>
                     <div style={{ height: 230, background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {p.images?.[0] ? (
@@ -497,7 +498,7 @@ export default function HomePage() {
                     </div>
                   </Link>
                   <Link href={`/properties/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', padding: '18px 20px 20px' }}>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: p.price_negotiable ? '#92400e' : '#006AFF', marginBottom: 4 }}>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: p.price_negotiable ? '#92400e' : '#1a1830', marginBottom: 4, letterSpacing: '-0.02em' }}>
                       {p.price_negotiable ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: 20 }}>
                           {t.negotiablePrice}
@@ -505,19 +506,19 @@ export default function HomePage() {
                       ) : (
                         <>
                           {formatPrice(p.price, p.currency)}
-                          {p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perMonth}</span>}
-                          {p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>{t.perNight}</span>}
+                          {p.type === 'long_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#8b8a9c' }}>{t.perMonth}</span>}
+                          {p.type === 'short_rent' && <span style={{ fontSize: 14, fontWeight: 500, color: '#8b8a9c' }}>{t.perNight}</span>}
                         </>
                       )}
                     </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 15, marginBottom: 14 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1830', marginBottom: 6, lineHeight: 1.3 }}>{p.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8431A', fontSize: 14.5, marginBottom: 16 }}>
                       <MapPin size={13} />{p.location || p.subcity || 'Ethiopia'}
                     </div>
-                    <div style={{ display: 'flex', gap: 16, paddingTop: 14, borderTop: '1px solid #f3f4f6', fontSize: 15, color: '#6b7280' }}>
-                      {p.bedrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} />{p.bedrooms} {t.bd}</span>}
-                      {p.bathrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Bath size={14} />{p.bathrooms} {t.ba}</span>}
-                      {p.area && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Maximize2 size={14} />{p.area} m²</span>}
+                    <div style={{ display: 'flex', gap: 8, paddingTop: 16, borderTop: '1px solid #f1f0f6', flexWrap: 'wrap' as const }}>
+                      {p.bedrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#eaf2ff', borderRadius: 10, padding: '6px 11px', fontSize: 13.5 }}><BedDouble size={15} color="#006AFF" /><b style={{ color: '#1a1830', fontWeight: 800 }}>{p.bedrooms}</b> <span style={{ color: '#4b4960' }}>{t.bd}</span></span>}
+                      {p.bathrooms > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#e0f7fb', borderRadius: 10, padding: '6px 11px', fontSize: 13.5 }}><Bath size={15} color="#0891b2" /><b style={{ color: '#1a1830', fontWeight: 800 }}>{p.bathrooms}</b> <span style={{ color: '#4b4960' }}>{t.ba}</span></span>}
+                      {p.area && <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f0eafe', borderRadius: 10, padding: '6px 11px', fontSize: 13.5 }}><Maximize2 size={15} color="#7c3aed" /><b style={{ color: '#1a1830', fontWeight: 800 }}>{p.area}</b> <span style={{ color: '#4b4960' }}>m²</span></span>}
                     </div>
                   </Link>
                 </div>
@@ -532,6 +533,7 @@ export default function HomePage() {
           <AdCard placement="homepage" maxAds={3} />
         </div>
       )}
+      </div>
 
       {/* Advertisement Section */}
       <div style={{ background: 'white', padding: '72px 24px', borderTop: '1px solid #e5e7eb' }}>
