@@ -106,8 +106,11 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
       const start: [number, number] = (lat && lng) ? [parseFloat(lat), parseFloat(lng)] : defaultCoords;
       const map = L.map(mapEl.current).setView(start, 13);
       mapInst.current = map;
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd',
+      // Standard OpenStreetMap tiles — densest labels for landmarks, churches,
+      // mosques, schools, hospitals, businesses and place names, so the lister
+      // can orient by nearby points of interest when dropping the pin.
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors', maxZoom: 19,
       }).addTo(map);
       if (lat && lng) {
         markerRef.current = L.marker(start).addTo(map);
