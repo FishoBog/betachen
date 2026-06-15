@@ -186,7 +186,7 @@ const EMPTY_FORM = {
   price: '', price_negotiable: false, condition: 'good',
   bedrooms: '', bathrooms: '', total_rooms: '', area: '',
   floor: '', year_built: '', total_floors: '',
-  bathroom_type: 'private', kitchen_type: 'none',
+  bathroom_type: 'private', kitchen_type: 'private',
   has_service_room: false, has_traditional_kitchen: false,
   has_store_room: false, has_guard_room: false,
   has_prayer_room: false, has_boys_quarter: false,
@@ -893,9 +893,9 @@ export default function NewListingPage() {
                       <div>
                         <label style={labelStyle}>{t.kitchenType}</label>
                         <select style={inputStyle} value={form.kitchen_type} onChange={e => set('kitchen_type', e.target.value)}>
-                          <option value="none">{t.noKitchen}</option>
                           <option value="private">{t.privateKitchen}</option>
                           <option value="shared">{t.sharedKitchen}</option>
+                          <option value="none">{t.noKitchen}</option>
                         </select>
                       </div>
                     </div>
