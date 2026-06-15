@@ -80,6 +80,59 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [gpsOk, setGpsOk] = useState(false);
+  const mapEl = useRef<HTMLDivElement>(null);
+  const mapInst = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+
+  // Tappable map: user taps the location of their property and we capture the
+  // coordinates from the tapped point — no copying/pasting required.
+  useEffect(() => {
+    if (!mapEl.current || mapInst.current) return;
+    let cancelled = false;
+    (async () => {
+      const L = (await import('leaflet')).default;
+      if (!document.querySelector('link[href*="leaflet"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+      if (cancelled || !mapEl.current) return;
+      const start: [number, number] = (lat && lng) ? [parseFloat(lat), parseFloat(lng)] : defaultCoords;
+      const map = L.map(mapEl.current).setView(start, 13);
+      mapInst.current = map;
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap, © CARTO', maxZoom: 20, subdomains: 'abcd',
+      }).addTo(map);
+      if (lat && lng) {
+        markerRef.current = L.marker(start).addTo(map);
+      }
+      // Drop / move the pin wherever the user taps.
+      map.on('click', (e: any) => {
+        const { lat: clat, lng: clng } = e.latlng;
+        if (markerRef.current) markerRef.current.setLatLng([clat, clng]);
+        else markerRef.current = L.marker([clat, clng]).addTo(map);
+        onPick(clat, clng);
+        setCoordText(`${clat.toFixed(6)}, ${clng.toFixed(6)}`);
+      });
+    })();
+    return () => { cancelled = true; mapInst.current?.remove(); mapInst.current = null; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Recenter when the chosen city changes (only if no pin set yet).
+  useEffect(() => {
+    if (mapInst.current && !(lat && lng)) {
+      const c = CITY_COORDS[city] || [9.0192, 38.7525];
+      mapInst.current.setView(c, 13);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city]);
 
   const parseCoords = (text: string) => {
     const parts = text.split(',').map(s => s.trim());
@@ -158,18 +211,15 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
       </div>
 
       <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 12 }}>{t.coordTitle}</div>
-        <div style={{ display: 'grid', gap: 8 }}>
-          {[t.coordStep1, t.coordStep2, t.coordStep3, t.coordStep4, t.coordStep5].map((step: string, i: number) => (
-            <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#006AFF', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
-              <span style={{ fontSize: 14, color: '#374151', lineHeight: 1.5 }}>{step}</span>
-            </div>
-          ))}
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 4 }}>
+          {lang === 'EN' ? 'Not at the property? Tap it on the map' : 'ንብረቱ ጋ አይደሉም? በካርታው ላይ ይጫኑት'}
         </div>
-        <button onClick={() => window.open('https://maps.google.com', '_blank')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, padding: '10px 20px', background: '#006AFF', color: 'white', borderRadius: 8, fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-          {t.openMaps}
-        </button>
+        <div style={{ fontSize: 13, color: '#3b5bb5', marginBottom: 12, lineHeight: 1.5 }}>
+          {lang === 'EN'
+            ? 'Find your property on the map below and tap its exact spot — the pin drops there and we capture the location automatically. You can zoom in for accuracy.'
+            : 'ንብረትዎን ከታች ባለው ካርታ ላይ አግኝተው ትክክለኛውን ቦታ ይጫኑ — ምልክቱ እዚያ ይቀመጣል፣ አካባቢውንም በራሱ እንይዛለን። ለትክክለኛነት ማጉላት ይችላሉ።'}
+        </div>
+        <div ref={mapEl} style={{ height: 320, width: '100%', borderRadius: 10, overflow: 'hidden', border: '1px solid #c7d8f5', cursor: 'crosshair' }} />
       </div>
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
