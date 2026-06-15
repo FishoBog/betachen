@@ -83,6 +83,35 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
   const mapEl = useRef<HTMLDivElement>(null);
   const mapInst = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const [searchQ, setSearchQ] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [searchMsg, setSearchMsg] = useState<string | null>(null);
+
+  // Landmark search: type a place name, fly the map there. Works even where the
+  // map shows few labels, since the geocoder finds the place regardless.
+  const runLandmarkSearch = async () => {
+    const q = searchQ.trim();
+    if (!q) return;
+    setSearching(true); setSearchMsg(null);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=et&q=${encodeURIComponent(q)}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const flat = parseFloat(data[0].lat), flng = parseFloat(data[0].lon);
+        if (mapInst.current && !isNaN(flat) && !isNaN(flng)) {
+          mapInst.current.setView([flat, flng], 16);
+        }
+      } else {
+        setSearchMsg(lang === 'EN' ? 'Place not found. Try a nearby landmark or area name.' : 'ቦታው አልተገኘም። በአቅራቢያ ያለ ምልክት ወይም የአካባቢ ስም ይሞክሩ።');
+      }
+    } catch {
+      setSearchMsg(lang === 'EN' ? 'Search failed. Please try again.' : 'ፍለጋ አልተሳካም። እንደገና ይሞክሩ።');
+    }
+    setSearching(false);
+  };
 
   // Tappable map: user taps the location of their property and we capture the
   // coordinates from the tapped point — no copying/pasting required.
@@ -219,9 +248,23 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
         </div>
         <div style={{ fontSize: 13, color: '#3b5bb5', marginBottom: 12, lineHeight: 1.5 }}>
           {lang === 'EN'
-            ? 'Find your property on the map below and tap its exact spot — the pin drops there and we capture the location automatically. You can zoom in for accuracy.'
-            : 'ንብረትዎን ከታች ባለው ካርታ ላይ አግኝተው ትክክለኛውን ቦታ ይጫኑ — ምልክቱ እዚያ ይቀመጣል፣ አካባቢውንም በራሱ እንይዛለን። ለትክክለኛነት ማጉላት ይችላሉ።'}
+            ? 'Search a nearby landmark (hotel, church, mosque, school, square…) to jump there, then tap your property\u2019s exact spot — the pin drops and we capture the location automatically.'
+            : 'በአቅራቢያ ያለ ምልክት (ሆቴል፣ ቤተ ክርስቲያን፣ መስጊድ፣ ትምህርት ቤት፣ አደባባይ…) ይፈልጉ ወደዚያ ለመዝለል፣ ከዚያ የንብረትዎን ትክክለኛ ቦታ ይጫኑ — ምልክቱ ይቀመጣል፣ አካባቢውንም በራሱ እንይዛለን።'}
         </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          <input
+            value={searchQ}
+            onChange={e => setSearchQ(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); runLandmarkSearch(); } }}
+            placeholder={lang === 'EN' ? 'e.g. Lucy Hotel, Bole Medhanialem, Meskel Square' : 'ለምሳሌ ሉሲ ሆቴል፣ ቦሌ መድኃኒዓለም፣ መስቀል አደባባይ'}
+            style={{ flex: 1, padding: '11px 14px', border: '1.5px solid #c7d8f5', borderRadius: 9, fontSize: 14.5, outline: 'none', fontFamily: 'inherit', background: 'white' }}
+          />
+          <button type="button" onClick={runLandmarkSearch} disabled={searching}
+            style={{ padding: '11px 20px', background: searching ? '#9ca3af' : '#006AFF', color: 'white', border: 'none', borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: searching ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
+            {searching ? (lang === 'EN' ? 'Searching…' : 'በመፈለግ ላይ…') : (lang === 'EN' ? 'Search' : 'ፈልግ')}
+          </button>
+        </div>
+        {searchMsg && <div style={{ fontSize: 13, color: '#b45309', marginBottom: 10 }}>{searchMsg}</div>}
         <div ref={mapEl} style={{ height: 320, width: '100%', borderRadius: 10, overflow: 'hidden', border: '1px solid #c7d8f5', cursor: 'crosshair' }} />
       </div>
       {lat && lng && (
