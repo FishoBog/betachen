@@ -229,7 +229,7 @@ export const translations = {
     condRenovation: "ጥገና ያስፈልጋል",
     pricePerMonth: "(በወር)", pricePerNight: "(በቀን)",
     negotiable: "ዋጋ በድርድር",
-    negotiableNote: "ዋጋው ከፍላጎት ሰዎች ጋር በቀጥታ ይደራደራል።",
+   negotiableNote: "ዋጋውን ከገዥዎች ጋር በቀጥታ ይደራደራሉ።",
     currency: "ምንዛሬ", amount: "መጠን *",
     bedrooms: "መኝታ ክፍሎች", bathrooms: "መታጠቢያ ክፍሎች", totalRooms: "ጠቅላላ ክፍሎች",
     houseArea: "የቤት ስፋት (ሜ²)", floorNumber: "የፎቅ ቁጥር", totalFloors: "ጠቅላላ ፎቆች",
