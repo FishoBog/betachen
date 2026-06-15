@@ -86,6 +86,15 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
   const [searchQ, setSearchQ] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchMsg, setSearchMsg] = useState<string | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  // When toggling fullscreen, Leaflet must recalculate its size for the new
+  // container dimensions, or tiles render greyed/half-drawn.
+  useEffect(() => {
+    if (mapInst.current) {
+      setTimeout(() => { try { mapInst.current.invalidateSize(); } catch {} }, 120);
+    }
+  }, [fullscreen]);
 
   // Landmark search: type a place name, fly the map there. Works even where the
   // map shows few labels, since the geocoder finds the place regardless.
@@ -242,15 +251,30 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
         {gpsOk && <div style={{ fontSize: 13, color: '#047857', marginTop: 10, fontWeight: 600 }}>✓ {lang === 'EN' ? 'Location captured.' : 'አካባቢ ተወስዷል።'}</div>}
       </div>
 
-      <div style={{ background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 4 }}>
-          {lang === 'EN' ? 'Not at the property? Tap it on the map' : 'ንብረቱ ጋ አይደሉም? በካርታው ላይ ይጫኑት'}
-        </div>
-        <div style={{ fontSize: 13, color: '#3b5bb5', marginBottom: 12, lineHeight: 1.5 }}>
-          {lang === 'EN'
-            ? 'Search a nearby landmark (hotel, church, mosque, school, square…) to jump there, then tap your property\u2019s exact spot — the pin drops and we capture the location automatically.'
-            : 'በአቅራቢያ ያለ ምልክት (ሆቴል፣ ቤተ ክርስቲያን፣ መስጊድ፣ ትምህርት ቤት፣ አደባባይ…) ይፈልጉ ወደዚያ ለመዝለል፣ ከዚያ የንብረትዎን ትክክለኛ ቦታ ይጫኑ — ምልክቱ ይቀመጣል፣ አካባቢውንም በራሱ እንይዛለን።'}
-        </div>
+      <div style={fullscreen
+        ? { position: 'fixed' as const, inset: 0, zIndex: 9999, background: 'white', padding: '14px 16px', display: 'flex', flexDirection: 'column' as const }
+        : { background: '#f0f6ff', border: '1px solid #dbeafe', borderRadius: 12, padding: '16px 18px' }}>
+        {!fullscreen && (
+          <>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1d4ed8', marginBottom: 4 }}>
+              {lang === 'EN' ? 'Not at the property? Tap it on the map' : 'ንብረቱ ጋ አይደሉም? በካርታው ላይ ይጫኑት'}
+            </div>
+            <div style={{ fontSize: 13, color: '#3b5bb5', marginBottom: 12, lineHeight: 1.5 }}>
+              {lang === 'EN'
+                ? 'Search a nearby landmark (hotel, church, mosque, school, square…) to jump there, then tap your property\u2019s exact spot — the pin drops and we capture the location automatically. Tap ⤢ to expand the map full-screen.'
+                : 'በአቅራቢያ ያለ ምልክት (ሆቴል፣ ቤተ ክርስቲያን፣ መስጊድ፣ ትምህርት ቤት፣ አደባባይ…) ይፈልጉ ወደዚያ ለመዝለል፣ ከዚያ የንብረትዎን ትክክለኛ ቦታ ይጫኑ። ካርታውን ለማስፋት ⤢ ይጫኑ።'}
+            </div>
+          </>
+        )}
+        {fullscreen && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#1d4ed8' }}>{lang === 'EN' ? 'Tap your property location' : 'የንብረትዎን ቦታ ይጫኑ'}</div>
+            <button type="button" onClick={() => setFullscreen(false)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 16px', background: '#1a1830', color: 'white', border: 'none', borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+              ✕ {lang === 'EN' ? 'Done' : 'ጨርሷል'}
+            </button>
+          </div>
+        )}
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
           <input
             value={searchQ}
@@ -265,7 +289,15 @@ function MapPinPicker({ lat, lng, onPick, city, t, lang }: { lat: string; lng: s
           </button>
         </div>
         {searchMsg && <div style={{ fontSize: 13, color: '#b45309', marginBottom: 10 }}>{searchMsg}</div>}
-        <div ref={mapEl} style={{ height: 320, width: '100%', borderRadius: 10, overflow: 'hidden', border: '1px solid #c7d8f5', cursor: 'crosshair' }} />
+        <div style={{ position: 'relative', flex: fullscreen ? 1 : undefined }}>
+          <div ref={mapEl} style={{ height: fullscreen ? '100%' : 320, width: '100%', borderRadius: fullscreen ? 8 : 10, overflow: 'hidden', border: '1px solid #c7d8f5', cursor: 'crosshair' }} />
+          {!fullscreen && (
+            <button type="button" onClick={() => setFullscreen(true)} aria-label="Expand map"
+              style={{ position: 'absolute', top: 10, right: 10, zIndex: 500, width: 40, height: 40, borderRadius: 9, background: 'white', border: '1px solid #c7d8f5', boxShadow: '0 2px 6px rgba(0,0,0,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#1d4ed8' }}>
+              ⤢
+            </button>
+          )}
+        </div>
       </div>
       {lat && lng && (
         <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: 10, padding: '12px 16px' }}>
