@@ -352,6 +352,7 @@ export default function NewListingPage() {
   // deep link carrying a one-time token; we then poll until the bot marks it done.
   const [verifyMethod, setVerifyMethod] = useState<'email' | 'telegram'>('email');
   const [tgToken, setTgToken] = useState('');
+  const [tgLink, setTgLink] = useState('');
   const [tgWaiting, setTgWaiting] = useState(false);
   const [tgError, setTgError] = useState('');
 
@@ -554,10 +555,12 @@ export default function NewListingPage() {
         return;
       }
       setTgToken(data.token);
-      // Open the bot with the token. The user presses Start; the webhook verifies.
-      if (typeof window !== 'undefined') {
-        window.open(`https://t.me/BetachenBot?start=${data.token}`, '_blank');
-      }
+      const url = `https://t.me/BetachenBot?start=${data.token}`;
+      setTgLink(url);
+      // We do NOT auto-open here: window.open after an await is blocked on mobile,
+      // and navigating away would lose the form. Instead we reveal a real tappable
+      // link (tgLink) below, which reliably launches the Telegram app on mobile
+      // and opens a tab on desktop — because the tap is a direct user gesture.
     } catch {
       setTgError(lang === 'EN' ? 'Could not start Telegram verification. Try again.' : 'በቴሌግራም ማረጋገጥ አልተቻለም።');
       setTgWaiting(false);
@@ -691,18 +694,29 @@ export default function NewListingPage() {
                       : 'ከታች ያለውን ይጫኑ — የቤታችን ቦት በቴሌግራም ይከፈታል፣ Start ይጫኑ። እንዳደረጉ ይህ ገጽ በራሱ ይቀጥላል።'}
                   </div>
                 </div>
-                <button onClick={handleTelegramStart} disabled={tgWaiting}
-                  style={{ padding: '14px', borderRadius: 10, background: tgWaiting ? '#9ca3af' : '#229ED9', color: 'white', fontWeight: 800, fontSize: 16, border: 'none', cursor: tgWaiting ? 'not-allowed' : 'pointer' }}>
-                  {tgWaiting
-                    ? (lang === 'EN' ? 'Waiting for Telegram… press Start in the bot' : 'ቴሌግራምን በመጠበቅ ላይ… በቦቱ Start ይጫኑ')
-                    : (lang === 'EN' ? 'Verify with Telegram' : 'በቴሌግራም አረጋግጥ')}
-                </button>
-                {tgWaiting && (
-                  <button onClick={handleTelegramStart}
-                    style={{ padding: '11px', borderRadius: 10, background: 'white', border: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
-                    {lang === 'EN' ? 'Re-open Telegram' : 'ቴሌግራምን እንደገና ክፈት'}
+
+                {!tgLink ? (
+                  /* Step 1: fetch a one-time token, then reveal the open link. */
+                  <button onClick={handleTelegramStart} disabled={tgWaiting}
+                    style={{ padding: '14px', borderRadius: 10, background: tgWaiting ? '#9ca3af' : '#229ED9', color: 'white', fontWeight: 800, fontSize: 16, border: 'none', cursor: tgWaiting ? 'not-allowed' : 'pointer' }}>
+                    {tgWaiting ? (lang === 'EN' ? 'Preparing…' : 'በማዘጋጀት ላይ…') : (lang === 'EN' ? 'Verify with Telegram' : 'በቴሌግራም አረጋግጥ')}
                   </button>
+                ) : (
+                  /* Step 2: a REAL link — taps launch the Telegram app on mobile and
+                     open a tab on desktop. This avoids window.open, which mobile blocks. */
+                  <>
+                    <a href={tgLink} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'block', textAlign: 'center' as const, textDecoration: 'none', padding: '15px', borderRadius: 10, background: '#229ED9', color: 'white', fontWeight: 800, fontSize: 16, borderBottom: '4px solid #1b7fb0' }}>
+                      {lang === 'EN' ? '➤ Open Telegram & press Start' : '➤ ቴሌግራም ክፈት እና Start ይጫኑ'}
+                    </a>
+                    <div style={{ fontSize: 13, color: '#3b5bb5', textAlign: 'center' as const, lineHeight: 1.5 }}>
+                      {lang === 'EN'
+                        ? 'After you press Start in Telegram, come back to this page — it continues automatically.'
+                        : 'በቴሌግራም Start ከጫኑ በኋላ ወደዚህ ገጽ ይመለሱ — በራሱ ይቀጥላል።'}
+                    </div>
+                  </>
                 )}
+
                 {tgError && <div style={{ color: '#dc2626', fontSize: 13 }}>{tgError}</div>}
               </div>
             ) : !codeSent ? (
