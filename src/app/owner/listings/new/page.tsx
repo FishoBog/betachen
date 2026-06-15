@@ -1003,10 +1003,12 @@ export default function NewListingPage() {
                         <label style={labelStyle}>{lang === 'EN' ? 'Current Stage' : 'የአሁኑ ደረጃ'}</label>
                         <select style={inputStyle} value={form.construction_stage} onChange={e => set('construction_stage', e.target.value)}>
                           <option value="">{lang === 'EN' ? '— Select —' : '— ይምረጡ —'}</option>
-                          <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>
-                          <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት የወጣለት'}</option>
-                          <option value="columns_erected">{lang === 'EN' ? 'Structure Done' : 'እስትራክቸር ያለቀ'}</option>
-                          <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>
+                          {/* Condominiums/apartments are only ever Finishing or Completed —
+                              the earlier construction stages don't apply to a unit. */}
+                          {!isCondo && <option value="land_only">{lang === 'EN' ? 'Land Only' : 'ባዶ ቦታ ብቻ'}</option>}
+                          {!isCondo && <option value="foundation">{lang === 'EN' ? 'Foundation Laid' : 'መሰረት የወጣለት'}</option>}
+                          {!isCondo && <option value="columns_erected">{lang === 'EN' ? 'Structure Done' : 'እስትራክቸር ያለቀ'}</option>}
+                          {!isCondo && <option value="plastering">{lang === 'EN' ? 'Plastering' : 'ሲሚንቶ ደረጃ'}</option>}
                           <option value="finishing">{lang === 'EN' ? 'Finishing' : 'ፊኒሺንግ የቀረው'}</option>
                           <option value="completed">{lang === 'EN' ? 'Completed' : 'ተጠናቋል'}</option>
                         </select>
@@ -1153,7 +1155,7 @@ export default function NewListingPage() {
 
                     {/* ── Moved from old Details step: plot (non villa/G+ sales),
                         parking, distance to main road, road type — all sale-only. ── */}
-                    {isSale && !showPlotInStep1 && (
+                    {isSale && !showPlotInStep1 && !isCondo && (
                     <div style={{ display: 'grid', gridTemplateColumns: landOnly ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
                       <div><label style={labelStyle}>{t.plotArea}</label><input style={inputStyle} type="number" value={form.plot_area_sqm} onChange={e => set('plot_area_sqm', e.target.value)} placeholder="e.g. 300" /></div>
                       {!landOnly && (<>
