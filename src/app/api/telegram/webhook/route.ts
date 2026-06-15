@@ -133,12 +133,12 @@ export async function POST(req: NextRequest) {
         const ok = await tryVerifyToken(token);
         if (ok) {
           await sendMessage(chatId,
-            `✅ *Ategagiteh!* / *Verified!*\n\nLe Betachen mastaweqiya yetereጋገጠ neh. Wede website temeles category lemecheres.\n\nYou're verified — return to the Betachen tab to continue posting your listing.`,
+            `✅ *ተረጋግጧል!*\n\nበ ቤታችን (Betachen) ላይ ማስታወቂያ ለመለጠፍ ተረጋግጠዋል። ወደ ቤታችን ገጽዎ ተመልሰው ማስታወቂያዎን መቀጠል ይችላሉ።\n\n_You're verified — return to the Betachen tab to continue._`,
             { inline_keyboard: [[{ text: '🏠 betachen.com', url: 'https://betachen.com' }]] }
           );
         } else {
           await sendMessage(chatId,
-            `⚠️ Yihe verification link gize yaለፈበet weyem aytegegnም. Be website lay endegena ይሞክሩ.\n\nThis verification link has expired or is invalid. Please start again from the Betachen website.`
+            `⚠️ *ማረጋገጥ አልተቻለም*\n\nይህ የማረጋገጫ ሊንክ ጊዜው አልፎበታል ወይም ትክክል አይደለም። እባክዎ ከ ቤታችን (Betachen) ድረ-ገጽ እንደገና ይጀምሩ።\n\n_This verification link has expired or is invalid. Please start again from the Betachen website._`
           );
         }
         conversations[chatId] = [];
